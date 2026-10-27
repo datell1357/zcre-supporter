@@ -1,0 +1,449 @@
+[
+  {
+    "name": "baseline-and-once",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "running",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": [
+          "a"
+        ]
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [
+          "completed:a"
+        ],
+        "tracked": []
+      },
+      {
+        "at": 1700000010,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": []
+      }
+    ]
+  },
+  {
+    "name": "fast-completion-and-old-history",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": []
+        },
+        "events": [],
+        "tracked": []
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "fast",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:13:22Z"
+            },
+            {
+              "id": "old",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [
+          "completed:fast"
+        ],
+        "tracked": []
+      }
+    ]
+  },
+  {
+    "name": "missing-active-unknown-and-cancel",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "running",
+              "createdAt": "2023-11-14T22:12:20Z"
+            },
+            {
+              "id": "u",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "new_state",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": [
+          "a",
+          "u"
+        ]
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": []
+        },
+        "events": [],
+        "tracked": [
+          "a",
+          "u"
+        ]
+      },
+      {
+        "at": 1700000010,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "cancelled",
+              "createdAt": "2023-11-14T22:12:20Z"
+            },
+            {
+              "id": "u",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "failed",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [
+          "failed:u"
+        ],
+        "tracked": []
+      }
+    ]
+  },
+  {
+    "name": "same-count-new-job",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "running",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": [
+          "a"
+        ]
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            },
+            {
+              "id": "b",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "queued_internal",
+              "createdAt": "2023-11-14T22:13:22Z"
+            }
+          ]
+        },
+        "events": [
+          "completed:a"
+        ],
+        "tracked": [
+          "b"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stale-balance-does-not-hide-completion",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "running",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": [
+          "a"
+        ]
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "10",
+            "reserved": "0",
+            "available": "10"
+          },
+          "balanceIsStale": true,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [
+          "completed:a"
+        ],
+        "tracked": []
+      },
+      {
+        "at": 1700000010,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "10",
+            "reserved": "0",
+            "available": "10"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [
+          "lowCredits:10"
+        ],
+        "tracked": []
+      },
+      {
+        "at": 1700000015,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": []
+        },
+        "events": [],
+        "tracked": []
+      },
+      {
+        "at": 1700000020,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "50",
+            "reserved": "0",
+            "available": "50"
+          },
+          "balanceIsStale": false,
+          "jobs": []
+        },
+        "events": [
+          "lowCredits:50"
+        ],
+        "tracked": []
+      }
+    ]
+  },
+  {
+    "name": "account-switch-resets-baseline",
+    "steps": [
+      {
+        "at": 1700000000,
+        "payload": {
+          "workspaceKey": "test-a",
+          "balance": {
+            "total": "90",
+            "reserved": "0",
+            "available": "90"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "running",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": [
+          "a"
+        ]
+      },
+      {
+        "at": 1700000005,
+        "payload": {
+          "workspaceKey": "test-b",
+          "balance": {
+            "total": "10",
+            "reserved": "0",
+            "available": "10"
+          },
+          "balanceIsStale": false,
+          "jobs": [
+            {
+              "id": "a",
+              "model": "gpt-image-2",
+              "mediaType": "image",
+              "status": "succeeded",
+              "createdAt": "2023-11-14T22:12:20Z"
+            }
+          ]
+        },
+        "events": [],
+        "tracked": []
+      }
+    ]
+  }
+]
