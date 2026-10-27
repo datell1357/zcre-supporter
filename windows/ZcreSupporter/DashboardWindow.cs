@@ -161,6 +161,7 @@ internal sealed class DashboardWindow : Window
         settings = Ui.Window("설정", new ScrollViewer { Content = panel }, 620, 790);
         settings.PreviewKeyDown += (_, e) =>
         {
+            if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.M && store.DebugEnabled) { MotionTestsRequested?.Invoke(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Alt && e.SystemKey == System.Windows.Input.Key.D)
             { debugStatus.Text = store.EnableDebug(code.Password) ? "활성화됨" : "코드가 일치하지 않아요"; motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed; code.Clear(); e.Handled = true; }
         };
@@ -183,35 +184,52 @@ internal sealed class DashboardWindow : Window
     private async void ShowResults(Job job)
     {
         var panel = new StackPanel(); var info = Ui.Text("결과를 확인하고 있어요."); panel.Children.Add(info); var window = Ui.Window(job.WorkName + " · 결과", new ScrollViewer { Content = panel }, 820, 720); window.Show();
-        using var cancellation = new CancellationTokenSource(); var generation = store.Snapshot?.WorkspaceKey;
+        var cancellation = new CancellationTokenSource(); var token = cancellation.Token; var generation = store.Snapshot?.WorkspaceKey; var startedInDemo = store.IsDemo;
         var players = new List<WebView2>();
-        void OnChange() { if (generation != store.Snapshot?.WorkspaceKey || store.IsDemo) window.Close(); }
+        void OnChange() { if (generation != store.Snapshot?.WorkspaceKey || store.IsDemo != startedInDemo) window.Close(); }
         store.Changed += OnChange;
-        window.Closed += (_, _) => { cancellation.Cancel(); foreach (var player in players) player.Dispose(); store.Changed -= OnChange; };
+        window.Closed += (_, _) => { cancellation.Cancel(); foreach (var player in players) player.Dispose(); store.Changed -= OnChange; cancellation.Dispose(); };
+        async Task SaveOutput(JobOutput output)
+        {
+            var save = new SaveFileDialog { FileName = "ZCRE-result." + output.Extension, Filter = "미디어 파일|*." + output.Extension + "|모든 파일|*.*", OverwritePrompt = true };
+            if (save.ShowDialog(window) != true) return;
+            try { await DownloadAsync(output.Download!, save.FileName, token); info.Text = "선택한 위치에 저장했어요."; }
+            catch (OperationCanceledException) { }
+            catch { info.Text = "저장하지 못했어요. 결과를 다시 열어 링크를 갱신해 주세요."; }
+        }
         try
         {
             if (store.IsDemo) { info.Text = "미리보기에는 실제 결과 파일이 없어요. 실제 작업·크레딧은 사용하지 않았습니다."; return; }
             if (generation is null) throw new SnapshotException("authentication");
-            var outputs = await store.Session.OutputsAsync(job, generation, cancellation.Token);
+            var outputs = await store.Session.OutputsAsync(job, generation, token);
             info.Text = outputs.Count == 0 ? "아직 제공된 결과가 없어요." : $"결과 {outputs.Count}개 · URL은 저장하지 않아요";
+            window.PreviewKeyDown += async (_, e) => { if (outputs.Count > 0 && System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.S) { e.Handled = true; await SaveOutput(outputs[0]); } };
             foreach (var output in outputs)
             {
                 var player = new WebView2 { Height = 340, Margin = new Thickness(0, 8, 0, 8) }; panel.Children.Add(player); players.Add(player);
+                var mediaStatus = Ui.Text("미리보기 불러오는 중…", 11); panel.Children.Add(mediaStatus);
                 var mediaEnvironment = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("MediaWebView2"));
                 var mediaOptions = mediaEnvironment.CreateCoreWebView2ControllerOptions(); mediaOptions.IsInPrivateModeEnabled = true; mediaOptions.ProfileName = "MediaPrivate";
                 await player.EnsureCoreWebView2Async(mediaEnvironment, mediaOptions);
                 player.CoreWebView2.Settings.AreDevToolsEnabled = false; player.CoreWebView2.PermissionRequested += (_, e) => e.State = Microsoft.Web.WebView2.Core.CoreWebView2PermissionState.Deny;
                 player.CoreWebView2.NavigationStarting += (_, e) => { if (e.Uri != "about:blank") e.Cancel = true; };
-                var url = HtmlEncoder.Default.Encode(output.Preview!.AbsoluteUri); var media = output.Kind switch { "image" => $"<img src=\"{url}\" style=\"max-width:100%;max-height:320px\">", "video" => $"<video src=\"{url}\" controls style=\"max-width:100%;max-height:320px\"></video>", "audio" => $"<audio src=\"{url}\" controls></audio>", _ => "미리보기를 지원하지 않는 형식입니다." };
-                player.NavigateToString("<!doctype html><meta name=\"referrer\" content=\"no-referrer\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; img-src https:; media-src https:; style-src 'unsafe-inline'\"><body style=\"background:#1c1e22;color:white;display:grid;place-items:center;margin:0\">" + media);
-                panel.Children.Add(Ui.Action("결과 저장…", async () =>
+                player.CoreWebView2.WebMessageReceived += (_, e) =>
                 {
-                    var save = new SaveFileDialog { FileName = "ZCRE-result." + output.Extension, Filter = "미디어 파일|*." + output.Extension + "|모든 파일|*.*", OverwritePrompt = true };
-                    if (save.ShowDialog(window) != true) return;
-                    try { await DownloadAsync(output.Download!, save.FileName, cancellation.Token); info.Text = "선택한 위치에 저장했어요."; }
-                    catch (OperationCanceledException) { }
-                    catch { info.Text = "저장하지 못했어요. 결과를 다시 열어 링크를 갱신해 주세요."; }
-                }));
+                    if (e.Source != "about:blank") return;
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(e.WebMessageAsJson); var message = doc.RootElement;
+                        if (message.ValueKind != JsonValueKind.Object || !message.TryGetProperty("mediaState", out var state) || state.ValueKind != JsonValueKind.String) return;
+                        mediaStatus.Text = state.GetString() switch { "loaded" => "미리보기 준비됨", "playing" => "재생 중", "paused" => "일시 정지", "ended" => "재생 완료", "playDenied" => "미디어 안의 재생 버튼을 눌러 주세요.", "error" => "미리보기를 불러오지 못했어요. 결과를 다시 열어 주세요.", _ => mediaStatus.Text };
+                    }
+                    catch (JsonException) { }
+                };
+                var url = HtmlEncoder.Default.Encode(output.Preview!.AbsoluteUri); var media = output.Kind switch { "image" => $"<img src=\"{url}\" style=\"max-width:100%;max-height:320px\">", "video" => $"<video src=\"{url}\" controls style=\"max-width:100%;max-height:320px\"></video>", "audio" => $"<audio src=\"{url}\" controls></audio>", _ => "미리보기를 지원하지 않는 형식입니다." };
+                var nonce = Guid.NewGuid().ToString("N");
+                var monitorMedia = "const m=document.querySelector('img,video,audio');const send=mediaState=>window.chrome.webview.postMessage({mediaState});if(m){for(const name of ['load','loadeddata','canplay'])m.addEventListener(name,()=>send('loaded'));for(const name of ['playing','pause','ended','error'])m.addEventListener(name,()=>send(name==='pause'?'paused':name));if(m.tagName==='IMG'&&m.complete&&m.naturalWidth>0)send('loaded');}";
+                player.NavigateToString("<!doctype html><meta name=\"referrer\" content=\"no-referrer\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; img-src https:; media-src https:; style-src 'unsafe-inline'; script-src 'nonce-" + nonce + "'\"><body style=\"background:#1c1e22;color:white;display:grid;place-items:center;margin:0\">" + media + "<script nonce=\"" + nonce + "\">" + monitorMedia + "</script>");
+                if (output.Kind is "video" or "audio") panel.Children.Add(Ui.Action("재생 / 일시 정지", async () => await player.ExecuteScriptAsync("(()=>{const m=document.querySelector('video,audio');if(m){if(m.paused)m.play().catch(()=>window.chrome.webview.postMessage({mediaState:'playDenied'}));else m.pause();}})()")));
+                panel.Children.Add(Ui.Action("결과 저장…", async () => await SaveOutput(output)));
             }
             panel.Children.Add(Ui.Action("ZCRE에서 결과 열기 ↗", () => OpenWeb(JobOutput.ResultUrl(job).AbsoluteUri)));
         }

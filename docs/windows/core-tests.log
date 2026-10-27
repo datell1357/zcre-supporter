@@ -278,9 +278,12 @@ PASS other audio suppresses typing
 PASS verified login hides connection window once
 PASS intentional account view stays open
 PASS disconnect cancels pending hide
+PASS debug left drag keeps mirrored direction
+PASS debug right drag keeps original direction
+PASS working faces screen center
 {
   "status": "passed",
-  "count": 280,
+  "count": 283,
   "tests": [
     "decoder fixture array-root",
     "decoder fixture null-root",
@@ -561,6 +564,9 @@ PASS disconnect cancels pending hide
     "other audio suppresses typing",
     "verified login hides connection window once",
     "intentional account view stays open",
-    "disconnect cancels pending hide"
+    "disconnect cancels pending hide",
+    "debug left drag keeps mirrored direction",
+    "debug right drag keeps original direction",
+    "working faces screen center"
   ]
 }

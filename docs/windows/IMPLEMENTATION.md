@@ -6,7 +6,7 @@ Framework: .NET 8 WPF + WebView2. macOS sources and bundled resources remain unc
 
 The first implementation checkpoint contains the actual C# decoder, transition monitor, polling/backoff schedules, bridge revision/generation ACK policy, output URL checks, account-scoped hashed history, and a standalone test runner. It consumes `Tests/ParityFixtures/monitor.json` directly and compares event ordering and tracked IDs.
 
-Current core run: 280 assertions passed, including 6 shared monitor scenarios, 13 shared decoder cases, malformed envelopes/output/history, ACK boundaries, schedules, compact non-overlapping pet menu geometry, quiet notification records, audio sampling cadence and verified-login window dismissal. These are assertion counts, not 280 independent end-to-end scenarios.
+Current core run: 283 assertions passed, including 6 shared monitor scenarios, 13 shared decoder cases, malformed envelopes/output/history, ACK boundaries, schedules, compact non-overlapping pet menu geometry, quiet notification records, audio sampling cadence, verified-login window dismissal and preserved debug drag facing. These are assertion counts, not 283 independent end-to-end scenarios.
 
 The WPF/WebView2 application builds with zero warnings and zero errors. On the actual Windows 10 LTSC machine, the native accessibility tree confirmed the three-column dashboard, live public service status, settings, and keyboard-driven demo completion (2 active / 1,160 credits → 1 active / 1,240 credits, one new completion alert). These are synthetic demo values, not a real account.
 

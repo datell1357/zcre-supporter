@@ -62,3 +62,13 @@ public sealed class IdleWaveSchedule
     }
     public void Finished(double now, double random) => DueAt = now + 45 + 45 * (double.IsFinite(random) ? Math.Clamp(random, 0, 1) : .5);
 }
+
+public static class PetFacing
+{
+    public static bool Resolve(string motion, bool dragging, bool previous, bool workMirrored, int direction)
+    {
+        if (dragging || motion == "drag") return previous;
+        if (motion == "working") return workMirrored;
+        return motion.StartsWith("walk", StringComparison.Ordinal) && direction is 3 or 4 or 5;
+    }
+}

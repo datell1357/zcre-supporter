@@ -28,6 +28,8 @@ python windows/run.py --demo --data-dir C:\absolute\workspace\test-data
 
 키보드: `Ctrl+,` 설정, `Ctrl+H` 상세 현황, `Ctrl+R` 갱신, `Ctrl+D` 미리보기/미리보기 완료, `Ctrl+Q` 앱 종료. 설정의 코드 입력 후 `Alt+D`로 디버그를 활성화할 수 있습니다.
 
+결과 창에서 `Ctrl+S`는 첫 결과의 저장 대화상자를 엽니다. 디버그 활성화 후 설정에서 `Ctrl+M`으로 모션 테스트를 열 수 있습니다. 모션 테스트에서는 `Ctrl+1`~`Ctrl+8`이 8방향 이동, `Ctrl+L/R`이 좌우 잡힘, `Ctrl+W`가 작업, `Ctrl+C/F`가 완료/실패이며 Esc는 중지입니다.
+
 첫 실행은 현황판을 표시하고, 이후 실행은 트레이에서 시작합니다. `--show-dashboard`로 현황판, `--connect`로 계정 연결 창을 명시적으로 열 수 있습니다. 이미 실행 중이면 두 번째 실행은 기존 현황판만 표시합니다.
 
 ## 검증과 패키징

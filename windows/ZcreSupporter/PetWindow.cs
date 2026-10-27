@@ -19,6 +19,9 @@ internal sealed class PetWindow : Window
     private readonly PetAudio audio = new();
     private readonly List<Window> menuWindows = [];
     private Window? motionTests;
+    private TextBlock? motionStatus;
+    private double? lastTestDistance;
+    private TextBlock? menuCreditText, menuCountText;
     private string motion = "idle";
     private double motionStarted = CompanionStore.Uptime, nextWalk, lastTick = CompanionStore.Uptime;
     private Point? destination, pressed;
@@ -71,6 +74,7 @@ internal sealed class PetWindow : Window
     }
     private void Refresh()
     {
+        UpdateMenuSummary();
         if (!store.DebugEnabled)
         {
             if (testMotion is not null) StopTest();
@@ -124,7 +128,11 @@ internal sealed class PetWindow : Window
     {
         if (!IsVisible || store.IsSleeping) return;
         var now = CompanionStore.Uptime; var elapsed = Math.Min(.2, Math.Max(0, now - lastTick)); lastTick = now;
-        if (testMotion is not null && now >= testUntil) StopTest();
+        if (testMotion is not null && now >= testUntil)
+        {
+            if (testDirection is { } finalDirection) { var vector = Vector(finalDirection); Left = testOrigin.X + vector.X * 60; Top = testOrigin.Y + vector.Y * 60; }
+            StopTest();
+        }
         var reacting = store.Celebration is { } c && (DateTimeOffset.UtcNow - c).TotalSeconds < Sprites.Get("complete").Duration;
         var failing = store.Failure is { } f && (DateTimeOffset.UtcNow - f).TotalSeconds < Sprites.Get("cry").Duration;
         var working = store.ActiveCount > 0;
@@ -158,7 +166,7 @@ internal sealed class PetWindow : Window
         else destination = null;
         var next = testMotion ?? (dragging ? "drag" : failing ? "cry" : reacting ? "complete" : working ? "working" : destination is not null ? WalkingMotion : waveStarted is not null ? "wave" : "idle");
         SetMotion(next);
-        if (!dragging) mirrored = next == "working" ? Left + Width / 2 > ScreenBounds().Left + ScreenBounds().Width / 2 : next.StartsWith("walk") && direction is 3 or 4 or 5;
+        mirrored = PetFacing.Resolve(next, dragging, mirrored, Left + Width / 2 > ScreenBounds().Left + ScreenBounds().Width / 2, direction);
         var clip = Sprites.Get(motion); var animationElapsed = motion == "complete" && testMotion is null && store.Celebration is { } completeAt ? (DateTimeOffset.UtcNow - completeAt).TotalSeconds : motion == "cry" && testMotion is null && store.Failure is { } failAt ? (DateTimeOffset.UtcNow - failAt).TotalSeconds : now - motionStarted;
         if (motion == "idle") animationElapsed = Math.Floor(animationElapsed * 12) / 12;
         var index = SpriteTiming.Frame(animationElapsed, clip.Frames.Length, clip.Delay, clip.Loop, !reduced);
@@ -168,6 +176,7 @@ internal sealed class PetWindow : Window
         var transform = new TransformGroup(); transform.Children.Add(new ScaleTransform(mirrored ? -1 : 1, 1, image.Width / 2, image.Height / 2));
         if (motion == "drag") { var anchor = clip.GrabAnchor(index); var ax = (mirrored ? clip.Frames[index].PixelWidth - anchor.X : anchor.X) * scale; transform.Children.Add(new RotateTransform(mirrored ? -clip.GrabRotation : clip.GrabRotation, ax, anchor.Y * scale)); }
         image.RenderTransform = transform;
+        if (motionStatus is not null) motionStatus.Text = $"모션 {motion} · 방향 {(mirrored ? "왼쪽" : "오른쪽")}" + (lastTestDistance is { } moved ? $" · 최근 이동 {moved:F1}pt" : "");
         if (dragging) PositionAtScruff(CursorPoint());
         timer.Interval = TimeSpan.FromSeconds(motion == "idle" ? 1d / 12 : 1d / 24);
         label.Text = working ? $"{store.ActiveCount}개의 작업을 지켜보고 있어요" : store.IsDemo ? "미리보기 · 가상 데이터" : "지크";
@@ -184,14 +193,19 @@ internal sealed class PetWindow : Window
         if (store.DebugEnabled) Add("모션 테스트", ShowMotionTests);
         return menu;
     }
-    public void CloseMenu() { foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); }
+    public void CloseMenu() { foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); menuCreditText = menuCountText = null; }
+    private void UpdateMenuSummary()
+    {
+        if (menuCreditText is null || menuCountText is null) return;
+        menuCreditText.Text = "사용 가능 " + store.CreditText + " Credit";
+        var limits = store.Snapshot?.Concurrency;
+        menuCountText.Text = $"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}";
+    }
     private void ShowMenu(string category)
     {
         CloseMenu(); destination = null;
         var bounds = ScreenBounds();
-        var summary = new StackPanel(); summary.Children.Add(Ui.Text("사용 가능 " + store.CreditText + " Credit", 16, true));
-        var limits = store.Snapshot?.Concurrency;
-        summary.Children.Add(Ui.Text($"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}", 11));
+        var summary = new StackPanel(); menuCreditText = Ui.Text("", 16, true); menuCountText = Ui.Text("", 11); summary.Children.Add(menuCreditText); summary.Children.Add(menuCountText); UpdateMenuSummary();
         (string Name, string Target)[] items = category switch
         {
             "image" => [("이미지 생성", "/studio/image"), ("캐릭터 시트", "/studio/character-sheet"), ("부분 수정", "/studio/partial-edit"), ("배경 제거", "/studio/image?tool=background-removal"), ("고화질 변환", "/studio/image?tool=upscale"), ("크기 변환", "/studio/image?tool=resize"), ("뒤로", "home"), ("닫기", "close")],
@@ -200,7 +214,8 @@ internal sealed class PetWindow : Window
         };
         var scale = store.Preferences.PetScale;
         var anchor = new RectD(Left + Width / 2 - 45 * scale, -(Top + 223), 90 * scale, 108.5 * scale);
-        var layout = new PetMenuLayout(anchor, new RectD(bounds.X, -bounds.Bottom, bounds.Width, bounds.Height), items.Length, category == "home", label.ActualWidth > 0 ? label.ActualWidth : 110);
+        var measuredLabel = new FormattedText(label.Text, System.Globalization.CultureInfo.CurrentUICulture, FlowDirection.LeftToRight, new Typeface(label.FontFamily, label.FontStyle, label.FontWeight, label.FontStretch), label.FontSize, label.Foreground, VisualTreeHelper.GetDpi(this).PixelsPerDip).WidthIncludingTrailingWhitespace;
+        var layout = new PetMenuLayout(anchor, new RectD(bounds.X, -bounds.Bottom, bounds.Width, bounds.Height), items.Length, category == "home", Math.Max(20, measuredLabel));
         Panel(summary, layout.Summary.X, -layout.Summary.MaxY, layout.Summary.Width);
         for (var i = 0; i < items.Length && i < layout.Buttons.Count; i++)
         {
@@ -222,20 +237,34 @@ internal sealed class PetWindow : Window
         if (motionTests is not null) { motionTests.Activate(); return; }
         var controls = new WrapPanel(); var window = Ui.Window("지크 모션 테스트", controls, 560, 350);
         motionTests = window;
+        motionStatus = Ui.Text("모션 확인 중", 12); motionStatus.Width = 480; controls.Children.Add(motionStatus);
         string[] directions = ["동", "북동", "북", "북서", "서", "남서", "남", "남동"];
         for (var i = 0; i < 8; i++) { var d = i; controls.Children.Add(Ui.Action(directions[d] + " · 2초", () => Test("walk", 2, d))); }
         foreach (var (title, state, seconds) in new[] { ("대기", "idle", 2d), ("잡힘 왼쪽", "drag", 2d), ("잡힘 오른쪽", "drag", 2d), ("작업 중 · 6초", "working", 6d), ("작업 완료", "complete", Sprites.Get("complete").Duration), ("작업 실패", "cry", Sprites.Get("cry").Duration), ("손 흔들기", "wave", Sprites.Get("wave").Duration) }) controls.Children.Add(Ui.Action(title, () => { mirrored = title.Contains("왼쪽"); Test(state, seconds); }));
-        controls.Children.Add(Ui.Action("중지", StopTest)); window.Closed += (_, _) => { motionTests = null; StopTest(); }; window.Show();
+        controls.Children.Add(Ui.Action("중지", StopTest));
+        window.PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Escape) { StopTest(); e.Handled = true; return; }
+            if (Keyboard.Modifiers != ModifierKeys.Control) return;
+            if (e.Key is >= Key.D1 and <= Key.D8) { Test("walk", 2, e.Key - Key.D1); e.Handled = true; }
+            else if (e.Key is Key.L or Key.R) { mirrored = e.Key == Key.L; Test("drag", 2); e.Handled = true; }
+            else if (e.Key == Key.W) { Test("working", 6); e.Handled = true; }
+            else if (e.Key == Key.C) { Test("complete", Sprites.Get("complete").Duration); e.Handled = true; }
+            else if (e.Key == Key.F) { Test("cry", Sprites.Get("cry").Duration); e.Handled = true; }
+        };
+        window.Closed += (_, _) => { motionTests = null; motionStatus = null; StopTest(); }; window.Show();
     }
     private void Test(string state, double seconds, int? d = null)
     {
         if (!store.DebugEnabled) return;
         store.Preferences.PetVisible = true; Show(); RestoreIfLost();
+        if (d is not null) { var bounds = ScreenBounds(); Left = Math.Clamp(Left, bounds.Left + 60, Math.Max(bounds.Left + 60, bounds.Right - Width - 60)); Top = Math.Clamp(Top, bounds.Top + 60, Math.Max(bounds.Top + 60, bounds.Bottom - Height - 60)); }
         testMotion = state; testDirection = d; testUntil = CompanionStore.Uptime + seconds; testOrigin = new(Left, Top); destination = null;
+        lastTestDistance = null;
         if (d is { } value) { direction = value; testMotion = WalkingMotion; }
         motionStarted = CompanionStore.Uptime; timer.Start(); store.NotifyVisualState();
     }
-    public void StopTest() { var changed = testMotion is not null; testMotion = null; testDirection = null; destination = null; nextWalk = CompanionStore.Uptime + 3; if (changed) store.NotifyVisualState(); }
+    public void StopTest() { var changed = testMotion is not null; if (testDirection is not null) lastTestDistance = (new Point(Left, Top) - testOrigin).Length; testMotion = null; testDirection = null; destination = null; nextWalk = CompanionStore.Uptime + 3; if (changed) store.NotifyVisualState(); }
     public void Shutdown() { shuttingDown = true; store.Changed -= Refresh; motionTests?.Close(); timer.Stop(); CloseMenu(); audio.Dispose(); Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= DisplayChanged; Close(); }
     [StructLayout(LayoutKind.Sequential)] private struct CursorPosition { public int X, Y; }
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out CursorPosition point);

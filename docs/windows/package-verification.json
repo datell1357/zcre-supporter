@@ -1,0 +1,212 @@
+{
+  "source_commit": "d29bbf5",
+  "self_contained": true,
+  "no_dotnet_root": true,
+  "smoke_exit": 0,
+  "smoke": {
+    "status": "passed",
+    "os": "Microsoft Windows NT 10.0.19044.0",
+    "pid": 36892,
+    "assertions": [
+      {
+        "name": "still",
+        "frames": 1,
+        "duration": 1
+      },
+      {
+        "name": "idle",
+        "frames": 64,
+        "duration": 3.0003200000000003
+      },
+      {
+        "name": "walk",
+        "frames": 29,
+        "duration": 1.2081399999999998
+      },
+      {
+        "name": "walk-side",
+        "frames": 29,
+        "duration": 1.2081399999999998
+      },
+      {
+        "name": "walk-front",
+        "frames": 29,
+        "duration": 1.2081399999999998
+      },
+      {
+        "name": "walk-back",
+        "frames": 29,
+        "duration": 1.2081399999999998
+      },
+      {
+        "name": "walk-back-diagonal",
+        "frames": 29,
+        "duration": 1.2081399999999998
+      },
+      {
+        "name": "drag",
+        "frames": 64,
+        "duration": 3.0003200000000003
+      },
+      {
+        "name": "working",
+        "frames": 64,
+        "duration": 3.0003200000000003
+      },
+      {
+        "name": "complete",
+        "frames": 64,
+        "duration": 2.70848
+      },
+      {
+        "name": "cry",
+        "frames": 64,
+        "duration": 5.04192
+      },
+      {
+        "name": "wave",
+        "frames": 64,
+        "duration": 4.0416
+      },
+      {
+        "name": "run",
+        "frames": 14,
+        "duration": 0.58338
+      }
+    ],
+    "dashboard": true,
+    "pet": true,
+    "demo": true
+  },
+  "resources": [
+    {
+      "file": "ObserveSession.js",
+      "sha256_equal": true
+    },
+    {
+      "file": "ReadOutputs.js",
+      "sha256_equal": true
+    },
+    {
+      "file": "ReadSnapshot.js",
+      "sha256_equal": true
+    },
+    {
+      "file": "Sounds/grab.wav",
+      "sha256_equal": true
+    },
+    {
+      "file": "Sounds/provenance.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Sounds/typing.wav",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/complete.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/complete.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/cry.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/cry.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/drag.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/drag.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/idle.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/idle.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/run.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/run.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/still.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/still.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-back-diagonal.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-back-diagonal.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-back.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-back.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-front.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-front.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-side.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk-side.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/walk.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/wave.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/wave.png",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/working.json",
+      "sha256_equal": true
+    },
+    {
+      "file": "Zic/working.png",
+      "sha256_equal": true
+    }
+  ],
+  "private_data_paths_found": []
+}
