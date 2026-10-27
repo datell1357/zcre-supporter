@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+.build/
+.packages/
+.local/
+artifacts/
+*.user
