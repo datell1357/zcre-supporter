@@ -1,0 +1,170 @@
+[
+  {
+    "name": "array-root",
+    "payload": [],
+    "valid": false
+  },
+  {
+    "name": "null-root",
+    "payload": null,
+    "valid": false
+  },
+  {
+    "name": "numeric-error",
+    "payload": {
+      "error": 42
+    },
+    "valid": false
+  },
+  {
+    "name": "object-error",
+    "payload": {
+      "error": {}
+    },
+    "valid": false
+  },
+  {
+    "name": "numeric-workspace",
+    "payload": {
+      "workspaceKey": 3,
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": []
+    },
+    "valid": false
+  },
+  {
+    "name": "null-job",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": [
+        null
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "missing-balance",
+    "payload": {
+      "workspaceKey": "fixture",
+      "jobs": []
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid-time",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": [],
+      "balanceFetchedAt": 0
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid-total",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "NaN",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": []
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid-reserved",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "-1",
+        "available": "90.15"
+      },
+      "jobs": []
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid-available",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90oops"
+      },
+      "jobs": []
+    },
+    "valid": false
+  },
+  {
+    "name": "decimal-balance",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": []
+    },
+    "valid": true,
+    "available": "90.15",
+    "activeCount": 0
+  },
+  {
+    "name": "stale-zero-counters",
+    "payload": {
+      "workspaceKey": "fixture",
+      "balance": {
+        "total": "100.25",
+        "reserved": "10.10",
+        "available": "90.15"
+      },
+      "jobs": [
+        {
+          "id": "v",
+          "model": "seedance-2.5",
+          "mediaType": "video",
+          "status": "submitted_provider",
+          "createdAt": "2026-10-25T11:19:00Z"
+        },
+        {
+          "id": "i",
+          "model": "gpt-image-2",
+          "mediaType": "image",
+          "status": "queued_internal",
+          "createdAt": "2026-10-25T11:20:00Z"
+        }
+      ],
+      "concurrency": {
+        "imagesActive": 0,
+        "imagesLimit": 10,
+        "videosActive": 0,
+        "videosLimit": 6,
+        "totalActive": 0,
+        "totalLimit": 16
+      }
+    },
+    "valid": true,
+    "available": "90.15",
+    "activeCount": 2,
+    "imagesActive": 1,
+    "videosActive": 1
+  }
+]
