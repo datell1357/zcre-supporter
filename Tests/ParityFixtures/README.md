@@ -10,3 +10,5 @@ monitor.json은 실제 계정과 무관한 합성 데이터입니다. 각 시나
 macOS 검증: sharedWindowsMonitorFixturesMatchMacImplementation 테스트에서 실제 SnapshotDecoder/Monitor를 사용합니다.
 Windows도 구현된 디코더/Monitor에 동일 JSON을 입력해 비교해야 하며, 기대값을 복사해서 반환하는 검증은 허용하지 않습니다.
 이 테스트는 작업 전이 일부를 검증하며 로그인·UI·실제 서버 응답 검증을 대체하지 않습니다.
+
+`decoder.json`은 잘못된 루트 JSON, 필수 필드 누락·null, 잘못된 소수와 시각을 거절하고 유효한 소수 잔액·작업별 동시 생성 수를 보존하는 13개 입력입니다. invalid 케이스는 처리되지 않은 런타임 예외가 아니라 앱의 invalidResponse 오류로 반환해야 합니다. `sharedWindowsDecoderFixturesMatchMacImplementation`에서 macOS 구현으로 검증합니다.

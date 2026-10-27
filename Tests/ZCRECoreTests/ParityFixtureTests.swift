@@ -29,3 +29,24 @@ import Testing
         }
     }
 }
+
+@Test func sharedWindowsDecoderFixturesMatchMacImplementation() throws {
+    let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+    let cases = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("ParityFixtures/decoder.json"))) as? [[String: Any]])
+    for fixture in cases {
+        let name = try #require(fixture["name"] as? String)
+        let valid = try #require(fixture["valid"] as? Bool)
+        let payload = try #require(fixture["payload"])
+        let data = try JSONSerialization.data(withJSONObject: payload, options: .fragmentsAllowed)
+        if !valid {
+            #expect(throws: SnapshotError.invalidResponse, "\(name)") { try SnapshotDecoder.decode(data) }
+        } else {
+            let snapshot = try SnapshotDecoder.decode(data)
+            let available = try #require(fixture["available"] as? String)
+            #expect(snapshot.balance.available == Decimal(string: available), "\(name)")
+            #expect(snapshot.activeJobs.count == fixture["activeCount"] as? Int, "\(name)")
+            if let images = fixture["imagesActive"] as? Int { #expect(snapshot.concurrency?.imagesActive == images) }
+            if let videos = fixture["videosActive"] as? Int { #expect(snapshot.concurrency?.videosActive == videos) }
+        }
+    }
+}
