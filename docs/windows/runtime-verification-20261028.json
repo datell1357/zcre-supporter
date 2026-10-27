@@ -1,0 +1,31 @@
+{
+  "checked_at_kst": "2026-10-28T08:15:27.859745+09:00",
+  "built_source_commit": "80d20d637ab79a9c6110567dc107893f0c740efc",
+  "source_sha256": "517cb5f7f34dd950bc9920dcfe7feba905a73f6e5a519591c7bba729ff959fc9",
+  "source_dirty_before_build": false,
+  "running_pid": 42424,
+  "running_executable": "windows/artifacts/ZcreSupporter/ZcreSupporter.exe",
+  "runtime_binary_sha256": {
+    "ZcreSupporter.exe": "ee517d0ef83ae4ac3ccf125d0f4fce6247a8bdf28284e8fa197056578f66de05",
+    "ZcreSupporter.dll": "20b4df7e60df9ff81496ab60692868cdb78c70933ff15ada4f4755e53f1190bf",
+    "ZcreSupporter.Core.dll": "877c48b295d860ad789695f68fda6fd861e65efef0d6c3192eaa3283dba894d3",
+    "ZcreSupporter.deps.json": "305cbd80ed020ed1d948d8d0f28309f8557df0f86cb0ee9c3116351f8ed25784",
+    "ZcreSupporter.runtimeconfig.json": "019a0076bcf2729f4c42702c7636862e8619d9fad2c2d6472b8dc6974cccdb98"
+  },
+  "runtime_hashes_match_package_proof": true,
+  "previous_ui_session_pid": 13452,
+  "original_resources_identical": 32,
+  "package_private_data_paths": [],
+  "self_contained_smoke_without_dotnet_root": true,
+  "paid_generation_submitted": false,
+  "ci": {
+    "source_commit": "80d20d637ab79a9c6110567dc107893f0c740efc",
+    "conclusion": "success",
+    "url": "https://github.com/datell1357/zcre-supporter/actions/runs/40600214349"
+  },
+  "post_integration_ui": {
+    "connected": true,
+    "login_window_visible": false,
+    "debug_window_visible": false
+  }
+}

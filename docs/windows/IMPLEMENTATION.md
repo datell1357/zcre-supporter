@@ -31,3 +31,9 @@ python windows/build.py publish
 ```
 
 SDK home, NuGet cache and generated artifacts are isolated under `windows/` and ignored. Production app data defaults to `%LOCALAPPDATA%/ZCRE Supporter`; manual QA will use an explicit workspace-local `--data-dir`. Never package WebView2 profiles, recent account history or preferences.
+
+## 2026-10-28 verified checkpoint
+
+Shared MediaPreview fixes cancellation of the exact generated data document, rejects later navigation and ignores post-cancellation messages. Actual DOM quoting/CSP retained; static title confirmed in accessibility. Clean source 80d20d6 passed existing-result download, remote/exact saved decode (94,393,682 bytes, 720x1282, progressing loaded/playing) and normal packaged ready/play/pause/close UI. Standard SaveFileDialog completion remains separately blocked by helper geometry/WGC.
+
+Actual UI direction/reaction states, hidden-pet polling, Shell acceptance, visible native menu updates and separate-process audio coexistence have distinct evidence in VERIFICATION.md. Physical visuals/listening, Windows 11/DPI/multi-monitor and other remaining scenarios are not passed. Hash provenance distinguishes built source from later evidence-only commits. Native --existing-result/--saved-media/--media/--audio-coexist/--pet-menu are opt-in tests; no paid work. Debug Ctrl+M/N/H uses existing menu/notification/visibility paths; restart clears debug.

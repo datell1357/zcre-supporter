@@ -1,6 +1,5 @@
   복원할 프로젝트를 확인하는 중...
-  <workspace>\windows\ZcreSupporter\ZcreSupporter.csproj을(를) 572밀리초 동안 복원했습니다.
-  복원할 2 프로젝트의 1이(가) 최신 상태입니다.
+  복원할 모든 프로젝트가 최신 상태입니다.
   ZcreSupporter.Core -> <workspace>\windows\ZcreSupporter.Core\bin\Release\net8.0\ZcreSupporter.Core.dll
   ZcreSupporter -> <workspace>\windows\ZcreSupporter\bin\Release\net8.0-windows\ZcreSupporter.dll
 
@@ -8,4 +7,4 @@
     경고 0개
     오류 0개
 
-경과 시간: 00:00:02.04
+경과 시간: 00:00:01.81

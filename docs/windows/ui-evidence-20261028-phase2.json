@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-27T23:04:59.269Z",
+  "sourceCommit": "a5f4452a2a6db38757336b3060dad43eedbc6d0e",
+  "sourceSha256": "c7177c9105a666bacd602aebdff3eca966b42b329caea0901ff413fa1928ab36",
+  "sourceDirty": false,
+  "pid": 36744,
+  "events": [
+    {
+      "at": "2026-10-27T23:07:21.179Z",
+      "type": "local-notification",
+      "shellRequestAccepted": true,
+      "visualDeliveryObserved": false
+    },
+    {
+      "at": "2026-10-27T23:08:02.904Z",
+      "type": "hidden-pet-polling",
+      "petVisible": false,
+      "connected": true,
+      "confirmationAdvanced": true
+    },
+    {
+      "at": "2026-10-27T23:08:08.684Z",
+      "type": "pet-setting-restored",
+      "petVisible": true
+    }
+  ]
+}

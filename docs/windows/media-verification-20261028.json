@@ -1,0 +1,11 @@
+{
+  "source_commit": "80d20d637ab79a9c6110567dc107893f0c740efc",
+  "source_dirty": false,
+  "verified_at_kst": "2026-10-28T08:14:15.510135+09:00",
+  "saved_path": "windows/.local/verified-existing-result-final-20261028.mp4",
+  "bytes": 94393682,
+  "sha256": "78bf115f6cd377d6d549a9439059e23eb022a4f1411832e10bec2e1519dcb5a9",
+  "native_test_binary_sha256": "7801944161df376d90ac5443b6e4dd5711d6199e31d020be59ead32106f84f05",
+  "normal_save_dialog_ui_completed": false,
+  "paid_generation": false
+}

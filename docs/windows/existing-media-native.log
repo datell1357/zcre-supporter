@@ -1,0 +1,24 @@
+SOURCE 80d20d637ab79a9c6110567dc107893f0c740efc
+{"saved":true,"path":"C:\\Users\\datell1357\\Documents\\Codex\\2026-10-22\\sj\\zcre-supporter-windows\\windows\\.local\\verified-existing-result-final-20261028.mp4","bytes":94393682,"sha256":"78bf115f6cd377d6d549a9439059e23eb022a4f1411832e10bec2e1519dcb5a9"}
+navigation about_blank=False data_html=True
+navigation success=True status=Unknown
+PASS actual WebView2 DOM preserves escaped URL and restrictive CSP
+{"decoded":true,"muted_playback":true,"current_time":1.32646,"width":720,"height":1282,"states":["loaded","playing"]}
+navigation about_blank=False data_html=False
+navigation success=False status=OperationCanceled
+navigation about_blank=False data_html=True
+navigation success=False status=OperationCanceled
+PASS subsequent HTTPS and arbitrary data document navigation cancelled
+PASS late media message ignored after result lifetime cancellation
+PASS existing authenticated result downloaded and decoded; no generation submitted
+
+navigation about_blank=False data_html=True
+navigation success=True status=Unknown
+PASS actual WebView2 DOM preserves escaped URL and restrictive CSP
+{"decoded":true,"muted_playback":true,"current_time":1.474932,"width":720,"height":1282,"states":["loaded","playing"]}
+navigation about_blank=False data_html=False
+navigation success=False status=OperationCanceled
+navigation about_blank=False data_html=True
+navigation success=False status=OperationCanceled
+PASS subsequent HTTPS and arbitrary data document navigation cancelled
+PASS late media message ignored after result lifetime cancellation

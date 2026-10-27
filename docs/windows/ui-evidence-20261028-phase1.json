@@ -1,0 +1,113 @@
+{
+  "checkedAt": "2026-10-27T22:51:28.953Z",
+  "sourceCommit": "4152f9697d0b37224800e72dff033295830ef9f9",
+  "sourceSha256": "b9b76fb36542746d36ec1d3f011366c96fc6488b0c0903de280b038d9ccda6e1",
+  "sourceDirty": false,
+  "events": [
+    {
+      "at": "2026-10-27T22:53:18.133Z",
+      "type": "normal-result-ui",
+      "loaded": true,
+      "playing": true,
+      "accountRestored": true,
+      "paidGeneration": false
+    },
+    {
+      "at": "2026-10-27T22:53:22.642Z",
+      "type": "result-close",
+      "closed": true,
+      "mainRemains": true
+    },
+    {
+      "at": "2026-10-27T22:54:27.208Z",
+      "type": "motion-ui",
+      "label": "동",
+      "active": "7 텍스트 모션 walk-side · 방향 오른쪽",
+      "settled": "7 텍스트 모션 idle · 방향 오른쪽 · 최근 이동 60.0pt"
+    },
+    {
+      "at": "2026-10-27T22:54:56.807Z",
+      "type": "motion-ui",
+      "label": "북동",
+      "active": "7 텍스트 모션 walk-back-diagonal · 방향 오른쪽",
+      "settled": "7 텍스트 모션 walk-back · 방향 오른쪽 · 최근 이동 60.0pt"
+    },
+    {
+      "at": "2026-10-27T22:55:25.017Z",
+      "type": "motion-ui",
+      "label": "북",
+      "active": "7 텍스트 모션 walk-back · 방향 오른쪽",
+      "settled": "7 텍스트 모션 walk-back · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:55:47.605Z",
+      "type": "motion-ui",
+      "label": "북서",
+      "active": "7 텍스트 모션 walk-back-diagonal · 방향 왼쪽",
+      "settled": "7 텍스트 모션 walk-side · 방향 왼쪽 · 최근 이동 59.4pt"
+    },
+    {
+      "at": "2026-10-27T22:57:12.801Z",
+      "type": "motion-ui",
+      "label": "서",
+      "active": "7 텍스트 모션 walk-side · 방향 왼쪽",
+      "settled": "7 텍스트 모션 walk-side · 방향 왼쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:21.149Z",
+      "type": "motion-ui",
+      "label": "남서",
+      "active": "7 텍스트 모션 walk · 방향 왼쪽",
+      "settled": "7 텍스트 모션 walk · 방향 왼쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:27.257Z",
+      "type": "motion-ui",
+      "label": "남",
+      "active": "7 텍스트 모션 walk-front · 방향 오른쪽",
+      "settled": "7 텍스트 모션 walk-front · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:34.478Z",
+      "type": "motion-ui",
+      "label": "남동",
+      "active": "7 텍스트 모션 walk · 방향 오른쪽",
+      "settled": "7 텍스트 모션 walk · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:41.066Z",
+      "type": "motion-ui",
+      "label": "잡힘 왼쪽",
+      "active": "7 텍스트 모션 drag · 방향 왼쪽",
+      "settled": "7 텍스트 모션 idle · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:47.283Z",
+      "type": "motion-ui",
+      "label": "잡힘 오른쪽",
+      "active": "7 텍스트 모션 drag · 방향 오른쪽",
+      "settled": "7 텍스트 모션 idle · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:57:56.674Z",
+      "type": "motion-ui",
+      "label": "작업 중",
+      "active": "7 텍스트 모션 working · 방향 오른쪽",
+      "settled": "7 텍스트 모션 working · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:58:02.750Z",
+      "type": "motion-ui",
+      "label": "작업 완료",
+      "active": "7 텍스트 모션 complete · 방향 오른쪽",
+      "settled": "7 텍스트 모션 complete · 방향 오른쪽"
+    },
+    {
+      "at": "2026-10-27T22:58:08.428Z",
+      "type": "motion-ui",
+      "label": "작업 실패",
+      "active": "7 텍스트 모션 cry · 방향 오른쪽",
+      "settled": "7 텍스트 모션 idle · 방향 오른쪽"
+    }
+  ]
+}

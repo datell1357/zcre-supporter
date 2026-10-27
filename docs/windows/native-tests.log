@@ -1,5 +1,5 @@
 PASS actual Core Audio session/peak API enumeration available (read only)
-Probe duration milliseconds: 28
+Probe duration milliseconds: 31
 PASS actual local preference reader normalizes non-finite and out-of-range values
 PASS actual atomic local preference save/read leaves no pending file
 Native integration checks passed: 3
