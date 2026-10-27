@@ -1,0 +1,10 @@
+navigation about_blank=False data_html=True
+navigation success=True status=Unknown
+PASS actual WebView2 DOM preserves escaped URL and restrictive CSP
+{"decoded":true,"muted_playback":true,"current_time":1.47032,"width":720,"height":1282,"states":["loaded","playing"]}
+navigation about_blank=False data_html=False
+navigation success=False status=OperationCanceled
+navigation about_blank=False data_html=True
+navigation success=False status=OperationCanceled
+PASS subsequent HTTPS and arbitrary data document navigation cancelled
+PASS late media message ignored after result lifetime cancellation

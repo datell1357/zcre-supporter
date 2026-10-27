@@ -86,6 +86,7 @@ internal static class MediaChecks
             MediaPreview.Navigate(player, "video", preview);
             if (!await navigation.Task.WaitAsync(TimeSpan.FromSeconds(15))) throw new InvalidOperationException();
             var src = JsonSerializer.Deserialize<string>(await player.ExecuteScriptAsync("document.querySelector('video').getAttribute('src')"));
+            if (JsonSerializer.Deserialize<string>(await player.ExecuteScriptAsync("document.title")) != "ZCRE 미리보기") throw new InvalidDataException();
             if (src != preview.AbsoluteUri) { Console.WriteLine("FAIL actual WebView2 parsed media src differs from requested URI"); throw new InvalidDataException(); }
             var csp = JsonSerializer.Deserialize<string>(await player.ExecuteScriptAsync("document.querySelector('meta[http-equiv=\"Content-Security-Policy\"]').getAttribute('content')"));
             if (csp is null || !csp.Contains("default-src 'none'") || !csp.Contains("script-src 'nonce-")) throw new InvalidDataException();
