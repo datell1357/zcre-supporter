@@ -1,0 +1,26 @@
+.build/
+.swiftpm/
+dist/
+.DS_Store
+*.xcuserstate
+
+# 로컬 제작물과 과거 내보내기 자료
+art/
+promo/
+exports/
+store/**/assets/
+store/**/tools/
+docs/LAUNCH-INCIDENT-*.md
+docs/reviews/
+
+# 개인 설정, 인증서 및 실행 데이터
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+RecentAlerts.json
+__pycache__/
+*.pyc

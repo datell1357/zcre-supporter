@@ -1,0 +1,33 @@
+{
+  "origin": "ZCRE Supporter promo v3.2 original synthesized effects track",
+  "external_samples": [],
+  "voices": false,
+  "music_included": false,
+  "source_sha256": "6923448484c0fb6ecaf63a79983cecf15100b03947fa08d6d13099873247b7e3",
+  "sample_rate": 48000,
+  "channels": 2,
+  "pcm_bits": 16,
+  "edge_fade_ms": 5,
+  "assets": {
+    "grab.wav": {
+      "source_range_seconds": [
+        7.02,
+        7.62
+      ],
+      "duration_seconds": 0.6,
+      "peak": 0.5405743583483382,
+      "rms": 0.10656837198055381,
+      "sha256": "14c6774adba1d682f19a1b8b651113407c3cc9ee490f2da7b751912cd70c4d5b"
+    },
+    "typing.wav": {
+      "source_range_seconds": [
+        8.8,
+        12.8
+      ],
+      "duration_seconds": 4.0,
+      "peak": 0.5500045777764214,
+      "rms": 0.0282512314958307,
+      "sha256": "d496620ed6f288f363c527928018c837933b53e6198115a271656eaa5aae4aea"
+    }
+  }
+}

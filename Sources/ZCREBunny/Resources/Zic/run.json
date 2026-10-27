@@ -1,0 +1,201 @@
+{
+  "frames": 14,
+  "sample_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "source_rect": [
+    98,
+    104,
+    844,
+    822
+  ],
+  "w": 419,
+  "h": 403,
+  "kind": "periodic",
+  "loop": true,
+  "body_h": 384,
+  "body_src_h": 684,
+  "body_ref": "first-frame",
+  "scale": 0.5614,
+  "delay_ms": 41.67,
+  "cycle_frames": 14,
+  "cycle_seconds": 0.5833,
+  "subsampled": false,
+  "cell_cap": 64,
+  "top_margin_px": 104,
+  "cell_height_cap": 520,
+  "body_height_target": 384,
+  "foot_anchor": "motion-auto",
+  "drift_px": 0,
+  "foot_sway_px": 0,
+  "foot_x": null,
+  "source_cut": {
+    "source": {
+      "kind": "keyed-frame-sequence",
+      "sha256": "57532aa2f65ef56d4c4d4b236df7d34ab4a92a9d368e937e56b99beb4af7a50f",
+      "frames": 73,
+      "fps": 24.0
+    },
+    "start": 21,
+    "length": 14,
+    "samples": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34
+    ]
+  },
+  "state": "run",
+  "steps": 2,
+  "drawings": {
+    "hold": 1,
+    "drawings_per_second": 24.0,
+    "contrast": {
+      "2": 0.9609,
+      "3": 0.951
+    },
+    "frames": 73
+  },
+  "cycle_drawings": {
+    "start": 21,
+    "length": 14,
+    "steps": 14,
+    "hold": 1,
+    "drawings_per_second": 24.0,
+    "contrast": {
+      "2": 0.9577,
+      "3": 0.9184
+    }
+  },
+  "motion_anchor": {
+    "method": "uncorrected-after-uncertain-fine-match-v1",
+    "applied": false,
+    "reason": "fine-match-at-search-boundary",
+    "registration_error": "motion anchor match reached search boundary; inspect the cut and regions",
+    "rejected_measurement": {
+      "dx": 14,
+      "dy": 28,
+      "cost": 0.04502727389335632,
+      "region_costs": [
+        0.05454552173614502,
+        0.022818028926849365
+      ],
+      "center_xy": [
+        0,
+        0
+      ],
+      "search_radius_xy": [
+        14,
+        28
+      ],
+      "k": 2
+    },
+    "requires_rendered_seam_gate": true,
+    "regions": [
+      [
+        570,
+        300,
+        720,
+        420
+      ],
+      [
+        522,
+        396,
+        672,
+        516
+      ]
+    ],
+    "coarse_dx_px": -2,
+    "endpoint_xy": [
+      0,
+      0
+    ],
+    "shifts_xy": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "padding_ltrb": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

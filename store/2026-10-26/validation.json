@@ -1,0 +1,28 @@
+{
+  "status": "draft_not_submitted",
+  "preview": {
+    "duration": "28.900000",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "codec": "h264",
+    "profile": "High",
+    "level": 40,
+    "fps": "30/1",
+    "audio": "aac",
+    "channels": 2,
+    "full_decode": "passed"
+  },
+  "screenshots": {
+    "count": 5,
+    "resolution": [
+      1440,
+      900
+    ],
+    "mode": "RGB"
+  },
+  "metadata_length_checks": "passed",
+  "app_code_changed": false,
+  "remaining": "review/release-gates.md"
+}

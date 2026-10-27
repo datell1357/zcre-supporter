@@ -1,0 +1,991 @@
+{
+  "source_cut": {
+    "source": {
+      "kind": "keyed-frame-sequence",
+      "sha256": "58de3b111ea7533808c79535ef760134fe196f1ae8056bd31a9e712ca7cf9bab",
+      "frames": 73,
+      "fps": 24.0
+    },
+    "start": 13,
+    "length": 47,
+    "samples": [
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ]
+  },
+  "state": "walk",
+  "drawings": {
+    "hold": 1,
+    "drawings_per_second": 24.0,
+    "contrast": {
+      "2": 0.8733,
+      "3": 0.9214
+    },
+    "frames": 73
+  },
+  "cycle_drawings": {
+    "start": 13,
+    "length": 47,
+    "steps": 47,
+    "hold": 1,
+    "drawings_per_second": 24.0,
+    "contrast": {
+      "2": 0.8466,
+      "3": 0.9451
+    }
+  },
+  "motion_anchor": {
+    "method": "masked-ncc-boundary-velocity-v1",
+    "regions": [
+      [
+        176,
+        88,
+        344,
+        220
+      ],
+      [
+        288,
+        200,
+        456,
+        332
+      ]
+    ],
+    "region_weights": [
+      0.7,
+      0.3
+    ],
+    "search_radius_xy": [
+      14,
+      28
+    ],
+    "coarse_dx_px": 0,
+    "boundary_measurements": [
+      {
+        "k": 0,
+        "dx": 0,
+        "dy": 0,
+        "cost": -8.344650268554687e-08,
+        "region_costs": [
+          -1.1920928955078125e-07,
+          0.0
+        ]
+      },
+      {
+        "k": 1,
+        "dx": 2,
+        "dy": 0,
+        "cost": 0.014049929380416869,
+        "region_costs": [
+          0.006738424301147461,
+          0.031110107898712158
+        ]
+      },
+      {
+        "k": 2,
+        "dx": 2,
+        "dy": 1,
+        "cost": 0.0303444504737854,
+        "region_costs": [
+          0.02807784080505371,
+          0.035633206367492676
+        ]
+      },
+      {
+        "k": 44,
+        "dx": -6,
+        "dy": 8,
+        "cost": 0.023725581169128415,
+        "region_costs": [
+          0.019121944904327393,
+          0.03446739912033081
+        ]
+      },
+      {
+        "k": 45,
+        "dx": -3,
+        "dy": 6,
+        "cost": 0.016859155893325806,
+        "region_costs": [
+          0.017599284648895264,
+          0.01513218879699707
+        ]
+      },
+      {
+        "k": 46,
+        "dx": -1,
+        "dy": 3,
+        "cost": 0.01597132086753845,
+        "region_costs": [
+          0.018474161624908447,
+          0.010131359100341797
+        ]
+      }
+    ],
+    "raw_start_velocity_xy": [
+      -1.0,
+      -0.5
+    ],
+    "raw_end_velocity_xy": [
+      -2.5,
+      2.5
+    ],
+    "endpoint_float_xy": [
+      0.7340425531914894,
+      1.9574468085106382
+    ],
+    "endpoint_xy": [
+      1,
+      2
+    ],
+    "shifts_xy": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "padding_ltrb": [
+      0,
+      0,
+      1,
+      2
+    ]
+  },
+  "frames": 29,
+  "sample_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "source_rect": [
+    168,
+    13,
+    542,
+    701
+  ],
+  "w": 216,
+  "h": 398,
+  "kind": "periodic",
+  "loop": true,
+  "body_h": 384,
+  "body_src_h": 664,
+  "body_ref": "first-frame",
+  "scale": 0.5783,
+  "delay_ms": 41.66,
+  "cycle_frames": 29,
+  "cycle_seconds": 1.2083,
+  "subsampled": false,
+  "cell_cap": 64,
+  "top_margin_px": 13,
+  "cell_height_cap": 520,
+  "body_height_target": 384,
+  "foot_anchor": "motion-auto",
+  "drift_px": 0,
+  "foot_sway_px": 0,
+  "foot_x": null,
+  "cycle_align": {
+    "from": 24,
+    "to": 29,
+    "between": "nearest",
+    "taken": 29,
+    "made_by_rife": 0,
+    "made_at": [],
+    "ghost_screen": {
+      "limit": 0.003,
+      "thick_px": 5,
+      "level": 0.0,
+      "reads": true,
+      "ghosts": []
+    },
+    "ghost_at": [],
+    "nearest_at": [
+      0,
+      1,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "drawings": {
+      "source": "span",
+      "hold": 1,
+      "contrast": {
+        "2": 0.8466,
+        "3": 0.9451
+      },
+      "start": 13,
+      "length": 47,
+      "frames": 24,
+      "fps": 24.001,
+      "drawings_per_second": 24.0,
+      "drawings": 24.0,
+      "clip": {
+        "hold": 1,
+        "drawings_per_second": 24.0,
+        "contrast": {
+          "2": 0.8733,
+          "3": 0.9214
+        }
+      }
+    },
+    "retake": null,
+    "turned_by": 27,
+    "turned_on": "stride",
+    "view": "front_diagonal@right",
+    "start_foot": "right",
+    "start_foot_source": "engine",
+    "strikes": [
+      0,
+      14
+    ],
+    "foot": {
+      "cue": "shade",
+      "at": [
+        27,
+        12
+      ],
+      "values": [
+        -0.0016,
+        -0.1551
+      ],
+      "margin": 0.1535,
+      "rhythm": 1.335,
+      "feet": [
+        "right",
+        "left"
+      ]
+    },
+    "stride_swing": 0.2706,
+    "reach_swing": 0.0211,
+    "fps": 24.001,
+    "source": "cycle.source",
+    "cycles_given": 2,
+    "cycle_screen": {
+      "state": "walk",
+      "gait_floor": 14,
+      "period": 47,
+      "legs": {
+        "feet_apart": 0.468,
+        "stride_swing": 0.2706,
+        "reach_swing": 0.0211,
+        "by": "stride"
+      },
+      "checked": [
+        {
+          "period": 23,
+          "of": 47,
+          "divisor": 2,
+          "cycles": 2,
+          "seconds": 0.958,
+          "periodicity": 0.7779,
+          "steps": 1.407,
+          "follow": 0.113,
+          "off_path": 0.203,
+          "distance": 0.771,
+          "pose": 0.264,
+          "verdict": "suspect",
+          "why": "repeats 0.78 below the profile mean (a repeat from 0.15): one cycle of a loop that holds 2, or one step of a stride whose two steps look alike \u2014 pixels cannot tell"
+        }
+      ],
+      "suspects": [
+        {
+          "period": 23,
+          "of": 47,
+          "divisor": 2,
+          "cycles": 2,
+          "seconds": 0.958,
+          "periodicity": 0.7779,
+          "steps": 1.407,
+          "follow": 0.113,
+          "off_path": 0.203,
+          "distance": 0.771,
+          "pose": 0.264,
+          "verdict": "suspect",
+          "why": "repeats 0.78 below the profile mean (a repeat from 0.15): one cycle of a loop that holds 2, or one step of a stride whose two steps look alike \u2014 pixels cannot tell"
+        }
+      ]
+    },
+    "cycle_taken": {
+      "from": 47,
+      "cycles": 2,
+      "start": 12,
+      "length": 24,
+      "exact": false,
+      "repeat_over_step": 0.2091,
+      "seam_ratio": 0.6263
+    },
+    "seam_ratio": 0.0,
+    "origin": {
+      "strip_sha256": "4d4da9f5b616efe6a0dac7a99227a81f19387bfe515001eebda94f95cae4df1f",
+      "frames": 47,
+      "w": 217,
+      "h": 398,
+      "scale": 0.5783,
+      "crop_origin": [
+        168,
+        13
+      ],
+      "sample_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "cells_sha256": [
+        "559a3bfb278507865b8cacc372bf49e4d19827ad19476c286043b11d546b1783",
+        "168252ee9c1be1543d5b21e1e261f278b40f3a34f9e2aeeaf073244648b545ec",
+        "47c459eff969019bf05f43fd0f6a5c58d19d99df950216bf6363edefdce093d4",
+        "848ed71a1aa23118152b792dd83a4ec2fa206a1859e903b76c87bf5c6f54a02a",
+        "25fa394115720594b9e29f15c60005f7f63e2e009476961efba8ed43c5f0cfd6",
+        "e4cab7e44c21c8bf4dff76d6d42697c4b7485cf06b3410dff80e5213bece4e26",
+        "63da29ffc98319317d2d65e2bc47c87e6cfbd65d59d6d29cec5298b2230affd9",
+        "107f49f81190fa653f15bff6343ab77d88dd3543ebe9a56ce888516bfd10f1ee",
+        "0bd127a8bbc3b6992f2a3feb224a8303fde893ef7f01c014728eb4e4b181c818",
+        "80d5f672fb742e850ad98c66ad6039d4271744370976c38c5e85e87ba3e14ffa",
+        "b95191e8b0ac622366447a791b602e3259ba17b1afdb4bc8d1eafe98a615b864",
+        "0773f5e8d8711e3d7269f87aa7bc5c7c7edac1e4dcb0813e285f1e3b62e50298",
+        "437555b6d9c8143ec408324cfb6b6aaae8cab4d6805ab6c1da8bc38684719113",
+        "dd5318f3304c17b25e4928e86bb9b61245bacc177fafc84d2b59c27d4e85b64a",
+        "cac9d75696c3912ec412b94c81cefff7fc2eb5da52356dea1e9213836e295da7",
+        "0ad7f000724e9f3c1eced00c067f4cb8271999506ffd75e88de5e8a93f1b463c",
+        "b7e061354a601f70788d2526584fb8e61cd2362e0f7089fecd83340e9034d751",
+        "d59f6eb48c004907ca18e404ecbf2cbfa45e042e8e5d36196ee156aac42f7331",
+        "25818157340057fe4113995fde91ceb1527899dff48c1b0400250f84c81f8375",
+        "f01f4abd1952ea2c80f5c57642f88cdbd4751aea5129d95a863f6ef877c32438",
+        "68ce278e9af54ed9968a1f482bb862a0c0aef16ee237aa54de19555769d88411",
+        "059339e16faa3977277d45a4f3c72522a4e75d7bbec2e096af1e57e06ac091e0",
+        "0b341dce7ad60de2d61ec1b7fc6a679e53ce6c4c99ee203975da1357b3e6345e",
+        "6cd931f603aa0ed65763fe29140482e222372815d961ddb29882eb32fc099c1d",
+        "6e6a75d3013263cb4460522e227efa679ec333f2db429399a6710cf43940ae2f",
+        "b318d0e8b627fb21dc07a46159aa1d20f5cdfc742625410bd5dccd2e41fdfa48",
+        "a20f363b4ae6658292f8fffcad9c5917a5941b276700e527d8df42922f25004a",
+        "22ed37f2b40110c316b4f6bd87a6172ec3255b2a1e53eec2486468eaeacc9095",
+        "138a8b1a5404c9bef560cc0501c177db2295f6d3047e4b60ec2c704d2598f3af",
+        "fa0c58e6bde4a244d141658fa468308ae971d9a156c6d0133bafe9ad682d5f47",
+        "3a2313587ffa23386a56ce28f27600b3d8235166cc216b63a7087ced2e836793",
+        "559a0e5fb19d40f5076c2b2fb445c782c3363ba8dcf0159c939d8217dbf55134",
+        "a5411f96612a7c41d4677a7daf04c11607667408c61e55dbc2a5b2fba4293b79",
+        "82d9a5da2794cf49c04d1b039f2862e738b793ab47534dc724944a64a8b936f7",
+        "616547b8f36db2716fbb7b86dedf2d612f5b7d3ceb5128cb38c683f3e94d1a09",
+        "46581d61a4dae96f4233c73de72328cff2d60836577b0ddd7b1cb13ec1bf4b36",
+        "8f822e9d48673950825fe8ef78d5f8e290e60a357765beb6a753a48fa8fbbf66",
+        "91b172e74285e74dbc154df34cb8736530f4ba3c659f7987f8ab8c4dd1abacae",
+        "a0fde7d4453c83404a8cf8c01ab037af30b1107d59b26ce0af9dc94c8454c178",
+        "80c7b77e4a2a55984c468dce08ea62c17a62493831fe3899388a39bde0d97ff7",
+        "c81ac1d8920475616783172fb739fa346381832cc5603d9d6aa2f612f6c44c34",
+        "52b06eb0ea8abfdd4abb205090e3296d166c458efdd205c75564fb52ca073b6c",
+        "f634cf9e794ad0c0ba8bbe87c8a207433644e17d4669b1b4ecbc4c534f89e7fa",
+        "1573a54b416bced47a96c02a2ccf29442748b548b9a64afcc57f5f670f110c73",
+        "d9f45e778be4d54953067ddd8008015bbfada4c472aba7c653b3cbfb95cc9e76",
+        "785b6b60f9dcf0dc62f0c1fd74fdb1baa6c21285a841530f24666abe901a13b7",
+        "a6c979abd0cbb92ecb680d0bc0788b8536f9a3af541ab5682a2b413cd9b5b98c"
+      ],
+      "reading": {
+        "policy": "common-lay/damped-mass/cos2-bilinear/1",
+        "carry_px": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            -1.0
+          ],
+          [
+            -2.0,
+            -3.0
+          ],
+          [
+            -2.0,
+            -4.0
+          ],
+          [
+            -3.0,
+            -6.0
+          ],
+          [
+            -3.0,
+            -6.0
+          ],
+          [
+            -3.0,
+            -5.0
+          ],
+          [
+            -3.0,
+            -5.0
+          ],
+          [
+            -3.0,
+            -3.0
+          ],
+          [
+            -2.0,
+            -2.0
+          ],
+          [
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            3.0,
+            -2.0
+          ],
+          [
+            4.0,
+            -4.0
+          ],
+          [
+            4.0,
+            -5.0
+          ],
+          [
+            4.0,
+            -5.0
+          ],
+          [
+            4.0,
+            -5.0
+          ],
+          [
+            3.0,
+            -4.0
+          ],
+          [
+            2.0,
+            -3.0
+          ],
+          [
+            1.0,
+            -1.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            -3.0
+          ],
+          [
+            -2.0,
+            -4.0
+          ],
+          [
+            -2.0,
+            -5.0
+          ],
+          [
+            -2.0,
+            -5.0
+          ],
+          [
+            -3.0,
+            -5.0
+          ],
+          [
+            -3.0,
+            -4.0
+          ],
+          [
+            -3.0,
+            -4.0
+          ],
+          [
+            -2.0,
+            -2.0
+          ],
+          [
+            -1.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            3.0,
+            -2.0
+          ],
+          [
+            4.0,
+            -3.0
+          ],
+          [
+            4.0,
+            -4.0
+          ],
+          [
+            5.0,
+            -4.0
+          ],
+          [
+            4.0,
+            -4.0
+          ],
+          [
+            4.0,
+            -4.0
+          ],
+          [
+            3.0,
+            -3.0
+          ],
+          [
+            2.0,
+            -2.0
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "body_px": 382,
+        "body_worn_px": [
+          13,
+          25
+        ]
+      }
+    },
+    "cells_from": [
+      {
+        "source": 34
+      },
+      {
+        "source": 35
+      },
+      {
+        "source": 12
+      },
+      {
+        "source": 13
+      },
+      {
+        "source": 14
+      },
+      {
+        "source": 14
+      },
+      {
+        "source": 15
+      },
+      {
+        "source": 16
+      },
+      {
+        "source": 17
+      },
+      {
+        "source": 18
+      },
+      {
+        "source": 19
+      },
+      {
+        "source": 19
+      },
+      {
+        "source": 20
+      },
+      {
+        "source": 21
+      },
+      {
+        "source": 22
+      },
+      {
+        "source": 23
+      },
+      {
+        "source": 24
+      },
+      {
+        "source": 24
+      },
+      {
+        "source": 25
+      },
+      {
+        "source": 26
+      },
+      {
+        "source": 27
+      },
+      {
+        "source": 28
+      },
+      {
+        "source": 29
+      },
+      {
+        "source": 29
+      },
+      {
+        "source": 30
+      },
+      {
+        "source": 31
+      },
+      {
+        "source": 32
+      },
+      {
+        "source": 33
+      },
+      {
+        "source": 34
+      }
+    ]
+  }
+}

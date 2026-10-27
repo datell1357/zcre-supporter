@@ -1,0 +1,19 @@
+{
+  "name": "ZCRE 서포터",
+  "subtitle": "크레딧과 작업 현황을 지크와 함께",
+  "promotional_text": "바탕화면의 지크와 함께 ZCRE 작업을 확인하세요. 크레딧, 진행 중 작업, 완료 알림과 서비스 상태를 한곳에서 살펴볼 수 있어요.",
+  "keywords": "지크,크레딧,작업현황,완료알림,바탕화면,캐릭터,메뉴바,AI,이미지,영상",
+  "primary_language": "ko",
+  "primary_category_proposal": "Productivity",
+  "secondary_category_proposal": "Utilities",
+  "minimum_macos": "14.0",
+  "current_version": "0.2.20",
+  "current_build": "23",
+  "current_bundle_identifier": "kr.co.zcre.bunny.prototype",
+  "sku_proposal": "zcre-supporter-macos",
+  "release_version": "[확정 필요]",
+  "price": "[확정 필요]",
+  "support_url": "[공개 URL 필요]",
+  "privacy_policy_url": "[공개 URL 필요]",
+  "copyright": "2026 [권리자 확정 필요]"
+}
