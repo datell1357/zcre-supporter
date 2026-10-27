@@ -2,7 +2,15 @@
 
 Development target: Windows 11 x64. Actual machine: **Windows 10 IoT Enterprise LTSC 2021, build 19044**. Windows 11 interactive verification is not complete.
 
-Evidence: `core-tests.log` (280 assertions, not 280 independent end-to-end scenarios), `bridge-tests.log` (43 original JavaScript tests), `native-tests.log` (3 actual Windows integration checks), `build.log`, `publish.log`, `ui-evidence.json` (redacted actual UI observations). A live WPF render is not a desktop screenshot; Windows.Graphics.Capture timed out. No paid generation was created.
+Evidence: `core-tests.log` (283 assertions, not 283 independent end-to-end scenarios), `bridge-tests.log` (43 original JavaScript tests), `native-tests.log` (3 actual Windows integration checks), `build.log`, `publish.log`, `ui-evidence.json` (redacted actual UI observations). A live WPF render is not a desktop screenshot; Windows.Graphics.Capture timed out. No paid generation was created.
+
+## Resumed UI verification boundary
+
+The user explicitly authorized resuming after the physical Escape stop. Fresh window discovery found the existing app, but accessibility capture returned null. After resetting the JavaScript control session and selecting the returned window again, activation failed with `GetCursorPos failed: 액세스가 거부되었습니다. (0x80070005)`. The user was asked to prepare the normal unlocked Windows desktop. No security desktop changes or alternate UI-input bypass were attempted. ZCRE PID 37712 and its authenticated profile were preserved; no app restart was performed during this blocked resumption.
+
+Build provenance was strengthened in commit `6cf8514`: requested commit must equal HEAD, source changes are rejected, and the next package proof will include pre-build dirty status, individual/aggregate source SHA-256, SDK version and binary SHA-256. The already running package is reported as `41108f8`; the new provenance code has not yet been used to replace that running app. Existing earlier package metadata is not treated as a retroactive exact-source proof.
+
+Existing result metadata and its save button were observed, but actual media decoding/playback and a completed save are still pending. Debug left/right and eight-direction interaction, radial-summary live updates, hidden polling and native notification delivery remain pending live verification.
 
 | ID | Implementation | Automatic/native checks | Actual Windows evidence and remaining work |
 |---|---|---|---|
