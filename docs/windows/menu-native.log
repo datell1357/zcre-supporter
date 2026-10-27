@@ -1,0 +1,3 @@
+PASS actual six visible WPF radial-menu windows remain open; original TextBlocks update in place
+Synthetic demo before: 사용 가능 1,160 Credit / 이미지 1/4  ·  영상 1/2  ·  합계 2
+Synthetic demo after: 사용 가능 1,240 Credit / 이미지 1/4  ·  영상 0/2  ·  합계 1

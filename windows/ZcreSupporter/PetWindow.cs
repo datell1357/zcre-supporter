@@ -201,7 +201,7 @@ internal sealed class PetWindow : Window
         var limits = store.Snapshot?.Concurrency;
         menuCountText.Text = $"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}";
     }
-    private void ShowMenu(string category)
+    internal void ShowMenu(string category)
     {
         CloseMenu(); destination = null;
         var bounds = ScreenBounds();

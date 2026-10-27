@@ -8,6 +8,7 @@ internal static class Program
     public static int Main(string[] args)
     {
         if (args.Length == 1 && args[0] == "--audio-coexist") return AudioChecks.Run();
+        if (args.Length == 2 && args[0] == "--pet-menu") return MenuChecks.Run(args[1]);
         if (args.Length == 1 && args[0] == "--audio-source") { using var sound = new System.Media.SoundPlayer(LocalData.Asset("Sounds/typing.wav")); sound.PlayLooping(); Thread.Sleep(5000); sound.Stop(); return 0; }
         if (args.Length == 2 && args[0] is "--media" or "--saved-media" || args.Length == 3 && args[0] == "--existing-result") return MediaChecks.Run(args);
         if (args.Length != 1 || !Path.IsPathFullyQualified(args[0])) throw new ArgumentException("An absolute workspace-local test-data directory is required.");
