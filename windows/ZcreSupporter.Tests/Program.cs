@@ -6,6 +6,20 @@ using Monitor = ZcreSupporter.Core.Monitor;
 var passed = new List<string>();
 void Check(string name, bool value) { if (!value) throw new InvalidOperationException("FAIL " + name); passed.Add(name); Console.WriteLine("PASS " + name); }
 var repo = Path.GetFullPath(args.Length > 0 ? args[0] : "../..");
+using (var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(repo, "Tests", "ParityFixtures", "decoder.json"))))
+{
+    foreach (var item in fixture.RootElement.EnumerateArray())
+    {
+        var name = item.GetProperty("name").GetString(); var expected = item.GetProperty("valid").GetBoolean();
+        try
+        {
+            var snapshot = Snapshot.Decode(item.GetProperty("payload").GetRawText(), DateTimeOffset.UtcNow);
+            Check("decoder fixture " + name, expected);
+            if (expected) { Check(name + " decimal", snapshot.Balance.Available == item.GetProperty("available").GetString()); Check(name + " active", snapshot.ActiveJobs.Count == item.GetProperty("activeCount").GetInt32()); if (item.TryGetProperty("imagesActive", out var images)) { Check(name + " images", snapshot.Concurrency?.ImagesActive == images.GetInt32()); Check(name + " videos", snapshot.Concurrency?.VideosActive == item.GetProperty("videosActive").GetInt32()); } }
+        }
+        catch (SnapshotException) { Check("decoder fixture " + name, !expected); }
+    }
+}
 using (var fixture = JsonDocument.Parse(File.ReadAllText(Path.Combine(repo, "Tests", "ParityFixtures", "monitor.json"))))
 {
     foreach (var scenario in fixture.RootElement.EnumerateArray())
@@ -52,4 +66,21 @@ try { Snapshot.Decode("{\"workspaceKey\":\"a\",\"balance\":{\"total\":\"NaN\",\"
 foreach (var (name, body) in new[] { ("null job", "{\"workspaceKey\":\"a\",\"balance\":{\"total\":\"1\",\"reserved\":\"0\",\"available\":\"1\"},\"jobs\":[null]}"), ("missing jobs", "{\"workspaceKey\":\"a\",\"balance\":{\"total\":\"1\",\"reserved\":\"0\",\"available\":\"1\"}}"), ("negative reserved", "{\"workspaceKey\":\"a\",\"balance\":{\"total\":\"1\",\"reserved\":\"-1\",\"available\":\"1\"},\"jobs\":[]}"), ("invalid date", "{\"workspaceKey\":\"a\",\"balance\":{\"total\":\"1\",\"reserved\":\"0\",\"available\":\"1\"},\"jobs\":[{\"id\":\"a\",\"model\":\"m\",\"mediaType\":\"image\",\"status\":\"running\",\"createdAt\":\"invalid\"}]}") })
 { try { Snapshot.Decode(body, DateTimeOffset.Now); throw new Exception("accepted " + name); } catch (SnapshotException) { Check("decoder rejects " + name, true); } }
 var duplicate = Demo.Snapshot(); duplicate.Jobs.Add(duplicate.Jobs[0]); Check("duplicate job ID deduplicates", Snapshot.Decode(JsonSerializer.Serialize(duplicate, Json.Options), DateTimeOffset.Now).Jobs.Count == 3);
+foreach (var bad in new[] { "[]", "null", "{}", "{\"channel\":3}", "{\"channel\":\"session\"}", "{\"channel\":\"session\",\"event\":[]}", "{\"channel\":\"bridge\",\"id\":3,\"value\":\"a\"}" }) Check("bridge envelope rejects " + bad, BridgeMessage.Decode(bad) is null);
+Check("bridge session message", BridgeMessage.Decode("{\"channel\":\"session\",\"event\":\"changed\"}")?.Event == "changed");
+Check("bridge result message", BridgeMessage.Decode("{\"channel\":\"bridge\",\"id\":\"request\",\"value\":\"{}\"}")?.Value == "{}");
+foreach (var bad in new[] { "[]", "null", "{}", "{\"outputs\":[null]}", "{\"outputs\":[{\"id\":\"x\",\"url\":\"http://example.com/a\"}]}" }) { try { OutputPayload.Decode(bad); throw new Exception("bad outputs accepted"); } catch (SnapshotException) { Check("output payload rejects " + bad, true); } }
+var testPath = Path.Combine(repo, "windows", ".local", "core-tests-" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); Directory.CreateDirectory(testPath);
+foreach (var malformed in new[] { "null", "[]", "{\"version\":1,\"workspaceHash\":\"hash\",\"alerts\":null}", "{\"version\":1,\"workspaceHash\":\"hash\",\"alerts\":[null]}" }) { var path = Path.Combine(testPath, Guid.NewGuid().ToString("N") + ".json"); File.WriteAllText(path, malformed); Check("corrupt history rejected " + malformed, History.Load(path, "hash").Alerts.Count == 0); }
+foreach (var screen in new[] { new RectD(0, 0, 1440, 900), new RectD(-1920, -200, 1920, 1080), new RectD(0, 0, 800, 600) })
+foreach (var anchor in new[] { new RectD(screen.X + 20, screen.Y + 20, 90, 110), new RectD(screen.MaxX - 110, screen.Y + 20, 90, 110), new RectD(screen.MidX - 45, screen.MidY - 55, 90, 110), new RectD(screen.X + 20, screen.MaxY - 130, 90, 110) })
+foreach (var count in new[] { 5, 6, 8 })
+{
+    var menu = new PetMenuLayout(anchor, screen, count, count == 5); Check("menu all buttons " + screen + anchor + count, menu.Buttons.Count == count);
+    Check("menu inside screen " + screen + anchor + count, menu.Buttons.All(screen.Contains));
+    Check("menu protects pet and label " + screen + anchor + count, menu.Buttons.All(b => !menu.Protected.Any(p => p.Intersects(b))));
+    Check("menu no overlap " + screen + anchor + count, menu.Buttons.Select((b, i) => !menu.Buttons.Skip(i + 1).Any(b.Intersects) && !menu.Summary.Intersects(b)).All(x => x));
+}
+var compact = new PetMenuLayout(new(600, 400, 90, 110), new(0, 0, 1440, 900), 5, true); Check("compact home menu radius", compact.Radius is >= 110 and <= 120);
+var wave = new IdleWaveSchedule(); Check("idle wave earliest 45 seconds", wave.Delay(0, true, true, 0) == 45); Check("walk preserves wave deadline", wave.Delay(50, true, false, 1) is null && wave.DueAt == 45); Check("idle after walk waves immediately", wave.Delay(50, true, true, 1) == 0); Check("work clears wave deadline", wave.Delay(51, false, false, 1) is null && wave.DueAt is null);
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", count = passed.Count, tests = passed }, Json.Options));

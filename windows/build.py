@@ -12,7 +12,7 @@ env = dict(os.environ, DOTNET_CLI_HOME=str(root / ".build"), NUGET_PACKAGES=str(
 if args.command == "test":
     command = ["dotnet", "run", "--project", str(root / "ZcreSupporter.Tests"), "--", str(root.parent)]
 elif args.command == "publish":
-    command = ["dotnet", "publish", str(root / "ZcreSupporter"), "-c", "Release", "-r", "win-x64", "--self-contained", "false", "-o", str(root / "artifacts" / "ZcreSupporter")]
+    command = ["dotnet", "publish", str(root / "ZcreSupporter"), "-c", "Release", "-r", "win-x64", "--self-contained", "true", "-o", str(root / "artifacts" / "ZcreSupporter")]
 else:
     command = ["dotnet", "build", str(root / "ZcreSupporter"), "-c", "Release"]
 raise SystemExit(subprocess.run(command, cwd=root, env=env).returncode)

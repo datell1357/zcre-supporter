@@ -59,7 +59,12 @@ public sealed record Snapshot(string WorkspaceKey, string WorkspaceName, Balance
         {
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
-            if (root.TryGetProperty("error", out var error)) throw new SnapshotException(error.GetString() ?? "invalidResponse", root.TryGetProperty("status", out var code) && code.TryGetInt32(out var n) ? n : 0);
+            if (root.ValueKind != JsonValueKind.Object) throw new SnapshotException("invalidResponse");
+            if (root.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null)
+            {
+                if (error.ValueKind != JsonValueKind.String) throw new SnapshotException("invalidResponse");
+                throw new SnapshotException(error.GetString() ?? "invalidResponse", root.TryGetProperty("status", out var code) && code.ValueKind == JsonValueKind.Number && code.TryGetInt32(out var n) ? n : 0);
+            }
             var next = JsonSerializer.Deserialize<Snapshot>(json, Json.Options) ?? throw new SnapshotException("invalidResponse");
             if (string.IsNullOrWhiteSpace(next.WorkspaceKey) || next.Balance is null || next.Jobs is null) throw new SnapshotException("invalidResponse");
             var fetched = root.TryGetProperty("balanceFetchedAt", out _) ? next.BalanceFetchedAt : now.ToUnixTimeMilliseconds();
@@ -73,7 +78,7 @@ public sealed record Snapshot(string WorkspaceKey, string WorkspaceName, Balance
                     ? limits with { ImagesActive = jobs.Count(j => j.Active && j.MediaType == "image"), VideosActive = jobs.Count(j => j.Active && j.MediaType == "video"), TotalActive = jobs.Count(j => j.Active) } : null;
             return next with { WorkspaceName = next.WorkspaceName ?? "개인 워크스페이스", Jobs = jobs, FetchedAt = now, BalanceFetchedAt = fetched, Concurrency = limits };
         }
-        catch (Exception error) when (error is JsonException or FormatException or OverflowException or ArgumentException) { throw new SnapshotException("invalidResponse"); }
+        catch (Exception error) when (error is JsonException or FormatException or OverflowException or ArgumentException or InvalidOperationException or KeyNotFoundException) { throw new SnapshotException("invalidResponse"); }
     }
 }
 
@@ -102,4 +107,36 @@ public static class Demo
 {
     public static Snapshot Snapshot(int step = 0) => new("demo", "미리보기 워크스페이스", new("1280", step == 0 ? "120" : "40", step == 0 ? "1160" : "1240"),
     [new("demo-video", "seedance-2.5", "video", step == 0 ? "running" : "succeeded", DateTimeOffset.Now.AddMinutes(-3)), new("demo-image", "gpt-image-2", "image", "queued", DateTimeOffset.Now.AddMinutes(-2)), new("demo-upscale", "bytedance-upscale-video", "video", "succeeded", DateTimeOffset.Now.AddMinutes(-8))], DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), false, false, new(1, 4, step == 0 ? 1 : 0, 2, step == 0 ? 2 : 1, 4));
+}
+
+public sealed record BridgeMessage(string Channel, string? Event, string? Id, string? Value)
+{
+    public static BridgeMessage? Decode(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json); var r = doc.RootElement;
+            if (r.ValueKind != JsonValueKind.Object || !r.TryGetProperty("channel", out var c) || c.ValueKind != JsonValueKind.String) return null;
+            if (c.GetString() == "session" && r.TryGetProperty("event", out var e) && e.ValueKind == JsonValueKind.String && e.GetString() is "ready" or "changed") return new("session", e.GetString(), null, null);
+            if (c.GetString() == "bridge" && r.TryGetProperty("id", out var id) && id.ValueKind == JsonValueKind.String && id.GetString() is { Length: > 0 and <= 100 } && r.TryGetProperty("value", out var value) && value.ValueKind == JsonValueKind.String) return new("bridge", null, id.GetString(), value.GetString());
+        }
+        catch (JsonException) { }
+        return null;
+    }
+}
+
+public static class OutputPayload
+{
+    public static List<JobOutput> Decode(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json); var r = doc.RootElement;
+            if (r.ValueKind != JsonValueKind.Object || !r.TryGetProperty("outputs", out var values) || values.ValueKind != JsonValueKind.Array || values.GetArrayLength() > 64) throw new SnapshotException("invalidResponse");
+            var outputs = JsonSerializer.Deserialize<List<JobOutput>>(values, Json.Options) ?? throw new SnapshotException("invalidResponse");
+            if (outputs.Any(o => o is null || string.IsNullOrEmpty(o.Id) || o.Preview is null || o.Expires is { } seconds && (!double.IsFinite(seconds) || seconds < 0))) throw new SnapshotException("invalidResponse");
+            return outputs;
+        }
+        catch (Exception e) when (e is JsonException or InvalidOperationException or KeyNotFoundException or ArgumentException) { throw new SnapshotException("invalidResponse"); }
+    }
 }

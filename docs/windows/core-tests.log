@@ -1,0 +1,534 @@
+PASS decoder fixture array-root
+PASS decoder fixture null-root
+PASS decoder fixture numeric-error
+PASS decoder fixture object-error
+PASS decoder fixture numeric-workspace
+PASS decoder fixture null-job
+PASS decoder fixture missing-balance
+PASS decoder fixture invalid-time
+PASS decoder fixture invalid-total
+PASS decoder fixture invalid-reserved
+PASS decoder fixture invalid-available
+PASS decoder fixture decimal-balance
+PASS decimal-balance decimal
+PASS decimal-balance active
+PASS decoder fixture stale-zero-counters
+PASS stale-zero-counters decimal
+PASS stale-zero-counters active
+PASS stale-zero-counters images
+PASS stale-zero-counters videos
+PASS fixture/baseline-and-once/0/events
+PASS fixture/baseline-and-once/0/tracked
+PASS fixture/baseline-and-once/1/events
+PASS fixture/baseline-and-once/1/tracked
+PASS fixture/baseline-and-once/2/events
+PASS fixture/baseline-and-once/2/tracked
+PASS fixture/fast-completion-and-old-history/0/events
+PASS fixture/fast-completion-and-old-history/0/tracked
+PASS fixture/fast-completion-and-old-history/1/events
+PASS fixture/fast-completion-and-old-history/1/tracked
+PASS fixture/missing-active-unknown-and-cancel/0/events
+PASS fixture/missing-active-unknown-and-cancel/0/tracked
+PASS fixture/missing-active-unknown-and-cancel/1/events
+PASS fixture/missing-active-unknown-and-cancel/1/tracked
+PASS fixture/missing-active-unknown-and-cancel/2/events
+PASS fixture/missing-active-unknown-and-cancel/2/tracked
+PASS fixture/same-count-new-job/0/events
+PASS fixture/same-count-new-job/0/tracked
+PASS fixture/same-count-new-job/1/events
+PASS fixture/same-count-new-job/1/tracked
+PASS fixture/stale-balance-does-not-hide-completion/0/events
+PASS fixture/stale-balance-does-not-hide-completion/0/tracked
+PASS fixture/stale-balance-does-not-hide-completion/1/events
+PASS fixture/stale-balance-does-not-hide-completion/1/tracked
+PASS fixture/stale-balance-does-not-hide-completion/2/events
+PASS fixture/stale-balance-does-not-hide-completion/2/tracked
+PASS fixture/stale-balance-does-not-hide-completion/3/events
+PASS fixture/stale-balance-does-not-hide-completion/3/tracked
+PASS fixture/stale-balance-does-not-hide-completion/4/events
+PASS fixture/stale-balance-does-not-hide-completion/4/tracked
+PASS fixture/account-switch-resets-baseline/0/events
+PASS fixture/account-switch-resets-baseline/0/tracked
+PASS fixture/account-switch-resets-baseline/1/events
+PASS fixture/account-switch-resets-baseline/1/tracked
+PASS ACK candidate is not accepted
+PASS ACK wrong revision rejected
+PASS ACK correct revision
+PASS late account response rejected
+PASS HTTPS trusted main origin
+PASS external source rejected
+PASS HTTP source rejected
+PASS custom port rejected
+PASS credential origin rejected
+PASS unsafe output rejected http://cdn.example/a
+PASS unsafe output rejected https://user:pass@cdn.example/a
+PASS unsafe output rejected https://127.0.0.1/a
+PASS unsafe output rejected https://[::1]/a
+PASS unsafe output rejected https://localhost/a
+PASS unsafe output rejected https://host.local/a
+PASS unsafe output rejected file:///a
+PASS signed HTTPS output allowed
+PASS overnight focus evening
+PASS overnight focus morning
+PASS focus end exclusive
+PASS equal focus means all day
+PASS upscale filter precedes video
+PASS manual minimum five seconds
+PASS slow requests never overlap
+PASS backoff capped
+PASS Retry-After seconds
+PASS public first request
+PASS public reopen cache
+PASS public manual minimum
+PASS public manual after minimum
+PASS public retry-after retained
+PASS old work history read
+PASS cleared old work stays cleared
+PASS new work imports after clear
+PASS history raw IDs excluded
+PASS diagonal normalized speed
+PASS one-shot final frame
+PASS loop wraps
+PASS invalid balance fails closed
+PASS decoder rejects null job
+PASS decoder rejects missing jobs
+PASS decoder rejects negative reserved
+PASS decoder rejects invalid date
+PASS duplicate job ID deduplicates
+PASS bridge envelope rejects []
+PASS bridge envelope rejects null
+PASS bridge envelope rejects {}
+PASS bridge envelope rejects {"channel":3}
+PASS bridge envelope rejects {"channel":"session"}
+PASS bridge envelope rejects {"channel":"session","event":[]}
+PASS bridge envelope rejects {"channel":"bridge","id":3,"value":"a"}
+PASS bridge session message
+PASS bridge result message
+PASS output payload rejects []
+PASS output payload rejects null
+PASS output payload rejects {}
+PASS output payload rejects {"outputs":[null]}
+PASS output payload rejects {"outputs":[{"id":"x","url":"http://example.com/a"}]}
+PASS corrupt history rejected null
+PASS corrupt history rejected []
+PASS corrupt history rejected {"version":1,"workspaceHash":"hash","alerts":null}
+PASS corrupt history rejected {"version":1,"workspaceHash":"hash","alerts":[null]}
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6
+PASS menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8
+PASS menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8
+PASS menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8
+PASS menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6
+PASS menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8
+PASS menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8
+PASS menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8
+PASS menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8
+PASS compact home menu radius
+PASS idle wave earliest 45 seconds
+PASS walk preserves wave deadline
+PASS idle after walk waves immediately
+PASS work clears wave deadline
+{
+  "status": "passed",
+  "count": 264,
+  "tests": [
+    "decoder fixture array-root",
+    "decoder fixture null-root",
+    "decoder fixture numeric-error",
+    "decoder fixture object-error",
+    "decoder fixture numeric-workspace",
+    "decoder fixture null-job",
+    "decoder fixture missing-balance",
+    "decoder fixture invalid-time",
+    "decoder fixture invalid-total",
+    "decoder fixture invalid-reserved",
+    "decoder fixture invalid-available",
+    "decoder fixture decimal-balance",
+    "decimal-balance decimal",
+    "decimal-balance active",
+    "decoder fixture stale-zero-counters",
+    "stale-zero-counters decimal",
+    "stale-zero-counters active",
+    "stale-zero-counters images",
+    "stale-zero-counters videos",
+    "fixture/baseline-and-once/0/events",
+    "fixture/baseline-and-once/0/tracked",
+    "fixture/baseline-and-once/1/events",
+    "fixture/baseline-and-once/1/tracked",
+    "fixture/baseline-and-once/2/events",
+    "fixture/baseline-and-once/2/tracked",
+    "fixture/fast-completion-and-old-history/0/events",
+    "fixture/fast-completion-and-old-history/0/tracked",
+    "fixture/fast-completion-and-old-history/1/events",
+    "fixture/fast-completion-and-old-history/1/tracked",
+    "fixture/missing-active-unknown-and-cancel/0/events",
+    "fixture/missing-active-unknown-and-cancel/0/tracked",
+    "fixture/missing-active-unknown-and-cancel/1/events",
+    "fixture/missing-active-unknown-and-cancel/1/tracked",
+    "fixture/missing-active-unknown-and-cancel/2/events",
+    "fixture/missing-active-unknown-and-cancel/2/tracked",
+    "fixture/same-count-new-job/0/events",
+    "fixture/same-count-new-job/0/tracked",
+    "fixture/same-count-new-job/1/events",
+    "fixture/same-count-new-job/1/tracked",
+    "fixture/stale-balance-does-not-hide-completion/0/events",
+    "fixture/stale-balance-does-not-hide-completion/0/tracked",
+    "fixture/stale-balance-does-not-hide-completion/1/events",
+    "fixture/stale-balance-does-not-hide-completion/1/tracked",
+    "fixture/stale-balance-does-not-hide-completion/2/events",
+    "fixture/stale-balance-does-not-hide-completion/2/tracked",
+    "fixture/stale-balance-does-not-hide-completion/3/events",
+    "fixture/stale-balance-does-not-hide-completion/3/tracked",
+    "fixture/stale-balance-does-not-hide-completion/4/events",
+    "fixture/stale-balance-does-not-hide-completion/4/tracked",
+    "fixture/account-switch-resets-baseline/0/events",
+    "fixture/account-switch-resets-baseline/0/tracked",
+    "fixture/account-switch-resets-baseline/1/events",
+    "fixture/account-switch-resets-baseline/1/tracked",
+    "ACK candidate is not accepted",
+    "ACK wrong revision rejected",
+    "ACK correct revision",
+    "late account response rejected",
+    "HTTPS trusted main origin",
+    "external source rejected",
+    "HTTP source rejected",
+    "custom port rejected",
+    "credential origin rejected",
+    "unsafe output rejected http://cdn.example/a",
+    "unsafe output rejected https://user:pass@cdn.example/a",
+    "unsafe output rejected https://127.0.0.1/a",
+    "unsafe output rejected https://[::1]/a",
+    "unsafe output rejected https://localhost/a",
+    "unsafe output rejected https://host.local/a",
+    "unsafe output rejected file:///a",
+    "signed HTTPS output allowed",
+    "overnight focus evening",
+    "overnight focus morning",
+    "focus end exclusive",
+    "equal focus means all day",
+    "upscale filter precedes video",
+    "manual minimum five seconds",
+    "slow requests never overlap",
+    "backoff capped",
+    "Retry-After seconds",
+    "public first request",
+    "public reopen cache",
+    "public manual minimum",
+    "public manual after minimum",
+    "public retry-after retained",
+    "old work history read",
+    "cleared old work stays cleared",
+    "new work imports after clear",
+    "history raw IDs excluded",
+    "diagonal normalized speed",
+    "one-shot final frame",
+    "loop wraps",
+    "invalid balance fails closed",
+    "decoder rejects null job",
+    "decoder rejects missing jobs",
+    "decoder rejects negative reserved",
+    "decoder rejects invalid date",
+    "duplicate job ID deduplicates",
+    "bridge envelope rejects []",
+    "bridge envelope rejects null",
+    "bridge envelope rejects {}",
+    "bridge envelope rejects {\u0022channel\u0022:3}",
+    "bridge envelope rejects {\u0022channel\u0022:\u0022session\u0022}",
+    "bridge envelope rejects {\u0022channel\u0022:\u0022session\u0022,\u0022event\u0022:[]}",
+    "bridge envelope rejects {\u0022channel\u0022:\u0022bridge\u0022,\u0022id\u0022:3,\u0022value\u0022:\u0022a\u0022}",
+    "bridge session message",
+    "bridge result message",
+    "output payload rejects []",
+    "output payload rejects null",
+    "output payload rejects {}",
+    "output payload rejects {\u0022outputs\u0022:[null]}",
+    "output payload rejects {\u0022outputs\u0022:[{\u0022id\u0022:\u0022x\u0022,\u0022url\u0022:\u0022http://example.com/a\u0022}]}",
+    "corrupt history rejected null",
+    "corrupt history rejected []",
+    "corrupt history rejected {\u0022version\u0022:1,\u0022workspaceHash\u0022:\u0022hash\u0022,\u0022alerts\u0022:null}",
+    "corrupt history rejected {\u0022version\u0022:1,\u0022workspaceHash\u0022:\u0022hash\u0022,\u0022alerts\u0022:[null]}",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 1330, Y = 20, Width = 90, Height = 110, MaxX = 1420, MaxY = 130, MidX = 1375, MidY = 75 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 675, Y = 395, Width = 90, Height = 110, MaxX = 765, MaxY = 505, MidX = 720, MidY = 450 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 1440, Height = 900, MaxX = 1440, MaxY = 900, MidX = 720, MidY = 450 }RectD { X = 20, Y = 770, Width = 90, Height = 110, MaxX = 110, MaxY = 880, MidX = 65, MidY = 825 }8",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }5",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }6",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = -180, Width = 90, Height = 110, MaxX = -1810, MaxY = -70, MidX = -1855, MidY = -125 }8",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }5",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }6",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -110, Y = -180, Width = 90, Height = 110, MaxX = -20, MaxY = -70, MidX = -65, MidY = -125 }8",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }5",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }6",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1005, Y = 285, Width = 90, Height = 110, MaxX = -915, MaxY = 395, MidX = -960, MidY = 340 }8",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }5",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }6",
+    "menu all buttons RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8",
+    "menu inside screen RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8",
+    "menu protects pet and label RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8",
+    "menu no overlap RectD { X = -1920, Y = -200, Width = 1920, Height = 1080, MaxX = 0, MaxY = 880, MidX = -960, MidY = 340 }RectD { X = -1900, Y = 750, Width = 90, Height = 110, MaxX = -1810, MaxY = 860, MidX = -1855, MidY = 805 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 20, Width = 90, Height = 110, MaxX = 110, MaxY = 130, MidX = 65, MidY = 75 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 690, Y = 20, Width = 90, Height = 110, MaxX = 780, MaxY = 130, MidX = 735, MidY = 75 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 355, Y = 245, Width = 90, Height = 110, MaxX = 445, MaxY = 355, MidX = 400, MidY = 300 }8",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }5",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }6",
+    "menu all buttons RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8",
+    "menu inside screen RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8",
+    "menu protects pet and label RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8",
+    "menu no overlap RectD { X = 0, Y = 0, Width = 800, Height = 600, MaxX = 800, MaxY = 600, MidX = 400, MidY = 300 }RectD { X = 20, Y = 470, Width = 90, Height = 110, MaxX = 110, MaxY = 580, MidX = 65, MidY = 525 }8",
+    "compact home menu radius",
+    "idle wave earliest 45 seconds",
+    "walk preserves wave deadline",
+    "idle after walk waves immediately",
+    "work clears wave deadline"
+  ]
+}

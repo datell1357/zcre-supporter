@@ -1,0 +1,16 @@
+global using System;
+global using System.Collections.Generic;
+global using System.IO;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using System.Windows;
+global using System.Windows.Controls;
+global using System.Windows.Media;
+global using System.Windows.Threading;
+global using System.Text.Json;
+global using ZcreSupporter.Core;
+global using Application = System.Windows.Application;
+global using Button = System.Windows.Controls.Button;
+global using Point = System.Windows.Point;
+global using Monitor = ZcreSupporter.Core.Monitor;
