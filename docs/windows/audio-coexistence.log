@@ -1,0 +1,2 @@
+PASS actual separate-process WAV peak detected; real PetAudio suppressed typing command
+PASS real PetAudio resumed typing after separate sound ended; no capture or device-volume change

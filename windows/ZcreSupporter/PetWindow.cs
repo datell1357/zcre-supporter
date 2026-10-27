@@ -242,10 +242,14 @@ internal sealed class PetWindow : Window
         for (var i = 0; i < 8; i++) { var d = i; controls.Children.Add(Ui.Action(directions[d] + " · 2초", () => Test("walk", 2, d))); }
         foreach (var (title, state, seconds) in new[] { ("대기", "idle", 2d), ("잡힘 왼쪽", "drag", 2d), ("잡힘 오른쪽", "drag", 2d), ("작업 중 · 6초", "working", 6d), ("작업 완료", "complete", Sprites.Get("complete").Duration), ("작업 실패", "cry", Sprites.Get("cry").Duration), ("손 흔들기", "wave", Sprites.Get("wave").Duration) }) controls.Children.Add(Ui.Action(title, () => { mirrored = title.Contains("왼쪽"); Test(state, seconds); }));
         controls.Children.Add(Ui.Action("중지", StopTest));
+        controls.Children.Add(Ui.Text("Ctrl+M 원형 메뉴 · Ctrl+N 로컬 알림 · Ctrl+H 지크 표시 전환", 11));
         window.PreviewKeyDown += (_, e) =>
         {
             if (e.Key == Key.Escape) { StopTest(); e.Handled = true; return; }
             if (Keyboard.Modifiers != ModifierKeys.Control) return;
+            if (e.Key == Key.M) { ShowMenu("home"); e.Handled = true; return; }
+            if (e.Key == Key.N) { store.TestNotification(); e.Handled = true; return; }
+            if (e.Key == Key.H) { store.Preferences.PetVisible = !store.Preferences.PetVisible; store.SavePreferences(); e.Handled = true; return; }
             if (e.Key is >= Key.D1 and <= Key.D8) { Test("walk", 2, e.Key - Key.D1); e.Handled = true; }
             else if (e.Key is Key.L or Key.R) { mirrored = e.Key == Key.L; Test("drag", 2); e.Handled = true; }
             else if (e.Key == Key.W) { Test("working", 6); e.Handled = true; }

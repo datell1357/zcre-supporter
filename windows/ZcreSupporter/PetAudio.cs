@@ -7,6 +7,7 @@ internal sealed class PetAudio : IDisposable
     private readonly MediaPlayer grab = new(), typing = new();
     private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private readonly PetSoundSchedule schedule = new();
+    internal event Action<SoundCommand>? CommandApplied;
     public PetAudio() { timer.Tick += (_, _) => Apply(schedule.Tick(CompanionStore.Uptime, OtherAudio.IsActive)); }
     public void Update(string state, bool enabled, double level)
     {
@@ -28,6 +29,7 @@ internal sealed class PetAudio : IDisposable
                 case SoundCommand.PlayTyping: typing.Open(new Uri(LocalData.Asset("Sounds/typing.wav"))); typing.Volume = schedule.Volume; typing.Play(); break;
                 case SoundCommand.StopTyping: typing.Close(); break;
             }
+            CommandApplied?.Invoke(command);
         }
     }
     public void Stop() { timer.Stop(); grab.Close(); typing.Close(); schedule.Reset(); }
