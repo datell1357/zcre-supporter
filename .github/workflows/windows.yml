@@ -1,0 +1,75 @@
+name: Windows build and contracts
+
+on:
+  push:
+    branches: [feature/windows-port]
+    paths:
+      - 'windows/**'
+      - 'Sources/ZCREBunny/Resources/**'
+      - 'Tests/ParityFixtures/**'
+      - 'Tests/BridgeTests/**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'windows/**'
+      - 'Sources/ZCREBunny/Resources/**'
+      - 'Tests/ParityFixtures/**'
+      - 'Tests/BridgeTests/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Test shared monitoring and decoder contracts
+        shell: pwsh
+        run: |
+          dotnet run --project windows/ZcreSupporter.Tests -c Release -- "$PWD"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test reused JavaScript bridge against mock responses
+        shell: pwsh
+        run: |
+          $tests = Get-ChildItem Tests/BridgeTests/*.test.mjs | ForEach-Object { $_.FullName }
+          node --test $tests
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Windows desktop app
+        shell: pwsh
+        run: |
+          dotnet build windows/ZcreSupporter -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Validate self-contained Windows packaging
+        shell: pwsh
+        run: |
+          dotnet publish windows/ZcreSupporter -c Release -r win-x64 --self-contained true -o windows/artifacts/ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($file in @('ZcreSupporter.exe', 'coreclr.dll', 'Resources/ReadSnapshot.js', 'Resources/Zic/idle.png', 'Resources/Sounds/grab.wav')) {
+            if (-not (Test-Path (Join-Path windows/artifacts/ci $file))) { throw "Required package file missing: $file" }
+          }
+      - name: Record verification scope
+        shell: pwsh
+        run: |
+          @'
+          ## Verification scope
+          Windows build, self-contained packaging, shared synthetic contracts and mock JavaScript tests only.
+          No ZCRE account, paid generation, interactive desktop, real notifications, DPI or audio validation runs in CI.
+          This workflow does not publish a release or establish Windows 10/11 desktop parity.
+          '@ >> $env:GITHUB_STEP_SUMMARY
