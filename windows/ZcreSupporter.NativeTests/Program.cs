@@ -7,6 +7,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] is "--media" or "--saved-media" || args.Length == 3 && args[0] == "--existing-result") return MediaChecks.Run(args);
         if (args.Length != 1 || !Path.IsPathFullyQualified(args[0])) throw new ArgumentException("An absolute workspace-local test-data directory is required.");
         LocalData.Initialize(["--data-dir", args[0]]);
         var timer = Stopwatch.StartNew(); var audio = OtherAudio.Inspect();

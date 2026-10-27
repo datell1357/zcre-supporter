@@ -1,0 +1,19 @@
+BEFORE — unchanged original document guard, actual WebView2
+navigation about_blank=False scheme=data data_html=True
+navigation success=False status=OperationCanceled
+FAIL native media check: InvalidOperationException
+   at MediaChecks.DocumentAsync(String directory, Uri preview, Boolean decode) in <workspace>\windows\ZcreSupporter.NativeTests\MediaChecks.cs:line 79
+   at MediaChecks.<>c__DisplayClass0_0.<<Run>b__0>d.MoveNext() in <workspace>\windows\ZcreSupporter.NativeTests\MediaChecks.cs:line 18
+
+exit 1
+AFTER — exact generated HTML only, same engine and shared app implementation
+navigation about_blank=False data_html=True
+navigation success=True status=Unknown
+PASS actual WebView2 DOM preserves escaped URL and restrictive CSP
+{"decoded":true,"muted_playback":true,"current_time":1.46925,"width":720,"height":1282,"states":["loaded","playing"]}
+navigation about_blank=False data_html=False
+navigation success=False status=OperationCanceled
+navigation about_blank=False data_html=True
+navigation success=False status=OperationCanceled
+PASS subsequent HTTPS and arbitrary data document navigation cancelled
+PASS late media message ignored after result lifetime cancellation

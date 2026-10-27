@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http;
-using System.Text.Encodings.Web;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Win32;
 
@@ -193,7 +191,7 @@ internal sealed class DashboardWindow : Window
         {
             var save = new SaveFileDialog { FileName = "ZCRE-result." + output.Extension, Filter = "미디어 파일|*." + output.Extension + "|모든 파일|*.*", OverwritePrompt = true };
             if (save.ShowDialog(window) != true) return;
-            try { await DownloadAsync(output.Download!, save.FileName, token); info.Text = "선택한 위치에 저장했어요."; }
+            try { await MediaPreview.DownloadAsync(output.Download!, save.FileName, token); info.Text = "선택한 위치에 저장했어요."; }
             catch (OperationCanceledException) { }
             catch { info.Text = "저장하지 못했어요. 결과를 다시 열어 링크를 갱신해 주세요."; }
         }
@@ -202,6 +200,7 @@ internal sealed class DashboardWindow : Window
             if (store.IsDemo) { info.Text = "미리보기에는 실제 결과 파일이 없어요. 실제 작업·크레딧은 사용하지 않았습니다."; return; }
             if (generation is null) throw new SnapshotException("authentication");
             var outputs = await store.Session.OutputsAsync(job, generation, token);
+            if (token.IsCancellationRequested) return;
             info.Text = outputs.Count == 0 ? "아직 제공된 결과가 없어요." : $"결과 {outputs.Count}개 · URL은 저장하지 않아요";
             window.PreviewKeyDown += async (_, e) => { if (outputs.Count > 0 && System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.S) { e.Handled = true; await SaveOutput(outputs[0]); } };
             foreach (var output in outputs)
@@ -211,23 +210,10 @@ internal sealed class DashboardWindow : Window
                 var mediaEnvironment = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("MediaWebView2"));
                 var mediaOptions = mediaEnvironment.CreateCoreWebView2ControllerOptions(); mediaOptions.IsInPrivateModeEnabled = true; mediaOptions.ProfileName = "MediaPrivate";
                 await player.EnsureCoreWebView2Async(mediaEnvironment, mediaOptions);
+                if (token.IsCancellationRequested) return;
                 player.CoreWebView2.Settings.AreDevToolsEnabled = false; player.CoreWebView2.PermissionRequested += (_, e) => e.State = Microsoft.Web.WebView2.Core.CoreWebView2PermissionState.Deny;
-                player.CoreWebView2.NavigationStarting += (_, e) => { if (e.Uri != "about:blank") e.Cancel = true; };
-                player.CoreWebView2.WebMessageReceived += (_, e) =>
-                {
-                    if (e.Source != "about:blank") return;
-                    try
-                    {
-                        using var doc = JsonDocument.Parse(e.WebMessageAsJson); var message = doc.RootElement;
-                        if (message.ValueKind != JsonValueKind.Object || !message.TryGetProperty("mediaState", out var state) || state.ValueKind != JsonValueKind.String) return;
-                        mediaStatus.Text = state.GetString() switch { "loaded" => "미리보기 준비됨", "playing" => "재생 중", "paused" => "일시 정지", "ended" => "재생 완료", "playDenied" => "미디어 안의 재생 버튼을 눌러 주세요.", "error" => "미리보기를 불러오지 못했어요. 결과를 다시 열어 주세요.", _ => mediaStatus.Text };
-                    }
-                    catch (JsonException) { }
-                };
-                var url = HtmlEncoder.Default.Encode(output.Preview!.AbsoluteUri); var media = output.Kind switch { "image" => $"<img src=\"{url}\" style=\"max-width:100%;max-height:320px\">", "video" => $"<video src=\"{url}\" controls style=\"max-width:100%;max-height:320px\"></video>", "audio" => $"<audio src=\"{url}\" controls></audio>", _ => "미리보기를 지원하지 않는 형식입니다." };
-                var nonce = Guid.NewGuid().ToString("N");
-                var monitorMedia = "const m=document.querySelector('img,video,audio');const send=mediaState=>window.chrome.webview.postMessage({mediaState});if(m){for(const name of ['load','loadeddata','canplay'])m.addEventListener(name,()=>send('loaded'));for(const name of ['playing','pause','ended','error'])m.addEventListener(name,()=>send(name==='pause'?'paused':name));if(m.tagName==='IMG'&&m.complete&&m.naturalWidth>0)send('loaded');}";
-                player.NavigateToString("<!doctype html><meta name=\"referrer\" content=\"no-referrer\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; img-src https:; media-src https:; style-src 'unsafe-inline'; script-src 'nonce-" + nonce + "'\"><body style=\"background:#1c1e22;color:white;display:grid;place-items:center;margin:0\">" + media + "<script nonce=\"" + nonce + "\">" + monitorMedia + "</script>");
+                MediaPreview.Observe(player, token, state => mediaStatus.Text = state switch { "loaded" => "미리보기 준비됨", "playing" => "재생 중", "paused" => "일시 정지", "ended" => "재생 완료", "playDenied" => "미디어 안의 재생 버튼을 눌러 주세요.", "error" => "미리보기를 불러오지 못했어요. 결과를 다시 열어 주세요.", _ => mediaStatus.Text });
+                MediaPreview.Navigate(player, output.Kind, output.Preview!);
                 if (output.Kind is "video" or "audio") panel.Children.Add(Ui.Action("재생 / 일시 정지", async () => await player.ExecuteScriptAsync("(()=>{const m=document.querySelector('video,audio');if(m){if(m.paused)m.play().catch(()=>window.chrome.webview.postMessage({mediaState:'playDenied'}));else m.pause();}})()")));
                 panel.Children.Add(Ui.Action("결과 저장…", async () => await SaveOutput(output)));
             }
@@ -235,26 +221,6 @@ internal sealed class DashboardWindow : Window
         }
         catch (OperationCanceledException) { }
         catch (Exception e) { info.Text = (e as SnapshotException)?.UserMessage ?? "결과를 가져오지 못했어요. 잠시 후 다시 열어 주세요."; }
-    }
-    private static async Task DownloadAsync(Uri uri, string destination, CancellationToken token)
-    {
-        using var client = new HttpClient(new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false }) { Timeout = TimeSpan.FromMinutes(10) };
-        var pending = Path.Combine(Path.GetDirectoryName(destination)!, ".zcre-download-" + Guid.NewGuid().ToString("N") + ".part");
-        try
-        {
-            for (var redirect = 0; redirect <= 5; redirect++)
-            {
-                if (JobOutput.SafeUrl(uri.AbsoluteUri) is null) throw new InvalidDataException();
-                using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
-                if ((int)response.StatusCode is >= 300 and < 400) { uri = response.Headers.Location is { } location ? new Uri(uri, location) : throw new InvalidDataException(); continue; }
-                response.EnsureSuccessStatusCode();
-                using (var stream = await response.Content.ReadAsStreamAsync(token))
-                using (var file = new FileStream(pending, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { await stream.CopyToAsync(file, token); await file.FlushAsync(token); file.Flush(true); }
-                token.ThrowIfCancellationRequested(); File.Move(pending, destination, true); return;
-            }
-            throw new InvalidDataException("Too many redirects");
-        }
-        finally { if (File.Exists(pending)) File.Delete(pending); }
     }
     public void Shutdown() { shuttingDown = true; settings?.Close(); detail?.Close(); store.Changed -= Refresh; status.Changed -= RefreshStatus; Close(); }
 }
