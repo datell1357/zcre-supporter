@@ -4,6 +4,8 @@ namespace ZcreSupporter.Core;
 
 public sealed class Preferences
 {
+    public bool HasLaunched { get; set; }
+    public bool NotificationsReviewed { get; set; }
     public bool PetVisible { get; set; } = true;
     public bool Roaming { get; set; } = true;
     public double PetScale { get; set; } = 1;
@@ -83,6 +85,17 @@ public sealed class BridgeEpoch
         AcceptedRevision = revision; candidate = null; return true;
     }
     public static bool TrustedOrigin(string source) => Uri.TryCreate(source, UriKind.Absolute, out var uri) && uri.Scheme == "https" && uri.IsDefaultPort && uri.UserInfo.Length == 0 && uri.Host is "www.zcre.co.kr" or "zcre.co.kr";
+}
+
+public sealed class ConnectionPresentation
+{
+    private bool hideAfterVerifiedSnapshot;
+    public void Open(bool needsConnection) => hideAfterVerifiedSnapshot = needsConnection;
+    public bool VerifiedSnapshot()
+    {
+        var hide = hideAfterVerifiedSnapshot; hideAfterVerifiedSnapshot = false; return hide;
+    }
+    public void Reset() => hideAfterVerifiedSnapshot = false;
 }
 
 public readonly record struct Point(double X, double Y)

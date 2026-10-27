@@ -14,7 +14,7 @@ internal static class LocalData
     public static string PathFor(string file) => Path.Combine(DirectoryPath, file);
     public static Preferences LoadPreferences()
     {
-        try { var p = JsonSerializer.Deserialize<Preferences>(File.ReadAllText(PathFor("preferences.json")), Json.Options) ?? new(); p.PetScale = double.IsFinite(p.PetScale) ? Math.Clamp(p.PetScale, .7, 1.5) : 1; p.PetSoundVolume = double.IsFinite(p.PetSoundVolume) ? Math.Clamp(p.PetSoundVolume, 0, 1) : .35; p.FocusStartMinute = Math.Clamp(p.FocusStartMinute, 0, 1439); p.FocusEndMinute = Math.Clamp(p.FocusEndMinute, 0, 1439); p.LowCreditThreshold = Math.Max(0, p.LowCreditThreshold); return p; }
+        try { var p = JsonSerializer.Deserialize<Preferences>(File.ReadAllText(PathFor("preferences.json")), Json.Options) ?? new(); p.PetScale = double.IsFinite(p.PetScale) ? Math.Clamp(p.PetScale, .7, 1.5) : 1; p.PetSoundVolume = double.IsFinite(p.PetSoundVolume) ? Math.Clamp(p.PetSoundVolume, 0, 1) : .35; p.PetX = p.PetX is { } x && double.IsFinite(x) ? x : null; p.PetY = p.PetY is { } y && double.IsFinite(y) ? y : null; p.FocusStartMinute = Math.Clamp(p.FocusStartMinute, 0, 1439); p.FocusEndMinute = Math.Clamp(p.FocusEndMinute, 0, 1439); p.LowCreditThreshold = Math.Max(0, p.LowCreditThreshold); return p; }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { return new(); }
     }
     public static bool Save(string filename, object data)

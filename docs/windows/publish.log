@@ -1,0 +1,6 @@
+  복원할 프로젝트를 확인하는 중...
+  <workspace>\windows\ZcreSupporter.Core\ZcreSupporter.Core.csproj을(를) 68밀리초 동안 복원했습니다.
+  <workspace>\windows\ZcreSupporter\ZcreSupporter.csproj을(를) 725밀리초 동안 복원했습니다.
+  ZcreSupporter.Core -> <workspace>\windows\ZcreSupporter.Core\bin\Release\net8.0\ZcreSupporter.Core.dll
+  ZcreSupporter -> <workspace>\windows\ZcreSupporter\bin\Release\net8.0-windows\win-x64\ZcreSupporter.dll
+  ZcreSupporter -> <workspace>\windows\artifacts\ZcreSupporter\

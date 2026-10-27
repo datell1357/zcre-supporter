@@ -13,7 +13,9 @@ internal sealed class DashboardWindow : Window
     private readonly StackPanel jobs = new(), balance = new(), alerts = new(), services = new();
     private readonly TextBlock connection = Ui.Text("연결 대기", 12), timestamps = Ui.Text("작업·크레딧 확인 대기", 11);
     private readonly TextBlock statusTime = Ui.Text("집계 대기", 11);
+    private readonly Border notificationNotice;
     private Window? settings, detail;
+    private string renderedMain = "", renderedDetail = "";
     private bool shuttingDown;
     public event Action? ResetPetRequested;
     public event Action? MotionTestsRequested;
@@ -27,6 +29,9 @@ internal sealed class DashboardWindow : Window
         var title = new StackPanel(); title.Children.Add(Ui.Text("ZCRE 서포터", 26, true)); title.Children.Add(connection); header.Children.Add(title);
         var actions = Ui.Actions(Ui.Action("ZCRE 계정 연결", () => _ = store.ConnectAsync()), Ui.Action("새로고침", () => { store.RequestRefresh(true); _ = status.RefreshAsync(); }), Ui.Action("설정", ShowSettings)); actions.HorizontalAlignment = HorizontalAlignment.Right; header.Children.Add(actions);
         DockPanel.SetDock(header, Dock.Top); root.Children.Add(header); DockPanel.SetDock(timestamps, Dock.Bottom); root.Children.Add(timestamps); timestamps.Foreground = Ui.Muted;
+        var notice = new StackPanel(); notice.Children.Add(Ui.Text("Windows 알림도 확인해 주세요", 14, true)); notice.Children.Add(Ui.Text("앱 내 기록은 계속 남아요. Windows 배너·소리는 시스템 알림 설정과 집중 지원에 따라 표시되지 않을 수 있어요.", 11));
+        notice.Children.Add(Ui.Actions(Ui.Action("테스트 알림 보내기", store.TestNotification), Ui.Action("Windows 알림 설정", () => OpenWeb("ms-settings:notifications")), Ui.Action("나중에 확인", () => { store.Preferences.NotificationsReviewed = true; store.SavePreferences(); })));
+        notificationNotice = Ui.Card(notice); DockPanel.SetDock(notificationNotice, Dock.Top); root.Children.Add(notificationNotice);
         var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1.15, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) });
         var left = Ui.Section("진행 작업"); left.Children.Add(jobs);
         var middle = Ui.Section("크레딧"); middle.Children.Add(balance); middle.Children.Add(Ui.Text("최근 알림", 16, true)); middle.Children.Add(alerts); middle.Children.Add(Ui.Action("알림 전체 보기", ShowDetails));
@@ -52,8 +57,13 @@ internal sealed class DashboardWindow : Window
     {
         connection.Text = store.IsDemo ? "미리보기 · 가상 데이터 · 크레딧을 사용하지 않아요" : store.Connection;
         connection.Foreground = store.Snapshot is null ? Ui.Muted : Ui.Accent;
-        jobs.Children.Clear(); balance.Children.Clear(); alerts.Children.Clear();
+        notificationNotice.Visibility = !store.IsDemo && !store.Preferences.NotificationsReviewed ? Visibility.Visible : Visibility.Collapsed;
         var snapshot = store.Snapshot;
+        var revision = JsonSerializer.Serialize(new { key = snapshot?.WorkspaceKey, snapshot?.Balance, snapshot?.BalanceIsStale, snapshot?.Jobs, snapshot?.Concurrency, store.History.Alerts, store.History.ClearedThrough, store.IsDemo }, Json.Options);
+        if (revision != renderedMain)
+        {
+        renderedMain = revision;
+        jobs.Children.Clear(); balance.Children.Clear(); alerts.Children.Clear();
         if (snapshot is null)
         {
             jobs.Children.Add(Ui.Card(Ui.Text("계정을 연결하면 진행 중인 작업을 여기에 표시해요.")));
@@ -72,8 +82,10 @@ internal sealed class DashboardWindow : Window
         }
         foreach (var alert in store.History.Alerts.Take(10)) alerts.Children.Add(AlertCard(alert));
         if (store.History.Alerts.Count == 0) alerts.Children.Add(Ui.Text(store.History.ClearedThrough is null ? "연결 후 최근 완료·실패 기록을 보여드려요." : "알림 기록을 지웠어요. 새로운 알림을 기다려요.", 12));
+        }
         if (snapshot is not null) timestamps.Text = "작업 " + snapshot.FetchedAt.ToLocalTime().ToString("HH:mm:ss") + " 확인 · 크레딧 " + DateTimeOffset.FromUnixTimeMilliseconds((long)snapshot.BalanceFetchedAt).ToLocalTime().ToString("HH:mm:ss") + " 확인 · 작업 5초 / 크레딧 60초 · " + (snapshot.HistoryTruncated ? "최초 기록 최대 1,000개" : "읽기 전용 감시");
         else timestamps.Text = "로그인은 앱 전용 웹 세션에만 보관돼요. 생성·결제 요청을 보내지 않아요.";
+        if (detail is { IsVisible: true }) RefreshDetails();
     }
     private UIElement JobCard(Job job)
     {
@@ -100,18 +112,28 @@ internal sealed class DashboardWindow : Window
     {
         if (detail is not null) { detail.Activate(); return; }
         store.MarkRead(30);
+        renderedDetail = ""; detail = Ui.Window("상세 현황", new StackPanel(), 650, 750); RefreshDetails(); detail.Closed += (_, _) => detail = null; detail.Show();
+    }
+    private void RefreshDetails()
+    {
+        if (detail is null) return;
+        store.MarkRead(30);
+        var revision = JsonSerializer.Serialize(new { store.Snapshot?.WorkspaceKey, store.Snapshot?.Jobs, store.History.Alerts, store.History.ClearedThrough }, Json.Options);
+        if (revision == renderedDetail) return;
+        renderedDetail = revision;
         var panel = new StackPanel(); panel.Children.Add(Ui.Text("작업 기록과 알림", 24, true));
         panel.Children.Add(Ui.Action("알림 전체 지우기", () => { if (MessageBox.Show("이 앱에 보관된 최근 알림 기록만 비웁니다. 서버 작업은 유지됩니다.\n대상: " + LocalData.PathFor("RecentAlerts.json"), "알림 기록 지우기", MessageBoxButton.OKCancel) == MessageBoxResult.OK) { store.ClearHistory(); detail?.Close(); ShowDetails(); } }));
         foreach (var job in store.Snapshot?.Jobs ?? []) panel.Children.Add(JobCard(job));
         panel.Children.Add(Ui.Text("전체 알림 · 최대 30개", 18, true)); foreach (var alert in store.History.Alerts) panel.Children.Add(AlertCard(alert));
         if (store.History.Alerts.Count == 0) panel.Children.Add(Ui.Text("아직 보관된 알림이 없어요."));
-        detail = Ui.Window("상세 현황", new ScrollViewer { Content = panel }, 650, 750); detail.Closed += (_, _) => detail = null; detail.Show();
+        detail.Content = new Border { Padding = new Thickness(24), Child = new ScrollViewer { Content = panel } };
     }
     public void ShowSettings()
     {
         if (settings is not null) { settings.Activate(); return; }
         var panel = new StackPanel(); panel.Children.Add(Ui.Text("지크 설정", 24, true)); panel.Children.Add(Ui.Text("편안한 작업 리듬에 맞춰 주세요.", 12));
-        void Toggle(string title, Func<bool> get, Action<bool> set) { var checkbox = new CheckBox { Content = title, IsChecked = get() }; checkbox.Checked += (_, _) => { set(true); store.SavePreferences(); }; checkbox.Unchecked += (_, _) => { set(false); store.SavePreferences(); }; panel.Children.Add(checkbox); }
+        var synchronizers = new List<Action>(); var synchronizing = false;
+        void Toggle(string title, Func<bool> get, Action<bool> set) { var checkbox = new CheckBox { Content = title, IsChecked = get() }; checkbox.Checked += (_, _) => { if (!synchronizing) { set(true); store.SavePreferences(); } }; checkbox.Unchecked += (_, _) => { if (!synchronizing) { set(false); store.SavePreferences(); } }; synchronizers.Add(() => checkbox.IsChecked = get()); panel.Children.Add(checkbox); }
         void Heading(string title) => panel.Children.Add(Ui.Text("\n" + title, 17, true));
         var p = store.Preferences;
         Heading("바탕화면"); Toggle("바탕화면에 지크 보이기", () => p.PetVisible, v => p.PetVisible = v); Toggle("산책 활성화", () => p.Roaming, v => p.Roaming = v); Toggle("트레이 툴팁에 크레딧 표시", () => p.ShowTrayCredits, v => p.ShowTrayCredits = v);
@@ -121,6 +143,7 @@ internal sealed class DashboardWindow : Window
         Heading("알림"); Toggle("지크 숨김 시 바탕화면 배너", () => p.BannerAlerts, v => p.BannerAlerts = v); Toggle("작업 완료", () => p.CompletionAlerts, v => p.CompletionAlerts = v); Toggle("작업 실패", () => p.FailureAlerts, v => p.FailureAlerts = v); Toggle("크레딧 부족", () => p.LowCreditAlerts, v => p.LowCreditAlerts = v); Toggle("시스템 알림 소리", () => p.NotificationSound, v => p.NotificationSound = v);
         var threshold = new TextBox { Text = p.LowCreditThreshold.ToString(), ToolTip = "크레딧 알림 임계값" }; threshold.LostFocus += (_, _) => { if (decimal.TryParse(threshold.Text, out var value) && value >= 0) { p.LowCreditThreshold = value; store.SavePreferences(); } else threshold.Text = p.LowCreditThreshold.ToString(); }; panel.Children.Add(Ui.Text("크레딧 임계값 이하에서 알림")); panel.Children.Add(threshold);
         panel.Children.Add(Ui.Action("Windows 알림 설정 열기", () => OpenWeb("ms-settings:notifications")));
+        var notificationStatus = Ui.Text(store.NotificationStatus, 11); panel.Children.Add(notificationStatus); synchronizers.Add(() => notificationStatus.Text = store.NotificationStatus); panel.Children.Add(Ui.Action("로컬 테스트 알림 보내기", store.TestNotification));
         Heading("작업 종류별 알림"); Toggle("이미지 작업", () => p.ImageJobAlerts, v => p.ImageJobAlerts = v); Toggle("영상 작업", () => p.VideoJobAlerts, v => p.VideoJobAlerts = v); Toggle("업스케일 작업", () => p.UpscaleJobAlerts, v => p.UpscaleJobAlerts = v); Toggle("오디오 작업", () => p.AudioJobAlerts, v => p.AudioJobAlerts = v); Toggle("기타 작업", () => p.OtherJobAlerts, v => p.OtherJobAlerts = v);
         Heading("집중 모드"); Toggle("지금 집중하기", () => p.FocusNow, v => p.FocusNow = v); Toggle("매일 정해진 시간에 집중", () => p.FocusSchedule, v => p.FocusSchedule = v);
         var start = new TextBox { Text = Time(p.FocusStartMinute), ToolTip = "집중 시작 HH:mm" }; var end = new TextBox { Text = Time(p.FocusEndMinute), ToolTip = "집중 종료 HH:mm" };
@@ -141,7 +164,9 @@ internal sealed class DashboardWindow : Window
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Alt && e.SystemKey == System.Windows.Input.Key.D)
             { debugStatus.Text = store.EnableDebug(code.Password) ? "활성화됨" : "코드가 일치하지 않아요"; motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed; code.Clear(); e.Handled = true; }
         };
-        settings.Closed += (_, _) => settings = null; settings.Show();
+        void SynchronizeSettings() { synchronizing = true; try { foreach (var sync in synchronizers) sync(); } finally { synchronizing = false; } }
+        store.Changed += SynchronizeSettings;
+        settings.Closed += (_, _) => { store.Changed -= SynchronizeSettings; settings = null; }; settings.Show();
     }
     private static string Time(int minute) => $"{minute / 60:00}:{minute % 60:00}";
     private static int ParseTime(string text, int fallback) => TimeSpan.TryParseExact(text, @"hh\:mm", null, out var value) && value.TotalMinutes is >= 0 and < 1440 ? (int)value.TotalMinutes : fallback;
@@ -172,7 +197,9 @@ internal sealed class DashboardWindow : Window
             foreach (var output in outputs)
             {
                 var player = new WebView2 { Height = 340, Margin = new Thickness(0, 8, 0, 8) }; panel.Children.Add(player); players.Add(player);
-                await player.EnsureCoreWebView2Async(await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("MediaWebView2")));
+                var mediaEnvironment = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("MediaWebView2"));
+                var mediaOptions = mediaEnvironment.CreateCoreWebView2ControllerOptions(); mediaOptions.IsInPrivateModeEnabled = true; mediaOptions.ProfileName = "MediaPrivate";
+                await player.EnsureCoreWebView2Async(mediaEnvironment, mediaOptions);
                 player.CoreWebView2.Settings.AreDevToolsEnabled = false; player.CoreWebView2.PermissionRequested += (_, e) => e.State = Microsoft.Web.WebView2.Core.CoreWebView2PermissionState.Deny;
                 player.CoreWebView2.NavigationStarting += (_, e) => { if (e.Uri != "about:blank") e.Cancel = true; };
                 var url = HtmlEncoder.Default.Encode(output.Preview!.AbsoluteUri); var media = output.Kind switch { "image" => $"<img src=\"{url}\" style=\"max-width:100%;max-height:320px\">", "video" => $"<video src=\"{url}\" controls style=\"max-width:100%;max-height:320px\"></video>", "audio" => $"<audio src=\"{url}\" controls></audio>", _ => "미리보기를 지원하지 않는 형식입니다." };
@@ -194,14 +221,22 @@ internal sealed class DashboardWindow : Window
     private static async Task DownloadAsync(Uri uri, string destination, CancellationToken token)
     {
         using var client = new HttpClient(new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false }) { Timeout = TimeSpan.FromMinutes(10) };
-        for (var redirect = 0; redirect <= 5; redirect++)
+        var pending = Path.Combine(Path.GetDirectoryName(destination)!, ".zcre-download-" + Guid.NewGuid().ToString("N") + ".part");
+        try
         {
-            if (JobOutput.SafeUrl(uri.AbsoluteUri) is null) throw new InvalidDataException();
-            using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
-            if ((int)response.StatusCode is >= 300 and < 400) { uri = response.Headers.Location is { } location ? new Uri(uri, location) : throw new InvalidDataException(); continue; }
-            response.EnsureSuccessStatusCode(); using var stream = await response.Content.ReadAsStreamAsync(token); using var file = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None); await stream.CopyToAsync(file, token); return;
+            for (var redirect = 0; redirect <= 5; redirect++)
+            {
+                if (JobOutput.SafeUrl(uri.AbsoluteUri) is null) throw new InvalidDataException();
+                using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, token);
+                if ((int)response.StatusCode is >= 300 and < 400) { uri = response.Headers.Location is { } location ? new Uri(uri, location) : throw new InvalidDataException(); continue; }
+                response.EnsureSuccessStatusCode();
+                using (var stream = await response.Content.ReadAsStreamAsync(token))
+                using (var file = new FileStream(pending, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { await stream.CopyToAsync(file, token); await file.FlushAsync(token); file.Flush(true); }
+                token.ThrowIfCancellationRequested(); File.Move(pending, destination, true); return;
+            }
+            throw new InvalidDataException("Too many redirects");
         }
-        throw new InvalidDataException("Too many redirects");
+        finally { if (File.Exists(pending)) File.Delete(pending); }
     }
     public void Shutdown() { shuttingDown = true; settings?.Close(); detail?.Close(); store.Changed -= Refresh; status.Changed -= RefreshStatus; Close(); }
 }

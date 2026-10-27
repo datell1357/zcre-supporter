@@ -11,6 +11,7 @@ internal sealed class WebSession : IDisposable
     private readonly Dictionary<string, (DateTimeOffset Until, List<JobOutput> Outputs)> outputCache = [];
     private readonly List<Window> popups = [];
     private readonly BridgeEpoch epoch = new();
+    private readonly ConnectionPresentation presentation = new();
     private CoreWebView2Environment? environment;
     private Task? initialization;
     private bool disposed;
@@ -93,10 +94,11 @@ internal sealed class WebSession : IDisposable
         foreach (var task in pending.Values) task.TrySetCanceled();
         pending.Clear();
     }
-    public async Task ShowAsync()
+    public async Task ShowAsync(bool needsConnection = false)
     {
-        await StartAsync(); window.Show(); window.WindowState = WindowState.Normal; window.Activate();
+        await StartAsync(); presentation.Open(needsConnection); window.Show(); window.WindowState = WindowState.Normal; window.Activate();
     }
+    public void CompleteConnection() { if (presentation.VerifiedSnapshot()) window.Hide(); }
     private async Task<string> CallAsync(string resource, Dictionary<string, object?> arguments, CancellationToken cancellationToken)
     {
         await StartAsync();
@@ -178,11 +180,11 @@ internal sealed class WebSession : IDisposable
     }
     public async Task DisconnectAsync()
     {
-        ResetPending(); await AbortAsync(); balanceRefreshUntil = 0; balanceRetryAt = 0; RetryNotBefore = default;
+        ResetPending(); presentation.Reset(); await AbortAsync(); balanceRefreshUntil = 0; balanceRetryAt = 0; RetryNotBefore = default;
         foreach (var popup in popups.ToArray()) popup.Close();
         if (View.CoreWebView2 is not null) { View.CoreWebView2.Stop(); await View.CoreWebView2.Profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.AllProfile); View.CoreWebView2.Navigate("about:blank"); }
         Loaded = false; window.Hide();
     }
-    public async Task ReconnectAsync() { await StartAsync(); if (View.CoreWebView2.Source == "about:blank") View.CoreWebView2.Navigate("https://www.zcre.co.kr/credits"); await ShowAsync(); }
+    public async Task ReconnectAsync(bool needsConnection = false) { await StartAsync(); if (View.CoreWebView2.Source == "about:blank") View.CoreWebView2.Navigate("https://www.zcre.co.kr/credits"); await ShowAsync(needsConnection); }
     public void Dispose() { disposed = true; ResetPending(); foreach (var p in popups.ToArray()) p.Close(); View.Dispose(); window.Close(); }
 }

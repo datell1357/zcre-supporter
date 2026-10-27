@@ -83,4 +83,22 @@ foreach (var count in new[] { 5, 6, 8 })
 }
 var compact = new PetMenuLayout(new(600, 400, 90, 110), new(0, 0, 1440, 900), 5, true); Check("compact home menu radius", compact.Radius is >= 110 and <= 120);
 var wave = new IdleWaveSchedule(); Check("idle wave earliest 45 seconds", wave.Delay(0, true, true, 0) == 45); Check("walk preserves wave deadline", wave.Delay(50, true, false, 1) is null && wave.DueAt == 45); Check("idle after walk waves immediately", wave.Delay(50, true, true, 1) == 0); Check("work clears wave deadline", wave.Delay(51, false, false, 1) is null && wave.DueAt is null);
+var quietHistory = new History(); var quietPreferences = new Preferences { VideoJobAlerts = false }; var completedVideo = new Job("quiet", "seedance-2.5", "video", "succeeded", DateTimeOffset.Now.AddMinutes(-2)); var quietAt = DateTimeOffset.Now;
+var quiet = AlertPolicy.Record(new("completed", completedVideo), quietPreferences, quietHistory, false, quietAt);
+Check("type filter keeps a live notification record", quiet is { Present: false } && quietHistory.Alerts.Single().Source == "notification" && quietHistory.Alerts.Single().CreatedAt == quietAt && !quietHistory.Alerts.Single().IsRead);
+Check("persisted alert key prevents repeat", AlertPolicy.Record(new("completed", completedVideo), new(), quietHistory, false, quietAt.AddSeconds(5)) is null && quietHistory.Alerts.Count == 1);
+var focusHistory = new History(); var focused = AlertPolicy.Record(new("failed", completedVideo with { Id = "failed", Status = "failed" }), new() { FocusNow = true }, focusHistory, false, quietAt); Check("focus retains exact failed event without presentation", focused is { Present: false } && focusHistory.Alerts.Single().Title.EndsWith("확인 필요"));
+Check("global completion switch still disables event", AlertPolicy.Record(new("completed", completedVideo with { Id = "disabled" }), new() { CompletionAlerts = false }, new(), false, quietAt) is null);
+var audio = new PetSoundSchedule(); var calls = 0; bool Other() { calls++; return false; }
+Check("typing starts on work entry", audio.Update(0, "working", true, .35, Other).Contains(SoundCommand.PlayTyping));
+for (var i = 1; i < 240; i++) audio.Update(i / 24d, "working", true, .35, Other);
+Check("240 unchanged frames do not enumerate audio", calls == 1);
+audio.Tick(.5, Other); Check("audio checks only scheduled half-second tick", calls == 2);
+Check("typing stops after one second", audio.Tick(1, Other).Contains(SoundCommand.StopTyping));
+Check("five-second typing rest", audio.Tick(5.9, Other).Count == 0 && calls == 2);
+Check("typing resumes at six seconds", audio.Tick(6, Other).Contains(SoundCommand.PlayTyping) && calls == 3);
+Check("hidden pet stops audio timer", audio.Update(7, "working", false, .35, Other).Contains(SoundCommand.StopTyping) && !audio.NeedsTimer);
+Check("drag starts exactly once", audio.Update(8, "drag", true, .35, Other).Contains(SoundCommand.PlayGrab) && !audio.Update(8.1, "drag", true, .35, Other).Contains(SoundCommand.PlayGrab));
+var quietAudio = new PetSoundSchedule(); Check("other audio suppresses typing", !quietAudio.Update(0, "working", true, .35, () => true).Contains(SoundCommand.PlayTyping));
+var connectionUi = new ConnectionPresentation(); connectionUi.Open(true); Check("verified login hides connection window once", connectionUi.VerifiedSnapshot() && !connectionUi.VerifiedSnapshot()); connectionUi.Open(false); Check("intentional account view stays open", !connectionUi.VerifiedSnapshot()); connectionUi.Open(true); connectionUi.Reset(); Check("disconnect cancels pending hide", !connectionUi.VerifiedSnapshot());
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", count = passed.Count, tests = passed }, Json.Options));

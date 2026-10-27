@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "os": "Windows 10 IoT Enterprise LTSC 2021 build 19044",
+  "timeZone": "Asia/Seoul",
+  "generatedAt": "2026-10-27T13:54:59.201Z",
+  "capture": {
+    "desktopScreenshot": "unavailable: Windows.Graphics.Capture timed out",
+    "alternative": "live accessibility observations and explicitly labeled live WPF demo renders"
+  },
+  "demo": {
+    "nativeCompletionAction": true,
+    "activeCountChangedFrom2To1": true,
+    "syntheticCreditChangedFrom1160To1240": true,
+    "newCompletionAlert": true,
+    "settingsWindowObserved": true,
+    "debugTestButtonHiddenBeforeUnlock": true
+  },
+  "authenticatedAccount": {
+    "checkedAt": "2026-10-27T13:41:21.061Z",
+    "connected": true,
+    "loginRequired": false,
+    "invalidResponse": false,
+    "networkDelayed": false,
+    "hasCreditValue": true,
+    "hasRefreshTimes": true
+  },
+  "livePolling": {
+    "checkedAt": "2026-10-27T13:44:11.222Z",
+    "connected": true,
+    "activeJobCount": "0",
+    "hasCompletedResultButtons": true,
+    "pollingTimesAdvanced": true
+  },
+  "sessionRestore": {
+    "checkedAt": "2026-10-27T13:45:38.230Z",
+    "connected": true,
+    "loginRequired": false,
+    "accountWindowVisible": false,
+    "hasCreditValue": true,
+    "hasRefreshTimes": true
+  },
+  "paidGenerationCreated": false,
+  "privacy": "No account identifiers, real credit amounts, job metadata, credentials or media URLs included"
+}

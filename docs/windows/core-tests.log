@@ -262,9 +262,25 @@ PASS idle wave earliest 45 seconds
 PASS walk preserves wave deadline
 PASS idle after walk waves immediately
 PASS work clears wave deadline
+PASS type filter keeps a live notification record
+PASS persisted alert key prevents repeat
+PASS focus retains exact failed event without presentation
+PASS global completion switch still disables event
+PASS typing starts on work entry
+PASS 240 unchanged frames do not enumerate audio
+PASS audio checks only scheduled half-second tick
+PASS typing stops after one second
+PASS five-second typing rest
+PASS typing resumes at six seconds
+PASS hidden pet stops audio timer
+PASS drag starts exactly once
+PASS other audio suppresses typing
+PASS verified login hides connection window once
+PASS intentional account view stays open
+PASS disconnect cancels pending hide
 {
   "status": "passed",
-  "count": 264,
+  "count": 280,
   "tests": [
     "decoder fixture array-root",
     "decoder fixture null-root",
@@ -529,6 +545,22 @@ PASS work clears wave deadline
     "idle wave earliest 45 seconds",
     "walk preserves wave deadline",
     "idle after walk waves immediately",
-    "work clears wave deadline"
+    "work clears wave deadline",
+    "type filter keeps a live notification record",
+    "persisted alert key prevents repeat",
+    "focus retains exact failed event without presentation",
+    "global completion switch still disables event",
+    "typing starts on work entry",
+    "240 unchanged frames do not enumerate audio",
+    "audio checks only scheduled half-second tick",
+    "typing stops after one second",
+    "five-second typing rest",
+    "typing resumes at six seconds",
+    "hidden pet stops audio timer",
+    "drag starts exactly once",
+    "other audio suppresses typing",
+    "verified login hides connection window once",
+    "intentional account view stays open",
+    "disconnect cancels pending hide"
   ]
 }

@@ -1,10 +1,10 @@
   복원할 프로젝트를 확인하는 중...
   복원할 모든 프로젝트가 최신 상태입니다.
-  ZcreSupporter.Core -> C:\Users\datell1357\Documents\Codex\2026-10-22\sj\zcre-supporter-windows\windows\ZcreSupporter.Core\bin\Release\net8.0\ZcreSupporter.Core.dll
-  ZcreSupporter -> C:\Users\datell1357\Documents\Codex\2026-10-22\sj\zcre-supporter-windows\windows\ZcreSupporter\bin\Release\net8.0-windows\ZcreSupporter.dll
+  ZcreSupporter.Core -> <workspace>\windows\ZcreSupporter.Core\bin\Release\net8.0\ZcreSupporter.Core.dll
+  ZcreSupporter -> <workspace>\windows\ZcreSupporter\bin\Release\net8.0-windows\ZcreSupporter.dll
 
 빌드했습니다.
     경고 0개
     오류 0개
 
-경과 시간: 00:00:01.42
+경과 시간: 00:00:01.17

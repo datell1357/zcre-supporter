@@ -28,6 +28,8 @@ python windows/run.py --demo --data-dir C:\absolute\workspace\test-data
 
 키보드: `Ctrl+,` 설정, `Ctrl+H` 상세 현황, `Ctrl+R` 갱신, `Ctrl+D` 미리보기/미리보기 완료, `Ctrl+Q` 앱 종료. 설정의 코드 입력 후 `Alt+D`로 디버그를 활성화할 수 있습니다.
 
+첫 실행은 현황판을 표시하고, 이후 실행은 트레이에서 시작합니다. `--show-dashboard`로 현황판, `--connect`로 계정 연결 창을 명시적으로 열 수 있습니다. 이미 실행 중이면 두 번째 실행은 기존 현황판만 표시합니다.
+
 ## 검증과 패키징
 
 [구현/검증 상태](../docs/windows/IMPLEMENTATION.md)와 [24개 판정 기준](../docs/windows/PARITY.md)을 참조하세요. 로그인/유료 생성/장시간/다중 DPI 등 미검증 항목을 자동 검사 결과로 대체하지 않습니다.

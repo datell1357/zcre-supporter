@@ -15,6 +15,7 @@ internal sealed class CompanionStore : IDisposable
     public bool DebugEnabled { get; private set; }
     public bool FocusActive => Preferences.IsFocusActive(DateTime.Now);
     public string Connection { get; private set; } = "연결 대기";
+    public string NotificationStatus { get; private set; } = "Windows 알림 허용 여부는 아직 확인하지 않았어요.";
     public string? Bubble { get; private set; }
     public DateTimeOffset? Celebration { get; private set; }
     public DateTimeOffset? Failure { get; private set; }
@@ -27,6 +28,7 @@ internal sealed class CompanionStore : IDisposable
     private int generation, failures;
     private bool forceBalance, allowed = true, focusWasActive;
     private DateTimeOffset bubbleUntil;
+    private string savedHistory = "";
     public event Action? Changed;
     public event Action<Alert>? AlertRaised;
     public event Action? ResetAlerts;
@@ -64,7 +66,7 @@ internal sealed class CompanionStore : IDisposable
     {
         if (IsDemo) LeaveDemo();
         allowed = true; Connection = "연결 확인 중"; Changed?.Invoke();
-        try { await Session.ReconnectAsync(); } catch { Connection = "계정 창을 열지 못했어요"; Changed?.Invoke(); }
+        try { await Session.ReconnectAsync(Snapshot is null); } catch { Connection = "계정 창을 열지 못했어요"; Changed?.Invoke(); }
     }
     public void RequestRefresh(bool balance = false)
     {
@@ -84,6 +86,7 @@ internal sealed class CompanionStore : IDisposable
             if (generation != thisGeneration || !Session.Accept(candidate.Revision, candidate.Snapshot)) return;
             Apply(candidate.Snapshot); failures = 0;
             Connection = candidate.Snapshot.BalanceIsStale ? "크레딧 갱신 지연 · 작업 상태 최신" : "연결됨";
+            Session.CompleteConnection();
         }
         catch (OperationCanceledException) { }
         catch (Exception error)
@@ -110,17 +113,12 @@ internal sealed class CompanionStore : IDisposable
     }
     private void Handle(MonitorEvent e)
     {
-        if (e.Job is not null && !Preferences.Allows(e.Job)) return;
-        if (e.Kind == "completed" && !Preferences.CompletionAlerts || e.Kind == "failed" && !Preferences.FailureAlerts || e.Kind == "lowCredits" && !Preferences.LowCreditAlerts) return;
-        var title = e.Kind switch { "completed" => e.Job!.WorkName + " 완료", "failed" => e.Job!.WorkName + " 실패", _ => "크레딧 부족" };
-        var body = e.Job is { } job ? job.StartLabel + " 시작 · " + (e.Kind == "completed" ? "작업 완료" : "작업 실패") : "사용 가능 " + e.Credits?.ToString("#,0.##") + " Credit";
-        var alert = new Alert(Guid.NewGuid().ToString(), e.Kind, (IsDemo ? "[미리보기] " : "") + title, body, DateTimeOffset.Now, false, "notification", e.Job?.HistoryKey);
-        History.Alerts.Insert(0, alert); History.Trim();
-        if (!FocusActive)
+        var decision = AlertPolicy.Record(e, Preferences, History, IsDemo, DateTimeOffset.Now);
+        if (decision is { Present: true })
         {
             if (e.Kind == "completed") { Failure = null; Celebration = DateTimeOffset.UtcNow; }
             else if (e.Kind == "failed") { Celebration = null; Failure = DateTimeOffset.UtcNow; }
-            Say(title + "\n" + body); AlertRaised?.Invoke(alert);
+            Say(decision.Bubble); AlertRaised?.Invoke(decision.Alert);
         }
     }
     public void EnterDemo()
@@ -135,16 +133,36 @@ internal sealed class CompanionStore : IDisposable
     public void SimulateCompletion() { if (IsDemo) Apply(Demo.Snapshot(1)); }
     public bool EnableDebug(string code) { DebugEnabled = code.Trim() == "zcrenext"; Changed?.Invoke(); return DebugEnabled; }
     public void DisableDebug() { DebugEnabled = false; Changed?.Invoke(); }
+    public void NotifyVisualState() => Changed?.Invoke();
     public void Say(string text) { if (FocusActive) return; Bubble = text; bubbleUntil = DateTimeOffset.UtcNow.AddSeconds(8); Changed?.Invoke(); }
+    public void TestNotification()
+    {
+        if (FocusActive) { NotificationStatus = "집중 모드 중에는 테스트 알림도 쉬어요."; Changed?.Invoke(); return; }
+        var alert = new Alert(Guid.NewGuid().ToString(), "completed", "알림 전달 테스트", "ZCRE 서포터의 로컬 테스트예요. 작업·크레딧은 사용하지 않았어요.", DateTimeOffset.Now, false, "notification", null);
+        History.Alerts.Insert(0, alert); History.Trim(); SaveHistory();
+        Preferences.NotificationsReviewed = true; SavePreferences(); AlertRaised?.Invoke(alert); Say("테스트 알림을 요청했어요. Windows 표시 여부를 확인해 주세요.");
+    }
+    public void SetNotificationStatus(bool accepted) { NotificationStatus = accepted ? "Windows에 전달을 요청했어요. 실제 표시는 알림 설정·집중 지원에 따라 달라져요." : "Windows에 전달하지 못했어요. 알림 설정을 확인해 주세요."; Changed?.Invoke(); }
     public void ClearHistory() { History.Clear(DateTimeOffset.UtcNow); SaveHistory(); Changed?.Invoke(); }
     public void MarkRead(int count) { History.MarkRead(count); SaveHistory(); }
     public Job? JobFor(Alert alert) => Snapshot?.Jobs.FirstOrDefault(j => j.HistoryKey == alert.JobKey);
-    private void SaveHistory() { if (!IsDemo && Snapshot is not null) LocalData.Save("RecentAlerts.json", History); }
-    public void SavePreferences() { LocalData.Save("preferences.json", Preferences); Changed?.Invoke(); }
+    private void SaveHistory()
+    {
+        if (IsDemo || Snapshot is null) return;
+        var json = JsonSerializer.Serialize(History, Json.Options);
+        if (json != savedHistory && LocalData.Save("RecentAlerts.json", History)) savedHistory = json;
+    }
+    public void SavePreferences()
+    {
+        LocalData.Save("preferences.json", Preferences);
+        if (FocusActive) { Celebration = Failure = null; Bubble = null; ResetAlerts?.Invoke(); }
+        Changed?.Invoke();
+    }
     public async Task DisconnectAsync()
     {
         Cancel(); allowed = false; Snapshot = null; monitor.Reset(); History = new(); Bubble = null; Celebration = Failure = null; Connection = "연결 대기"; ResetAlerts?.Invoke();
         LocalData.Save("RecentAlerts.json", History);
+        savedHistory = ""; Changed?.Invoke();
         await Session.DisconnectAsync(); Changed?.Invoke();
     }
     public object Diagnostics() => new { formatVersion = 1, appVersion = "0.2.20-windows.1", windows = Environment.OSVersion.VersionString, architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString(), generatedAt = DateTimeOffset.UtcNow, connection = Snapshot is null ? "unverified" : "connected", IsRefreshing, IsDemo, activeJobCount = ActiveCount, unreadAlertCount = History.Alerts.Count(a => !a.IsRead), Preferences.PetVisible, Preferences.PetScale, displayCount = System.Windows.Forms.Screen.AllScreens.Length };

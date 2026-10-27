@@ -18,6 +18,7 @@ internal sealed class PetWindow : Window
     private double? waveStarted;
     private readonly PetAudio audio = new();
     private readonly List<Window> menuWindows = [];
+    private Window? motionTests;
     private string motion = "idle";
     private double motionStarted = CompanionStore.Uptime, nextWalk, lastTick = CompanionStore.Uptime;
     private Point? destination, pressed;
@@ -70,6 +71,11 @@ internal sealed class PetWindow : Window
     }
     private void Refresh()
     {
+        if (!store.DebugEnabled)
+        {
+            if (testMotion is not null) StopTest();
+            if (motionTests is not null) { var old = motionTests; motionTests = null; old.Close(); }
+        }
         var visible = store.Preferences.PetVisible;
         if (!visible) { Hide(); timer.Stop(); audio.Stop(); waveSchedule.Delay(CompanionStore.Uptime, false, false, .5); waveStarted = null; CloseMenu(); return; }
         if (!IsVisible) Show();
@@ -213,21 +219,24 @@ internal sealed class PetWindow : Window
     public void ShowMotionTests()
     {
         if (!store.DebugEnabled) return;
+        if (motionTests is not null) { motionTests.Activate(); return; }
         var controls = new WrapPanel(); var window = Ui.Window("지크 모션 테스트", controls, 560, 350);
+        motionTests = window;
         string[] directions = ["동", "북동", "북", "북서", "서", "남서", "남", "남동"];
         for (var i = 0; i < 8; i++) { var d = i; controls.Children.Add(Ui.Action(directions[d] + " · 2초", () => Test("walk", 2, d))); }
         foreach (var (title, state, seconds) in new[] { ("대기", "idle", 2d), ("잡힘 왼쪽", "drag", 2d), ("잡힘 오른쪽", "drag", 2d), ("작업 중 · 6초", "working", 6d), ("작업 완료", "complete", Sprites.Get("complete").Duration), ("작업 실패", "cry", Sprites.Get("cry").Duration), ("손 흔들기", "wave", Sprites.Get("wave").Duration) }) controls.Children.Add(Ui.Action(title, () => { mirrored = title.Contains("왼쪽"); Test(state, seconds); }));
-        controls.Children.Add(Ui.Action("중지", StopTest)); window.Closed += (_, _) => StopTest(); window.Show();
+        controls.Children.Add(Ui.Action("중지", StopTest)); window.Closed += (_, _) => { motionTests = null; StopTest(); }; window.Show();
     }
     private void Test(string state, double seconds, int? d = null)
     {
+        if (!store.DebugEnabled) return;
         store.Preferences.PetVisible = true; Show(); RestoreIfLost();
         testMotion = state; testDirection = d; testUntil = CompanionStore.Uptime + seconds; testOrigin = new(Left, Top); destination = null;
         if (d is { } value) { direction = value; testMotion = WalkingMotion; }
-        motionStarted = CompanionStore.Uptime; timer.Start();
+        motionStarted = CompanionStore.Uptime; timer.Start(); store.NotifyVisualState();
     }
-    public void StopTest() { testMotion = null; testDirection = null; destination = null; nextWalk = CompanionStore.Uptime + 3; }
-    public void Shutdown() { shuttingDown = true; timer.Stop(); CloseMenu(); audio.Dispose(); store.Changed -= Refresh; Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= DisplayChanged; Close(); }
+    public void StopTest() { var changed = testMotion is not null; testMotion = null; testDirection = null; destination = null; nextWalk = CompanionStore.Uptime + 3; if (changed) store.NotifyVisualState(); }
+    public void Shutdown() { shuttingDown = true; store.Changed -= Refresh; motionTests?.Close(); timer.Stop(); CloseMenu(); audio.Dispose(); Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= DisplayChanged; Close(); }
     [StructLayout(LayoutKind.Sequential)] private struct CursorPosition { public int X, Y; }
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out CursorPosition point);
     [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int cx, int cy, uint flags);

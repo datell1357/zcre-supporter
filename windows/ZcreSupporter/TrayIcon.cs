@@ -41,10 +41,11 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
         if (!store.IsSleeping && (store.ActiveCount > 0 || IsDebugWorking?.Invoke() == true)) animation.Start(); else { animation.Stop(); data.Icon = still.Handle; Update(); }
     }
     private void Update() { data.Flags = 2 | 4; ShellNotifyIcon(1, ref data); }
-    public void Notify(Alert alert, bool sound)
+    public bool Notify(Alert alert, bool sound)
     {
-        data.Flags = 16; data.Info = alert.Body.Length > 255 ? alert.Body[..255] : alert.Body; data.Title = alert.Title.Length > 63 ? alert.Title[..63] : alert.Title; data.InfoFlags = 1u | (sound ? 0u : 0x10u); data.Timeout = 8000; ShellNotifyIcon(1, ref data); Update();
+        data.Flags = 16; data.Info = alert.Body.Length > 255 ? alert.Body[..255] : alert.Body; data.Title = alert.Title.Length > 63 ? alert.Title[..63] : alert.Title; data.InfoFlags = 1u | (sound ? 0u : 0x10u); data.Timeout = 8000; var accepted = ShellNotifyIcon(1, ref data); Update(); return accepted;
     }
+    public void ClearNotification() { data.Flags = 16; data.Info = ""; data.Title = ""; ShellNotifyIcon(1, ref data); Update(); }
     protected override void WndProc(ref System.Windows.Forms.Message message)
     {
         if ((uint)message.Msg == taskbarCreated) { data.Flags = 1 | 2 | 4; ShellNotifyIcon(0, ref data); }

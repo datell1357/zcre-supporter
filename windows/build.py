@@ -6,10 +6,13 @@ import subprocess
 
 root = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=["build", "test", "publish"])
+parser.add_argument("command", choices=["build", "test", "native-test", "publish"])
 args = parser.parse_args()
 env = dict(os.environ, DOTNET_CLI_HOME=str(root / ".build"), NUGET_PACKAGES=str(root / ".packages"), DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_NOLOGO="1")
-if args.command == "test":
+if args.command == "native-test":
+    import uuid
+    command = ["dotnet", "run", "--project", str(root / "ZcreSupporter.NativeTests"), "--", str(root / ".local" / ("native-tests-" + uuid.uuid4().hex))]
+elif args.command == "test":
     command = ["dotnet", "run", "--project", str(root / "ZcreSupporter.Tests"), "--", str(root.parent)]
 elif args.command == "publish":
     command = ["dotnet", "publish", str(root / "ZcreSupporter"), "-c", "Release", "-r", "win-x64", "--self-contained", "true", "-o", str(root / "artifacts" / "ZcreSupporter")]

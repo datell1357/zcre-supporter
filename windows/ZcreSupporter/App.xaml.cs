@@ -15,6 +15,8 @@ public partial class App : Application
     private ServiceStatus? status;
     private Window? banner;
     private DispatcherTimer? bannerTimer;
+    private DispatcherTimer? notificationTimer;
+    private readonly List<Alert> pendingAlerts = [];
     private bool exiting;
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -31,17 +33,30 @@ public partial class App : Application
             pet = new(store); pet.DashboardRequested += dashboard.Present; pet.SettingsRequested += dashboard.ShowSettings; pet.ToolRequested += path => DashboardWindow.OpenWeb("https://www.zcre.co.kr" + path);
             dashboard.ResetPetRequested += () => { store.Preferences.PetX = store.Preferences.PetY = null; pet.RestorePosition(); store.SavePreferences(); }; dashboard.MotionTestsRequested += pet.ShowMotionTests;
             tray = new(store) { IsDebugWorking = () => pet.DebugWorking }; tray.Open += dashboard.Present; tray.OpenSettings += dashboard.ShowSettings; tray.OpenAlerts += dashboard.ShowDetails; tray.Exit += ExitApp;
-            store.AlertRaised += alert => { if (!store.IsDemo) tray.Notify(alert, store.Preferences.NotificationSound); if (!store.Preferences.PetVisible && store.Preferences.BannerAlerts) ShowBanner(alert); };
-            store.ResetAlerts += () => banner?.Close();
+            notificationTimer = new() { Interval = TimeSpan.FromMilliseconds(150) };
+            notificationTimer.Tick += (_, _) =>
+            {
+                notificationTimer.Stop(); if (pendingAlerts.Count == 0) return;
+                var batch = pendingAlerts.ToArray(); pendingAlerts.Clear();
+                if (store.FocusActive || store.IsSleeping) return;
+                var alert = batch.Length == 1 ? batch[0] : new Alert(Guid.NewGuid().ToString(), "completed", batch.Length + "개의 작업 알림", string.Join(" · ", batch.Select(a => a.Title)), DateTimeOffset.Now, false, "notification", null);
+                if (!store.IsDemo) store.SetNotificationStatus(tray.Notify(alert, store.Preferences.NotificationSound));
+                if (!store.Preferences.PetVisible && store.Preferences.BannerAlerts) ShowBanner(alert);
+            };
+            store.AlertRaised += alert => { pendingAlerts.Add(alert); notificationTimer.Stop(); notificationTimer.Start(); };
+            store.ResetAlerts += () => { pendingAlerts.Clear(); notificationTimer.Stop(); banner?.Close(); tray.ClearNotification(); };
             SystemEvents.PowerModeChanged += PowerChanged; SystemEvents.SessionSwitch += SessionChanged;
             pet.Show();
-            if (!e.Args.Contains("--background")) dashboard.Present();
+            if (!e.Args.Contains("--background") && (!store.Preferences.HasLaunched || e.Args.Contains("--demo") || e.Args.Contains("--show-dashboard"))) dashboard.Present();
+            store.Preferences.HasLaunched = true; store.SavePreferences();
             await store.StartAsync(e.Args.Contains("--demo"));
+            if (e.Args.Contains("--connect") && !store.IsDemo) await store.ConnectAsync();
             if (e.Args.Contains("--demo") && e.Args.Contains("--render-proof"))
             {
                 await Task.Delay(500); dashboard.UpdateLayout();
                 var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)dashboard.ActualWidth, (int)dashboard.ActualHeight, 96, 96, PixelFormats.Pbgra32); bitmap.Render(dashboard);
                 var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder(); encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap)); using var file = File.Create(LocalData.PathFor("dashboard-demo.png")); encoder.Save(file);
+                pet.UpdateLayout(); var petBitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)pet.ActualWidth, (int)pet.ActualHeight, 96, 96, PixelFormats.Pbgra32); petBitmap.Render(pet); var petEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder(); petEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(petBitmap)); using var petFile = File.Create(LocalData.PathFor("pet-demo.png")); petEncoder.Save(petFile);
             }
             if (e.Args.Contains("--smoke-test"))
             {
@@ -69,7 +84,7 @@ public partial class App : Application
     {
         if (exiting) return; exiting = true;
         SystemEvents.PowerModeChanged -= PowerChanged; SystemEvents.SessionSwitch -= SessionChanged;
-        bannerTimer?.Stop(); banner?.Close(); pet?.Shutdown(); dashboard?.Shutdown(); tray?.Dispose(); status?.Dispose(); store?.Dispose();
+        bannerTimer?.Stop(); notificationTimer?.Stop(); pendingAlerts.Clear(); banner?.Close(); pet?.Shutdown(); dashboard?.Shutdown(); tray?.Dispose(); status?.Dispose(); store?.Dispose();
         wait?.Unregister(null); showEvent?.Dispose(); Shutdown();
     }
     internal void Quit() => ExitApp();
