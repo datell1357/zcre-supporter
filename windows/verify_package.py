@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 root = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
@@ -14,6 +15,21 @@ parser.add_argument("--launch-account", action="store_true")
 args = parser.parse_args()
 if not args.commit.isalnum():
     raise SystemExit("Use a simple commit identifier")
+def git(*arguments):
+    return subprocess.check_output(["git", *arguments], cwd=root.parent, text=True, encoding="utf-8").strip()
+
+head = git("rev-parse", "HEAD")
+requested = git("rev-parse", args.commit + "^{commit}")
+if requested != head:
+    raise SystemExit("Requested source commit does not match the current HEAD")
+source_paths = ["windows", "Sources/ZCREBunny/Resources", "Tests/ParityFixtures"]
+source_changes = git("status", "--porcelain", "--untracked-files=all", "--", *source_paths)
+if source_changes:
+    raise SystemExit("Commit source changes before packaging: " + source_changes)
+source_files = git("ls-files", "--", *source_paths).splitlines()
+source_hashes = {name: hashlib.sha256((root.parent / name).read_bytes()).hexdigest() for name in sorted(source_files)}
+source_digest = hashlib.sha256("".join(name + "\0" + value + "\n" for name, value in source_hashes.items()).encode("utf-8")).hexdigest()
+provenance = {"head": head, "branch": git("branch", "--show-current"), "worktree_dirty_before_build": bool(git("status", "--porcelain")), "source_dirty_before_build": False, "source_sha256": source_digest, "source_files_sha256": source_hashes, "sdk_version": subprocess.check_output(["dotnet", "--version"], text=True).strip(), "build_started_at_utc": datetime.now(timezone.utc).isoformat()}
 data = root / ".local" / ("final-smoke-" + args.commit)
 if data.exists():
     raise SystemExit("Smoke data directory already exists; use a fresh identifier")
@@ -37,7 +53,10 @@ for original in source.rglob("*"):
         target = package / "Resources" / relative
         assets.append({"file": relative.as_posix(), "sha256_equal": target.is_file() and hashlib.sha256(original.read_bytes()).digest() == hashlib.sha256(target.read_bytes()).digest()})
 private = [f.relative_to(package).as_posix() for f in package.rglob("*") if f.name in {".local", "EBWebView", "preferences.json", "RecentAlerts.json", "Cookies"}]
-proof = {"source_commit": args.commit, "self_contained": (package / "coreclr.dll").is_file(), "no_dotnet_root": True, "smoke_exit": smoke.returncode, "smoke": report, "resources": assets, "private_data_paths_found": private}
+binary_names = ["ZcreSupporter.exe", "ZcreSupporter.dll", "ZcreSupporter.Core.dll", "ZcreSupporter.deps.json", "ZcreSupporter.runtimeconfig.json"]
+provenance["binary_sha256"] = {name: hashlib.sha256((package / name).read_bytes()).hexdigest() for name in binary_names}
+provenance["verified_at_utc"] = datetime.now(timezone.utc).isoformat()
+proof = {"source_commit": head, "provenance": provenance, "self_contained": (package / "coreclr.dll").is_file(), "no_dotnet_root": True, "smoke_exit": smoke.returncode, "smoke": report, "resources": assets, "private_data_paths_found": private}
 (root.parent / "docs/windows/package-verification.json").write_text(json.dumps(proof, ensure_ascii=False, indent=2), encoding="utf-8")
 passed = smoke.returncode == 0 and proof["self_contained"] and not private and all(a["sha256_equal"] for a in assets)
 print(json.dumps({"passed": passed, "resource_count": len(assets), "private_data_found": private, "smoke_pid": report["pid"]}))
