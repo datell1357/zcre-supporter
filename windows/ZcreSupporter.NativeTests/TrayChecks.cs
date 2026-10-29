@@ -40,6 +40,9 @@ internal static class TrayChecks
                 dashboard.ShowSettings();
                 var settings = app.Windows.Cast<Window>().Single(w => w.Title == "ZCRE 서포터 · 설정");
                 if (dashboard.IsVisible || !settings.IsVisible || settings.WindowStyle != WindowStyle.SingleBorderWindow) throw new InvalidOperationException("Independent settings window was hidden or lost its normal chrome.");
+                if (!GetWindowRect(new WindowInteropHelper(settings).Handle, out var settingsRect)) throw new InvalidOperationException("Settings frame bounds are unavailable.");
+                var settingsArea = TrayPopupHost.ForIcon(new(settingsRect.Left, settingsRect.Top, 1, 1)).WorkArea;
+                if (!settingsArea.Contains(new(settingsRect.Left, settingsRect.Top, settingsRect.Right - settingsRect.Left, settingsRect.Bottom - settingsRect.Top))) throw new InvalidOperationException("Settings frame extends outside its monitor work area.");
                 await store.StartAsync(true); settings.UpdateLayout();
                 if (Buttons(dashboard).Any(b => Equals(b.Content, "ZCRE 계정 연결") && b.Visibility != Visibility.Collapsed)) throw new InvalidOperationException("Verified snapshot still displayed the initial account-connection prompt.");
                 if (!Buttons(settings).Any(b => Equals(b.Content, "미리보기 종료"))) throw new InvalidOperationException("Open settings did not update its demo action after a state transition.");

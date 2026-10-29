@@ -21,6 +21,7 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Contains("--software-rendering")) RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
         DispatcherUnhandledException += (_, error) => { error.Handled = true; MessageBox.Show("앱 동작을 마치지 못했어요. 계정 정보가 없는 진단을 설정에서 저장할 수 있습니다.\n오류 종류: " + error.Exception.GetType().Name, "ZCRE 서포터"); };
         single = new Mutex(true, @"Local\ZcreSupporter.Windows", out var first);
         if (!first) { try { using var existing = EventWaitHandle.OpenExisting(@"Local\ZcreSupporter.Show"); existing.Set(); } catch (WaitHandleCannotBeOpenedException) { } Shutdown(); return; }

@@ -66,6 +66,11 @@ internal sealed class TrayPopupHost : IDisposable
         if (!GetCursorPos(out var point)) point = new();
         return ForIcon(new RectD(point.X, point.Y, 1, 1));
     }
+    internal static void PlaceWindow(Window target, RectD bounds)
+    {
+        if (!SetWindowPos(new WindowInteropHelper(target).Handle, IntPtr.Zero, (int)Math.Round(bounds.X), (int)Math.Round(bounds.Y),
+            (int)Math.Round(bounds.Width), (int)Math.Round(bounds.Height), 0x14)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+    }
     internal static TrayAnchor ForIcon(RectD icon)
     {
         var point = new NativePoint { X = (int)icon.MidX, Y = (int)icon.MidY };
