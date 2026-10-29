@@ -36,7 +36,7 @@ public sealed class Preferences
         var minute = local.Hour * 60 + local.Minute;
         return FocusStartMinute == FocusEndMinute || (FocusStartMinute < FocusEndMinute ? minute >= FocusStartMinute && minute < FocusEndMinute : minute >= FocusStartMinute || minute < FocusEndMinute);
     }
-    public bool Allows(Job job) => job.Model.Contains("upscale", StringComparison.OrdinalIgnoreCase) ? UpscaleJobAlerts : job.MediaType switch { "image" => ImageJobAlerts, "video" => VideoJobAlerts, "audio" => AudioJobAlerts, _ => OtherJobAlerts };
+    public bool Allows(Job job) => job.Model.Contains("upscale", StringComparison.OrdinalIgnoreCase) ? UpscaleJobAlerts : job.MediaType.ToLowerInvariant() switch { "image" => ImageJobAlerts, "video" => VideoJobAlerts, "audio" => AudioJobAlerts, _ => OtherJobAlerts };
 }
 
 public sealed class AccountSchedule

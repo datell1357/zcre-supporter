@@ -103,4 +103,5 @@ var quietAudio = new PetSoundSchedule(); Check("other audio suppresses typing", 
 var connectionUi = new ConnectionPresentation(); connectionUi.Open(true); Check("verified login hides connection window once", connectionUi.VerifiedSnapshot() && !connectionUi.VerifiedSnapshot()); connectionUi.Open(false); Check("intentional account view stays open", !connectionUi.VerifiedSnapshot()); connectionUi.Open(true); connectionUi.Reset(); Check("disconnect cancels pending hide", !connectionUi.VerifiedSnapshot());
 Check("debug left drag keeps mirrored direction", PetFacing.Resolve("drag", false, true, false, 0)); Check("debug right drag keeps original direction", !PetFacing.Resolve("drag", false, false, true, 4)); Check("working faces screen center", PetFacing.Resolve("working", false, false, true, 0));
 TrayPopupChecks.Run(Check);
+ParityAuditChecks.Run(Check);
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", count = passed.Count, tests = passed }, Json.Options));

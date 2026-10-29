@@ -99,7 +99,7 @@ public sealed record JobOutput(string Id, string? MediaType, string? ContentType
     public Uri? Preview => SafeUrl(Url);
     public Uri? Download => SafeUrl(OriginalURL) ?? Preview;
     public string Kind => ContentType?.Split('/')[0] is "image" or "video" or "audio" ? ContentType.Split('/')[0] : MediaType ?? "unknown";
-    public string Extension => ContentType?.Split(';')[0] switch { "image/png" => "png", "image/jpeg" => "jpg", "image/webp" => "webp", "video/mp4" => "mp4", "video/webm" => "webm", "audio/mpeg" => "mp3", "audio/wav" => "wav", "audio/mp4" => "m4a", _ => "bin" };
+    public string Extension => ContentType?.Split(';')[0] switch { "image/png" => "png", "image/jpeg" => "jpg", "image/webp" => "webp", "video/mp4" => "mp4", "video/webm" => "webm", "audio/mpeg" => "mp3", "audio/wav" or "audio/x-wav" => "wav", "audio/mp4" => "m4a", _ => "bin" };
     public static Uri ResultUrl(Job job) => new("https://www.zcre.co.kr" + (job.MediaType == "audio" ? "/studio/audio?j=" + Uri.EscapeDataString(job.Id) : "/results/" + Uri.EscapeDataString(job.Id)));
 }
 
