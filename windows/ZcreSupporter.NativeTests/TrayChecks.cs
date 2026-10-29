@@ -41,6 +41,7 @@ internal static class TrayChecks
                 var settings = app.Windows.Cast<Window>().Single(w => w.Title == "ZCRE 서포터 · 설정");
                 if (dashboard.IsVisible || !settings.IsVisible || settings.WindowStyle != WindowStyle.SingleBorderWindow) throw new InvalidOperationException("Independent settings window was hidden or lost its normal chrome.");
                 await store.StartAsync(true); settings.UpdateLayout();
+                if (Buttons(dashboard).Any(b => Equals(b.Content, "ZCRE 계정 연결") && b.Visibility != Visibility.Collapsed)) throw new InvalidOperationException("Verified snapshot still displayed the initial account-connection prompt.");
                 if (!Buttons(settings).Any(b => Equals(b.Content, "미리보기 종료"))) throw new InvalidOperationException("Open settings did not update its demo action after a state transition.");
                 var demoButton = Buttons(settings).Single(b => Equals(b.Content, "미리보기 종료"));
                 if (System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(demoButton)?.GetName() != "미리보기 종료") throw new InvalidOperationException("Dynamic action retained a stale accessibility name after its visible label changed.");

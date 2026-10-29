@@ -14,6 +14,7 @@ internal sealed class DashboardWindow : Window
     private readonly TrayPopupHost popup;
     private readonly TextBlock storageError = Ui.Text("", 11);
     private readonly Button petVisibility;
+    private readonly Button connectAccount;
     private Window? settings, detail;
     private string renderedMain = "", renderedDetail = "";
     private bool shuttingDown;
@@ -33,7 +34,7 @@ internal sealed class DashboardWindow : Window
         var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(31, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(35, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(34, GridUnitType.Star) });
         var left = Ui.Section("진행 작업"); left.Children.Add(jobs);
         var middle = Ui.Section("크레딧"); middle.Children.Add(balance);
-        middle.Children.Add(Ui.Action("ZCRE 계정 연결", () => { Hide(); _ = store.ConnectAsync(); }));
+        connectAccount = Ui.Action("ZCRE 계정 연결", () => { Hide(); _ = store.ConnectAsync(); }); middle.Children.Add(connectAccount);
         petVisibility = Ui.Action("", () => { store.Preferences.PetVisible = !store.Preferences.PetVisible; store.SavePreferences(); }); middle.Children.Add(petVisibility);
         middle.Children.Add(Ui.Action("설정", ShowSettings)); middle.Children.Add(Ui.Text("최근 알림", 16, true)); middle.Children.Add(alerts); middle.Children.Add(Ui.Action("알림 전체 보기 · 상세 현황", ShowDetails)); middle.Children.Add(Ui.Action("ZCRE 열기 ↗", () => OpenWeb("https://www.zcre.co.kr")));
         var right = Ui.Section("서비스 상태"); right.Children.Add(statusTime); right.Children.Add(services); right.Children.Add(Ui.Action("ZCRE 상태 페이지 ↗", () => OpenWeb("https://www.zcre.co.kr/status")));
@@ -61,6 +62,7 @@ internal sealed class DashboardWindow : Window
         connection.Text = store.IsDemo ? "미리보기 · 가상 데이터 · 크레딧을 사용하지 않아요" : store.Connection;
         connection.Foreground = store.Snapshot is null ? Ui.Muted : Ui.Accent;
         petVisibility.Content = store.Preferences.PetVisible ? "지크 숨기기" : "지크 보이기";
+        connectAccount.Visibility = store.Snapshot is null ? Visibility.Visible : Visibility.Collapsed;
         storageError.Text = store.PreferencesSaveFailed ? "설정을 저장하지 못했어요. 폴더 쓰기 권한을 확인한 뒤 다시 변경해 주세요." : "";
         storageError.Visibility = store.PreferencesSaveFailed ? Visibility.Visible : Visibility.Collapsed;
         var snapshot = store.Snapshot;
