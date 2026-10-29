@@ -1,8 +1,10 @@
 # Windows verification ledger
 
+Latest checkpoint: [2026-10-30 tray popup, latest macOS menu and recovery verification](VERIFICATION-20261030.md). Core assertions are now 526; the checkpoint distinguishes actual Windows API/UI observations from synthetic geometry and unverified physical interaction. Earlier records below remain historical evidence.
+
 Development target: Windows 11 x64. Actual machine: **Windows 10 IoT Enterprise LTSC 2021, build 19044**. Windows 11 interactive verification is not complete.
 
-Evidence: `core-tests.log` (283 assertions, not 283 independent end-to-end scenarios), `bridge-tests.log` (43 original JavaScript tests), `native-tests.log` (3 actual Windows integration checks), `build.log`, `publish.log`, `ui-evidence.json` (redacted actual UI observations). A live WPF render is not a desktop screenshot; Windows.Graphics.Capture timed out. No paid generation was created.
+Earlier checkpoint evidence: `core-tests.log` (283 assertions, not 283 independent end-to-end scenarios), `bridge-tests.log` (43 original JavaScript tests), `native-tests.log` (3 actual Windows integration checks), `build.log`, `publish.log`, `ui-evidence.json` (redacted actual UI observations). A live WPF render is not a desktop screenshot; Windows.Graphics.Capture timed out. No paid generation was created.
 
 ## 2026-10-28 actual Windows checkpoint
 

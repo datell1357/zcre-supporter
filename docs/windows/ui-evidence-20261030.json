@@ -1,0 +1,58 @@
+{
+  "mode": "isolated_demo",
+  "screenshotError": "FrameArrived timed out: timed out waiting on channel",
+  "motion": [
+    {
+      "direction": "east",
+      "state": "\t\t7 텍스트 모션 walk-side · 방향 오른쪽",
+      "distance": "60.0pt"
+    },
+    {
+      "direction": "northeast",
+      "state": "\t\t7 텍스트 모션 walk-back-diagonal · 방향 오른쪽"
+    },
+    {
+      "direction": "north",
+      "state": "\t\t7 텍스트 모션 walk-back · 방향 오른쪽"
+    },
+    {
+      "direction": "northwest",
+      "state": "\t\t7 텍스트 모션 walk-back-diagonal · 방향 왼쪽"
+    },
+    {
+      "direction": "west",
+      "state": "\t\t7 텍스트 모션 walk-side · 방향 왼쪽"
+    },
+    {
+      "direction": "southwest",
+      "state": "\t\t7 텍스트 모션 walk · 방향 왼쪽"
+    },
+    {
+      "direction": "south",
+      "state": "\t\t7 텍스트 모션 walk-front · 방향 오른쪽"
+    },
+    {
+      "direction": "southeast",
+      "state": "\t\t7 텍스트 모션 walk · 방향 오른쪽"
+    }
+  ],
+  "dragLeft": "\t\t7 텍스트 모션 drag · 방향 왼쪽",
+  "dragRight": "\t\t7 텍스트 모션 drag · 방향 오른쪽",
+  "working": "\t\t7 텍스트 모션 working · 방향 왼쪽",
+  "complete": "\t\t7 텍스트 모션 complete · 방향 오른쪽",
+  "failure": "\t\t7 텍스트 모션 cry · 방향 오른쪽",
+  "radialKeyboardRequested": true,
+  "radialExposedByHelper": false,
+  "date": "2026-10-30",
+  "settingsWindow": "normal independent WPF window",
+  "debugActivation": "set public local debug code then Alt+D; opened motion window with Ctrl+M",
+  "notVerified": [
+    "pixel appearance",
+    "physical pet drag",
+    "physical tray click",
+    "radial-menu physical hit testing",
+    "multi-monitor hardware",
+    "DPI changes on hardware"
+  ],
+  "paidGenerationPerformed": false
+}

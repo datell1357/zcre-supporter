@@ -1,0 +1,160 @@
+{
+  "dateKst": "2026-10-30",
+  "sourceCommit": "08a27b084a376cab00927c8298649d6c1176b22e",
+  "branch": "feature/windows-port",
+  "configuration": "Release / win-x64 / self-contained / local only",
+  "sourceAggregateMethod": "SHA256 of sorted relative path + NUL + file SHA256 + newline, app/core cs/xaml/csproj/manifest working-copy files",
+  "sourceFileCount": 26,
+  "sourceAggregateSha256": "85d7afeb8e736010c0bb67eb123453ebefe3dfbbb75efc44e2daa65f83e78dfe",
+  "binaries": {
+    "ZcreSupporter.exe": "db9f7dc84e89f69a7e46fa22545e1c2f726f3c5863a01864e7c0d343f74d095f",
+    "ZcreSupporter.dll": "996feee496dd768aca4e7f32f5c4c1a67c7ee1310af59039ac1814aabcceabf7",
+    "ZcreSupporter.Core.dll": "f7b41c4e7a47bb422fd2586b08484ead8566871bbffa10e173b2d76c38464ea9",
+    "ZcreSupporter.deps.json": "305cbd80ed020ed1d948d8d0f28309f8557df0f86cb0ee9c3116351f8ed25784",
+    "ZcreSupporter.runtimeconfig.json": "019a0076bcf2729f4c42702c7636862e8619d9fad2c2d6472b8dc6974cccdb98"
+  },
+  "resourceCount": 32,
+  "allResourcesIdentical": true,
+  "resources": [
+    {
+      "path": "ObserveSession.js",
+      "identical": true
+    },
+    {
+      "path": "ReadOutputs.js",
+      "identical": true
+    },
+    {
+      "path": "ReadSnapshot.js",
+      "identical": true
+    },
+    {
+      "path": "Sounds/grab.wav",
+      "identical": true
+    },
+    {
+      "path": "Sounds/provenance.json",
+      "identical": true
+    },
+    {
+      "path": "Sounds/typing.wav",
+      "identical": true
+    },
+    {
+      "path": "Zic/complete.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/complete.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/cry.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/cry.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/drag.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/drag.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/idle.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/idle.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/run.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/run.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/still.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/still.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-back-diagonal.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-back-diagonal.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-back.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-back.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-front.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-front.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-side.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk-side.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/walk.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/wave.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/wave.png",
+      "identical": true
+    },
+    {
+      "path": "Zic/working.json",
+      "identical": true
+    },
+    {
+      "path": "Zic/working.png",
+      "identical": true
+    }
+  ],
+  "privateFilesIncluded": [],
+  "smoke": {
+    "pid": 42364,
+    "passed": true,
+    "normalExit": true,
+    "dashboard": true,
+    "pet": true,
+    "demo": true
+  },
+  "publishedOrPushed": false,
+  "packageEntryCount": 525,
+  "privateScanIncludesDirectories": true
+}

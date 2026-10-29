@@ -1,0 +1,49 @@
+{
+  "dateKst": "2026-10-30",
+  "sourceCommit": "08a27b084a376cab00927c8298649d6c1176b22e",
+  "os": "Windows 10 IoT Enterprise LTSC 2021 build 19044 x64",
+  "currentPid": 46800,
+  "launchedAtKst": "2026-10-30T07:46:23.852319+09:00",
+  "observedAliveAtKst": "2026-10-30T07:52:46.817001+09:00",
+  "executable": "windows/artifacts/ZcreSupporter/ZcreSupporter.exe",
+  "executableSha256": "db9f7dc84e89f69a7e46fa22545e1c2f726f3c5863a01864e7c0d343f74d095f",
+  "background": true,
+  "demo": false,
+  "duplicateZcreProcesses": 0,
+  "existingAppOwnedProfilePreserved": true,
+  "accountAdapterReadVerified": true,
+  "existingResultMetadataReadVerified": true,
+  "finalPackagedAccountEvidence": {
+    "historyWrittenAtKst": "2026-10-30T07:46:29.534514+09:00",
+    "historyWrittenAfterLaunch": true,
+    "inference": "Application SaveHistory is reached with a non-demo verified snapshot; timestamp was checked without reading or recording account/history content. This is runtime persistence evidence, not a GUI balance cross-check."
+  },
+  "normalPackagedQuit": {
+    "pid": 38576,
+    "action": "Actual settings Ctrl+Q via Computer Use",
+    "processAbsent": true,
+    "windowsAbsentAfterRefresh": true
+  },
+  "officialControlAlternatives": {
+    "unifiedComputerUse": "Windows screenshot path uses the same Sky provider; transparent target windows not exposed",
+    "orca": {
+      "installed": true,
+      "running": false,
+      "runtimeState": "stale_bootstrap",
+      "capabilityError": "runtime_unavailable",
+      "appNotLaunched": true,
+      "permissionsUnchanged": true
+    }
+  },
+  "ownSdkFailureDialog": {
+    "origin": "isolated recovery fixture",
+    "dismissedNormally": true,
+    "otherAppsNotTerminated": true
+  },
+  "paidGenerationPerformed": false,
+  "accountDataReset": false,
+  "desktopScreenshotVerified": false,
+  "physicalTrayClickVerified": false,
+  "physicalPetDragVerified": false,
+  "multiMonitorHardwareVerified": false
+}

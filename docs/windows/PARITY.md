@@ -1,6 +1,7 @@
 # Windows 기능 일치 및 검증표
 
 기준: macOS 0.2.20 (23), 소스 커밋 3ca8093. 이 문서는 요구사항이며 구현 또는 검증 완료 증거가 아닙니다.
+2026-10-30 메뉴 비교는 main fa3afe6d7b1f30c3c54eb8c5b2db96e58ce8e572를 추가 기준으로 사용합니다. [최신 검증표](VERIFICATION-20261030.md)에 플랫폼 차이와 미검증 항목을 구분합니다.
 각 행은 Windows 구현 파일, 자동 검사 결과, 실제 화면/실행 결과, 미검증 사유를 함께 기록해야 합니다.
 
 | ID | 요구사항 | macOS 근거 | 통과 조건 |
@@ -20,7 +21,7 @@
 | W13 | 결과 보기·저장 | JobOutputs.swift, JobResultView.swift, ReadOutputs.js | 일반 생성/업스케일/이미지/영상/오디오; HTTPS URL 검증; 사용자 저장 대화상자; 실패 표시 |
 | W14 | 펫 모션 | ZicSprites.swift, RabbitView.swift | 기존 PNG/JSON 그대로; 대기/8방향/좌우 잡힘/작업/완료/울기/손 흔들기 |
 | W15 | 이동·드래그·방향 | PetController.swift, PetGeometry.swift | 무작위 8방향; 목덜미 앵커; 작업 중 산책 정지; 화면 중앙 바라봄; DPI별 떨림 없음 |
-| W16 | 원형 메뉴·간단 현황 | PetQuickMenu.swift, PetQuickMenuLayout.swift | 펫·작업 글씨 보호; 가장자리 재배치; 56pt 메뉴 긴 이름 두 줄; 전 도구 URL 일치 |
+| W16 | 원형 메뉴·간단 현황 | PetQuickMenu.swift, PetQuickMenuLayout.swift | 펫·작업 글씨 보호; 가장자리 재배치; 캔버스 포함 홈 6개는 50pt, 하위 메뉴 56pt·긴 이름 두 줄; 전 도구 URL 일치 |
 | W17 | 숨김·배율·표시 | Preferences.swift, PetController.swift | 숨김 시 모션/음향 중지, 데이터 유지; 70~150%; 크레딧 표시 설정 |
 | W18 | 작업 표시줄 트레이 | MenuBarActivityIcon.swift | 작업 중 네 발 달리기; 상태 종료 후 정지; Windows 트레이 제약에 맞는 잔액 표시 |
 | W19 | 효과음 공존 | PetSoundController.swift, OtherAudioActivity.swift | 드래그 1회; 타자 1초/휴식 5초; 타 앱 재생·통화 시 억제; 음량 0~100%; 장치 설정 불변 |

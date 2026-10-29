@@ -4,9 +4,11 @@ Target: Windows 11 x64; development machine: Windows 10 IoT Enterprise LTSC 2021
 
 Framework: .NET 8 WPF + WebView2. macOS sources and bundled resources remain unchanged. Windows builds link the original JavaScript, PNG/JSON and WAV resources.
 
+2026-10-30 update: the main dashboard is now a borderless tray-anchored 980×600 popup with physical-pixel work-area placement, and the latest macOS six-item canvas menu is ported. Initialization retry, visible preference-save errors, dynamic accessible action labels, outside dismissal and animation allocation/Shell-update improvements are included. See [the current verification checkpoint](VERIFICATION-20261030.md) for 526 core assertions, 43 bridge tests, actual Windows component/UI evidence and remaining limits. No release or merge was performed.
+
 The first implementation checkpoint contains the actual C# decoder, transition monitor, polling/backoff schedules, bridge revision/generation ACK policy, output URL checks, account-scoped hashed history, and a standalone test runner. It consumes `Tests/ParityFixtures/monitor.json` directly and compares event ordering and tracked IDs.
 
-Current core run: 283 assertions passed, including 6 shared monitor scenarios, 13 shared decoder cases, malformed envelopes/output/history, ACK boundaries, schedules, compact non-overlapping pet menu geometry, quiet notification records, audio sampling cadence, verified-login window dismissal and preserved debug drag facing. These are assertion counts, not 283 independent end-to-end scenarios.
+Earlier core run (2026-10-28): 283 assertions passed, including 6 shared monitor scenarios, 13 shared decoder cases, malformed envelopes/output/history, ACK boundaries, schedules, compact non-overlapping pet menu geometry, quiet notification records, audio sampling cadence, verified-login window dismissal and preserved debug drag facing. These are assertion counts, not 283 independent end-to-end scenarios.
 
 The WPF/WebView2 application builds with zero warnings and zero errors. On the actual Windows 10 LTSC machine, the native accessibility tree confirmed the three-column dashboard, live public service status, settings, and keyboard-driven demo completion (2 active / 1,160 credits → 1 active / 1,240 credits, one new completion alert). These are synthetic demo values, not a real account.
 
