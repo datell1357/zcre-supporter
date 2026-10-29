@@ -1,5 +1,3 @@
-using System.Windows.Automation;
-
 namespace ZcreSupporter;
 
 internal static class Ui
@@ -10,7 +8,7 @@ internal static class Ui
     public static TextBlock Text(string? value, double size = 13, bool bold = false) => new() { Text = value ?? "", FontSize = size, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, Margin = new Thickness(0, 0, 0, 7), Foreground = Brushes.White };
     public static Button Action(string title, Action action)
     {
-        var button = new Button { Content = title }; AutomationProperties.SetName(button, title); button.Click += (_, _) => action(); return button;
+        var button = new Button { Content = title }; button.Click += (_, _) => action(); return button;
     }
     public static Border Card(UIElement child) => new() { Child = child, Background = Surface, BorderBrush = new SolidColorBrush(Color.FromRgb(48, 52, 60)), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Padding = new Thickness(16), Margin = new Thickness(0, 0, 0, 12) };
     public static Window Window(string title, UIElement child, double width = 600, double height = 650) => new() { Title = "ZCRE 서포터 · " + title, Content = new Border { Padding = new Thickness(24), Child = child }, Width = width, Height = height, WindowStartupLocation = WindowStartupLocation.CenterScreen };

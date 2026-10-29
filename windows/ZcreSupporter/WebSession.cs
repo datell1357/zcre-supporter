@@ -12,9 +12,11 @@ internal sealed class WebSession : IDisposable
     private readonly List<Window> popups = [];
     private readonly BridgeEpoch epoch = new();
     private readonly ConnectionPresentation presentation = new();
+    private readonly Func<Task<CoreWebView2Environment>> createEnvironment;
     private CoreWebView2Environment? environment;
     private Task? initialization;
     private bool disposed;
+    private bool configured;
     private double balanceRefreshUntil, balanceRetryAt;
     private DateTimeOffset outputRetryAt;
     public DateTimeOffset RetryNotBefore { get; private set; }
@@ -22,35 +24,45 @@ internal sealed class WebSession : IDisposable
     public event Action? Ready;
     public event Action? AccountChanged;
 
-    public WebSession()
+    public WebSession(Func<Task<CoreWebView2Environment>>? createEnvironment = null)
     {
+        this.createEnvironment = createEnvironment ?? (() => CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("WebView2")));
         window = new Window { Title = "ZCRE 서포터 · 계정 연결", Width = 1060, Height = 760, MinWidth = 760, MinHeight = 560, Content = View, WindowStartupLocation = WindowStartupLocation.CenterScreen };
         window.Closing += (_, e) => { if (!disposed) { e.Cancel = true; window.Hide(); } };
     }
-    public Task StartAsync() => initialization ??= InitializeAsync();
+    public Task StartAsync()
+    {
+        ObjectDisposedException.ThrowIf(disposed, this);
+        if (initialization is null || initialization.IsFaulted || initialization.IsCanceled) initialization = InitializeAsync();
+        return initialization;
+    }
     private async Task InitializeAsync()
     {
-        environment = await CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("WebView2"));
+        environment ??= await createEnvironment();
         // The hidden owned window keeps the authenticated page and Clerk refresh alive.
         window.Show(); window.Hide();
         await View.EnsureCoreWebView2Async(environment);
         var core = View.CoreWebView2;
-        core.Settings.AreDevToolsEnabled = false;
-        core.Settings.AreDefaultContextMenusEnabled = false;
-        core.Settings.IsStatusBarEnabled = false;
-        core.NavigationStarting += (_, e) =>
+        if (!configured)
         {
-            if (!HttpsOrBlank(e.Uri)) { e.Cancel = true; return; }
-            Loaded = false; ResetPending();
-        };
-        core.NavigationCompleted += (_, e) => { Loaded = e.IsSuccess && BridgeEpoch.TrustedOrigin(core.Source); if (Loaded) Ready?.Invoke(); };
-        core.ProcessFailed += (_, _) => { Loaded = false; ResetPending(); if (!disposed) core.Reload(); };
-        core.WebMessageReceived += Receive;
-        core.NewWindowRequested += OpenPopup;
-        core.PermissionRequested += (_, e) => e.State = CoreWebView2PermissionState.Deny;
-        var observer = File.ReadAllText(LocalData.Asset("ObserveSession.js"));
-        var shim = "if(window.top===window && ['https://www.zcre.co.kr','https://zcre.co.kr'].includes(location.origin)){window.webkit={messageHandlers:{zcreSessionChanged:{postMessage:event=>window.chrome.webview.postMessage({channel:'session',event})}}};" + observer + "}";
-        await core.AddScriptToExecuteOnDocumentCreatedAsync(shim);
+            var observer = File.ReadAllText(LocalData.Asset("ObserveSession.js"));
+            var shim = "if(window.top===window && ['https://www.zcre.co.kr','https://zcre.co.kr'].includes(location.origin)){window.webkit={messageHandlers:{zcreSessionChanged:{postMessage:event=>window.chrome.webview.postMessage({channel:'session',event})}}};" + observer + "}";
+            await core.AddScriptToExecuteOnDocumentCreatedAsync(shim);
+            core.Settings.AreDevToolsEnabled = false;
+            core.Settings.AreDefaultContextMenusEnabled = false;
+            core.Settings.IsStatusBarEnabled = false;
+            core.NavigationStarting += (_, e) =>
+            {
+                if (!HttpsOrBlank(e.Uri)) { e.Cancel = true; return; }
+                Loaded = false; ResetPending();
+            };
+            core.NavigationCompleted += (_, e) => { Loaded = e.IsSuccess && BridgeEpoch.TrustedOrigin(core.Source); if (Loaded) Ready?.Invoke(); };
+            core.ProcessFailed += (_, _) => { Loaded = false; ResetPending(); if (!disposed) core.Reload(); };
+            core.WebMessageReceived += Receive;
+            core.NewWindowRequested += OpenPopup;
+            core.PermissionRequested += (_, e) => e.State = CoreWebView2PermissionState.Deny;
+            configured = true;
+        }
         core.Navigate("https://www.zcre.co.kr/credits");
     }
     private static bool HttpsOrBlank(string uri) => uri == "about:blank" || Uri.TryCreate(uri, UriKind.Absolute, out var value) && value.Scheme == "https";

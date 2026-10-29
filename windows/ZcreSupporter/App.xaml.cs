@@ -33,6 +33,7 @@ public partial class App : Application
             pet = new(store); pet.DashboardRequested += dashboard.Present; pet.SettingsRequested += dashboard.ShowSettings; pet.ToolRequested += path => DashboardWindow.OpenWeb("https://www.zcre.co.kr" + path);
             dashboard.ResetPetRequested += () => { store.Preferences.PetX = store.Preferences.PetY = null; pet.RestorePosition(); store.SavePreferences(); }; dashboard.MotionTestsRequested += pet.ShowMotionTests;
             tray = new(store) { IsDebugWorking = () => pet.DebugWorking }; tray.Open += dashboard.Present; tray.OpenSettings += dashboard.ShowSettings; tray.OpenAlerts += dashboard.ShowDetails; tray.Exit += ExitApp;
+            dashboard.PopupAnchor = tray.Anchor;
             notificationTimer = new() { Interval = TimeSpan.FromMilliseconds(150) };
             notificationTimer.Tick += (_, _) =>
             {
@@ -50,6 +51,7 @@ public partial class App : Application
             if (!e.Args.Contains("--background") && (!store.Preferences.HasLaunched || e.Args.Contains("--demo") || e.Args.Contains("--show-dashboard"))) dashboard.Present();
             store.Preferences.HasLaunched = true; store.SavePreferences();
             await store.StartAsync(e.Args.Contains("--demo"));
+            if (e.Args.Contains("--show-settings")) dashboard.ShowSettings();
             if (e.Args.Contains("--connect") && !store.IsDemo) await store.ConnectAsync();
             if (e.Args.Contains("--demo") && e.Args.Contains("--render-proof"))
             {

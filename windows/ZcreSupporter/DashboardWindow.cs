@@ -11,7 +11,9 @@ internal sealed class DashboardWindow : Window
     private readonly StackPanel jobs = new(), balance = new(), alerts = new(), services = new();
     private readonly TextBlock connection = Ui.Text("연결 대기", 12), timestamps = Ui.Text("작업·크레딧 확인 대기", 11);
     private readonly TextBlock statusTime = Ui.Text("집계 대기", 11);
-    private readonly Border notificationNotice;
+    private readonly TrayPopupHost popup;
+    private readonly TextBlock storageError = Ui.Text("", 11);
+    private readonly Button petVisibility;
     private Window? settings, detail;
     private string renderedMain = "", renderedDetail = "";
     private bool shuttingDown;
@@ -20,24 +22,26 @@ internal sealed class DashboardWindow : Window
     public DashboardWindow(CompanionStore store, ServiceStatus status)
     {
         this.store = store; this.status = status;
-        Title = "ZCRE 서포터"; Width = 1120; Height = 760; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        Title = "ZCRE 서포터"; Width = 980; Height = 600; popup = new(this);
         Background = (Brush)Application.Current.FindResource("BackgroundBrush"); Foreground = Brushes.White; FontFamily = new FontFamily("Malgun Gothic"); FontSize = 13;
-        var root = new DockPanel { Margin = new Thickness(24), Background = Background };
-        var header = new DockPanel { Margin = new Thickness(0, 0, 0, 18) };
-        var title = new StackPanel(); title.Children.Add(Ui.Text("ZCRE 서포터", 26, true)); title.Children.Add(connection); header.Children.Add(title);
-        var actions = Ui.Actions(Ui.Action("ZCRE 계정 연결", () => _ = store.ConnectAsync()), Ui.Action("새로고침", () => { store.RequestRefresh(true); _ = status.RefreshAsync(); }), Ui.Action("설정", ShowSettings)); actions.HorizontalAlignment = HorizontalAlignment.Right; header.Children.Add(actions);
+        var root = new DockPanel { Margin = new Thickness(18), Background = Background };
+        var header = new DockPanel { Margin = new Thickness(0, 0, 0, 12) };
+        var actions = Ui.Actions(Ui.Action("새로고침", () => { store.RequestRefresh(true); _ = status.RefreshAsync(); }), Ui.Action("현황 닫기", Hide)); DockPanel.SetDock(actions, Dock.Right); header.Children.Add(actions);
+        var title = new StackPanel(); title.Children.Add(Ui.Text("ZCRE 서포터", 17, true)); title.Children.Add(connection); header.Children.Add(title);
         DockPanel.SetDock(header, Dock.Top); root.Children.Add(header); DockPanel.SetDock(timestamps, Dock.Bottom); root.Children.Add(timestamps); timestamps.Foreground = Ui.Muted;
-        var notice = new StackPanel(); notice.Children.Add(Ui.Text("Windows 알림도 확인해 주세요", 14, true)); notice.Children.Add(Ui.Text("앱 내 기록은 계속 남아요. Windows 배너·소리는 시스템 알림 설정과 집중 지원에 따라 표시되지 않을 수 있어요.", 11));
-        notice.Children.Add(Ui.Actions(Ui.Action("테스트 알림 보내기", store.TestNotification), Ui.Action("Windows 알림 설정", () => OpenWeb("ms-settings:notifications")), Ui.Action("나중에 확인", () => { store.Preferences.NotificationsReviewed = true; store.SavePreferences(); })));
-        notificationNotice = Ui.Card(notice); DockPanel.SetDock(notificationNotice, Dock.Top); root.Children.Add(notificationNotice);
-        var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1.15, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) });
+        storageError.Foreground = Brushes.Orange; DockPanel.SetDock(storageError, Dock.Top); root.Children.Add(storageError);
+        var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(31, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(35, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(34, GridUnitType.Star) });
         var left = Ui.Section("진행 작업"); left.Children.Add(jobs);
-        var middle = Ui.Section("크레딧"); middle.Children.Add(balance); middle.Children.Add(Ui.Text("최근 알림", 16, true)); middle.Children.Add(alerts); middle.Children.Add(Ui.Action("알림 전체 보기", ShowDetails));
+        var middle = Ui.Section("크레딧"); middle.Children.Add(balance);
+        middle.Children.Add(Ui.Action("ZCRE 계정 연결", () => { Hide(); _ = store.ConnectAsync(); }));
+        petVisibility = Ui.Action("", () => { store.Preferences.PetVisible = !store.Preferences.PetVisible; store.SavePreferences(); }); middle.Children.Add(petVisibility);
+        middle.Children.Add(Ui.Action("설정", ShowSettings)); middle.Children.Add(Ui.Text("최근 알림", 16, true)); middle.Children.Add(alerts); middle.Children.Add(Ui.Action("알림 전체 보기 · 상세 현황", ShowDetails)); middle.Children.Add(Ui.Action("ZCRE 열기 ↗", () => OpenWeb("https://www.zcre.co.kr")));
         var right = Ui.Section("서비스 상태"); right.Children.Add(statusTime); right.Children.Add(services); right.Children.Add(Ui.Action("ZCRE 상태 페이지 ↗", () => OpenWeb("https://www.zcre.co.kr/status")));
         foreach (var (panel, index) in new[] { (left, 0), (middle, 1), (right, 2) }) { var scroll = new ScrollViewer { Content = panel, Margin = new Thickness(index == 0 ? 0 : 16, 0, 0, 0) }; Grid.SetColumn(scroll, index); columns.Children.Add(scroll); }
         root.Children.Add(columns); Content = root;
         PreviewKeyDown += (_, e) =>
         {
+            if (e.Key == System.Windows.Input.Key.Escape) { Hide(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers != System.Windows.Input.ModifierKeys.Control) return;
             if (e.Key == System.Windows.Input.Key.OemComma) { ShowSettings(); e.Handled = true; }
             else if (e.Key == System.Windows.Input.Key.R) { store.RequestRefresh(true); e.Handled = true; }
@@ -50,12 +54,15 @@ internal sealed class DashboardWindow : Window
         Closing += (_, e) => { if (!shuttingDown) { e.Cancel = true; Hide(); } };
         Refresh(); RefreshStatus();
     }
-    public void Present() { Show(); WindowState = WindowState.Normal; Activate(); }
+    public Func<TrayAnchor> PopupAnchor { set => popup.Anchor = value; }
+    public void Present() => popup.Present();
     private void Refresh()
     {
         connection.Text = store.IsDemo ? "미리보기 · 가상 데이터 · 크레딧을 사용하지 않아요" : store.Connection;
         connection.Foreground = store.Snapshot is null ? Ui.Muted : Ui.Accent;
-        notificationNotice.Visibility = !store.IsDemo && !store.Preferences.NotificationsReviewed ? Visibility.Visible : Visibility.Collapsed;
+        petVisibility.Content = store.Preferences.PetVisible ? "지크 숨기기" : "지크 보이기";
+        storageError.Text = store.PreferencesSaveFailed ? "설정을 저장하지 못했어요. 폴더 쓰기 권한을 확인한 뒤 다시 변경해 주세요." : "";
+        storageError.Visibility = store.PreferencesSaveFailed ? Visibility.Visible : Visibility.Collapsed;
         var snapshot = store.Snapshot;
         var revision = JsonSerializer.Serialize(new { key = snapshot?.WorkspaceKey, snapshot?.Balance, snapshot?.BalanceIsStale, snapshot?.Jobs, snapshot?.Concurrency, store.History.Alerts, store.History.ClearedThrough, store.IsDemo }, Json.Options);
         if (revision != renderedMain)
@@ -81,7 +88,7 @@ internal sealed class DashboardWindow : Window
         foreach (var alert in store.History.Alerts.Take(10)) alerts.Children.Add(AlertCard(alert));
         if (store.History.Alerts.Count == 0) alerts.Children.Add(Ui.Text(store.History.ClearedThrough is null ? "연결 후 최근 완료·실패 기록을 보여드려요." : "알림 기록을 지웠어요. 새로운 알림을 기다려요.", 12));
         }
-        if (snapshot is not null) timestamps.Text = "작업 " + snapshot.FetchedAt.ToLocalTime().ToString("HH:mm:ss") + " 확인 · 크레딧 " + DateTimeOffset.FromUnixTimeMilliseconds((long)snapshot.BalanceFetchedAt).ToLocalTime().ToString("HH:mm:ss") + " 확인 · 작업 5초 / 크레딧 60초 · " + (snapshot.HistoryTruncated ? "최초 기록 최대 1,000개" : "읽기 전용 감시");
+        if (snapshot is not null) timestamps.Text = "작업 " + snapshot.FetchedAt.ToLocalTime().ToString("HH:mm:ss") + " 확인 · 크레딧 " + DateTimeOffset.FromUnixTimeMilliseconds((long)snapshot.BalanceFetchedAt).ToLocalTime().ToString("HH:mm:ss") + " 확인" + (snapshot.HistoryTruncated ? " · 최초 기록 최대 1,000개" : "");
         else timestamps.Text = "로그인은 앱 전용 웹 세션에만 보관돼요. 생성·결제 요청을 보내지 않아요.";
         if (detail is { IsVisible: true }) RefreshDetails();
     }
@@ -108,6 +115,7 @@ internal sealed class DashboardWindow : Window
     }
     public void ShowDetails()
     {
+        Hide();
         if (detail is not null) { detail.Activate(); return; }
         store.MarkRead(30);
         renderedDetail = ""; detail = Ui.Window("상세 현황", new StackPanel(), 650, 750); RefreshDetails(); detail.Closed += (_, _) => detail = null; detail.Show();
@@ -128,9 +136,12 @@ internal sealed class DashboardWindow : Window
     }
     public void ShowSettings()
     {
+        Hide();
         if (settings is not null) { settings.Activate(); return; }
         var panel = new StackPanel(); panel.Children.Add(Ui.Text("지크 설정", 24, true)); panel.Children.Add(Ui.Text("편안한 작업 리듬에 맞춰 주세요.", 12));
         var synchronizers = new List<Action>(); var synchronizing = false;
+        var saveError = Ui.Text("", 12); saveError.Foreground = Brushes.Orange; panel.Children.Add(saveError);
+        synchronizers.Add(() => { saveError.Text = storageError.Text; saveError.Visibility = storageError.Visibility; }); saveError.Text = storageError.Text; saveError.Visibility = storageError.Visibility;
         void Toggle(string title, Func<bool> get, Action<bool> set) { var checkbox = new CheckBox { Content = title, IsChecked = get() }; checkbox.Checked += (_, _) => { if (!synchronizing) { set(true); store.SavePreferences(); } }; checkbox.Unchecked += (_, _) => { if (!synchronizing) { set(false); store.SavePreferences(); } }; synchronizers.Add(() => checkbox.IsChecked = get()); panel.Children.Add(checkbox); }
         void Heading(string title) => panel.Children.Add(Ui.Text("\n" + title, 17, true));
         var p = store.Preferences;
@@ -147,7 +158,8 @@ internal sealed class DashboardWindow : Window
         var start = new TextBox { Text = Time(p.FocusStartMinute), ToolTip = "집중 시작 HH:mm" }; var end = new TextBox { Text = Time(p.FocusEndMinute), ToolTip = "집중 종료 HH:mm" };
         start.LostFocus += (_, _) => { p.FocusStartMinute = ParseTime(start.Text, p.FocusStartMinute); start.Text = Time(p.FocusStartMinute); store.SavePreferences(); }; end.LostFocus += (_, _) => { p.FocusEndMinute = ParseTime(end.Text, p.FocusEndMinute); end.Text = Time(p.FocusEndMinute); store.SavePreferences(); };
         panel.Children.Add(Ui.Text("시작 / 종료 · 현지 시각 HH:mm")); panel.Children.Add(start); panel.Children.Add(end); panel.Children.Add(Ui.Text("자정을 넘는 일정도 지원해요. 시작·종료가 같으면 하루 종일 조용히 기록해요.", 11));
-        Heading("계정"); panel.Children.Add(Ui.Actions(Ui.Action("계정 열기", () => _ = store.ConnectAsync()), Ui.Action(store.IsDemo ? "미리보기 종료" : "미리보기 체험", () => { if (store.IsDemo) store.LeaveDemo(); else store.EnterDemo(); }), Ui.Action("연결 해제", async () => { if (MessageBox.Show("앱의 로그인 웹 데이터와 로컬 알림을 비웁니다.\n대상: " + LocalData.PathFor("WebView2") + "\n" + LocalData.PathFor("RecentAlerts.json"), "연결 해제", MessageBoxButton.OKCancel) == MessageBoxResult.OK) await store.DisconnectAsync(); })));
+        var demoButton = Ui.Action(store.IsDemo ? "미리보기 종료" : "미리보기 체험", () => { if (store.IsDemo) store.LeaveDemo(); else store.EnterDemo(); }); synchronizers.Add(() => demoButton.Content = store.IsDemo ? "미리보기 종료" : "미리보기 체험");
+        Heading("계정"); panel.Children.Add(Ui.Actions(Ui.Action("계정 열기", () => _ = store.ConnectAsync()), demoButton, Ui.Action("연결 해제", async () => { if (MessageBox.Show("앱의 로그인 웹 데이터와 로컬 알림을 비웁니다.\n대상: " + LocalData.PathFor("WebView2") + "\n" + LocalData.PathFor("RecentAlerts.json"), "연결 해제", MessageBoxButton.OKCancel) == MessageBoxResult.OK) await store.DisconnectAsync(); })));
         Heading("앱"); var startup = new CheckBox { Content = "Windows 로그인 시 자동 실행", IsChecked = LocalData.StartupEnabled };
         startup.Click += (_, _) => { try { if (MessageBox.Show("시작 프로그램 값을 변경합니다.\nHKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ZcreSupporter\n실행파일: " + Environment.ProcessPath, "자동 실행 설정", MessageBoxButton.OKCancel) == MessageBoxResult.OK) LocalData.SetStartup(startup.IsChecked == true); startup.IsChecked = LocalData.StartupEnabled; } catch { startup.IsChecked = false; MessageBox.Show("시작 프로그램 설정을 변경하지 못했어요."); } }; panel.Children.Add(startup);
         panel.Children.Add(Ui.Action("진단 정보 내보내기…", ExportDiagnostics));
@@ -159,6 +171,7 @@ internal sealed class DashboardWindow : Window
         settings = Ui.Window("설정", new ScrollViewer { Content = panel }, 620, 790);
         settings.PreviewKeyDown += (_, e) =>
         {
+            if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.Q) { ((App)Application.Current).Quit(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.M && store.DebugEnabled) { MotionTestsRequested?.Invoke(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Alt && e.SystemKey == System.Windows.Input.Key.D)
             { debugStatus.Text = store.EnableDebug(code.Password) ? "활성화됨" : "코드가 일치하지 않아요"; motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed; code.Clear(); e.Handled = true; }
@@ -222,5 +235,5 @@ internal sealed class DashboardWindow : Window
         catch (OperationCanceledException) { }
         catch (Exception e) { info.Text = (e as SnapshotException)?.UserMessage ?? "결과를 가져오지 못했어요. 잠시 후 다시 열어 주세요."; }
     }
-    public void Shutdown() { shuttingDown = true; settings?.Close(); detail?.Close(); store.Changed -= Refresh; status.Changed -= RefreshStatus; Close(); }
+    public void Shutdown() { shuttingDown = true; popup.Dispose(); settings?.Close(); detail?.Close(); store.Changed -= Refresh; status.Changed -= RefreshStatus; Close(); }
 }

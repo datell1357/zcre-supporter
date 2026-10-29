@@ -76,7 +76,7 @@ foreach (var screen in new[] { new RectD(0, 0, 1440, 900), new RectD(-1920, -200
 foreach (var anchor in new[] { new RectD(screen.X + 20, screen.Y + 20, 90, 110), new RectD(screen.MaxX - 110, screen.Y + 20, 90, 110), new RectD(screen.MidX - 45, screen.MidY - 55, 90, 110), new RectD(screen.X + 20, screen.MaxY - 130, 90, 110) })
 foreach (var count in new[] { 5, 6, 8 })
 {
-    var menu = new PetMenuLayout(anchor, screen, count, count == 5); Check("menu all buttons " + screen + anchor + count, menu.Buttons.Count == count);
+    var menu = new PetMenuLayout(anchor, screen, count, count is 5 or 6); Check("menu all buttons " + screen + anchor + count, menu.Buttons.Count == count);
     Check("menu inside screen " + screen + anchor + count, menu.Buttons.All(screen.Contains));
     Check("menu protects pet and label " + screen + anchor + count, menu.Buttons.All(b => !menu.Protected.Any(p => p.Intersects(b))));
     Check("menu no overlap " + screen + anchor + count, menu.Buttons.Select((b, i) => !menu.Buttons.Skip(i + 1).Any(b.Intersects) && !menu.Summary.Intersects(b)).All(x => x));
@@ -102,4 +102,5 @@ Check("drag starts exactly once", audio.Update(8, "drag", true, .35, Other).Cont
 var quietAudio = new PetSoundSchedule(); Check("other audio suppresses typing", !quietAudio.Update(0, "working", true, .35, () => true).Contains(SoundCommand.PlayTyping));
 var connectionUi = new ConnectionPresentation(); connectionUi.Open(true); Check("verified login hides connection window once", connectionUi.VerifiedSnapshot() && !connectionUi.VerifiedSnapshot()); connectionUi.Open(false); Check("intentional account view stays open", !connectionUi.VerifiedSnapshot()); connectionUi.Open(true); connectionUi.Reset(); Check("disconnect cancels pending hide", !connectionUi.VerifiedSnapshot());
 Check("debug left drag keeps mirrored direction", PetFacing.Resolve("drag", false, true, false, 0)); Check("debug right drag keeps original direction", !PetFacing.Resolve("drag", false, false, true, 4)); Check("working faces screen center", PetFacing.Resolve("working", false, false, true, 0));
+TrayPopupChecks.Run(Check);
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", count = passed.Count, tests = passed }, Json.Options));

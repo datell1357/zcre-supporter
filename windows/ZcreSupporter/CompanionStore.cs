@@ -13,6 +13,7 @@ internal sealed class CompanionStore : IDisposable
     public bool IsSleeping { get; private set; }
     public bool IsOffline { get; private set; }
     public bool DebugEnabled { get; private set; }
+    public bool PreferencesSaveFailed { get; private set; }
     public bool FocusActive => Preferences.IsFocusActive(DateTime.Now);
     public string Connection { get; private set; } = "연결 대기";
     public string NotificationStatus { get; private set; } = "Windows 알림 허용 여부는 아직 확인하지 않았어요.";
@@ -128,7 +129,7 @@ internal sealed class CompanionStore : IDisposable
     }
     public void LeaveDemo()
     {
-        Cancel(); IsDemo = false; Snapshot = null; monitor.Reset(); History = new(); Celebration = Failure = null; Bubble = null; Connection = "연결 대기"; schedule.Resume(Uptime, Random.Shared.NextDouble()); _ = Session.StartAsync(); Changed?.Invoke();
+        Cancel(); IsDemo = false; Snapshot = null; monitor.Reset(); History = new(); Celebration = Failure = null; Bubble = null; Connection = "연결 대기"; schedule.Resume(Uptime, Random.Shared.NextDouble()); _ = StartAsync(false); Changed?.Invoke();
     }
     public void SimulateCompletion() { if (IsDemo) Apply(Demo.Snapshot(1)); }
     public bool EnableDebug(string code) { DebugEnabled = code.Trim() == "zcrenext"; Changed?.Invoke(); return DebugEnabled; }
@@ -154,7 +155,7 @@ internal sealed class CompanionStore : IDisposable
     }
     public void SavePreferences()
     {
-        LocalData.Save("preferences.json", Preferences);
+        PreferencesSaveFailed = !LocalData.Save("preferences.json", Preferences);
         if (FocusActive) { Celebration = Failure = null; Bubble = null; ResetAlerts?.Invoke(); }
         Changed?.Invoke();
     }

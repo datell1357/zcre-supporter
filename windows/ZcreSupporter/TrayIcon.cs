@@ -13,21 +13,27 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
     private readonly CompanionStore store;
     private readonly DispatcherTimer animation = new() { Interval = TimeSpan.FromMilliseconds(48) };
     private int frame;
+    private string lastTip = "";
+    private IntPtr lastIcon;
     private NotifyData data;
     public event Action? Open;
     public event Action? OpenSettings;
     public event Action? OpenAlerts;
     public event Action? Exit;
     public Func<bool>? IsDebugWorking;
+    public bool HasIconRectangle { get; private set; }
+    public bool Registered { get; private set; }
+    public int IconRectangleResult { get; private set; }
     public TrayIcon(CompanionStore store)
     {
         this.store = store;
         CreateHandle(new System.Windows.Forms.CreateParams { Caption = "ZCRE Supporter tray message host" });
         still = Icon(Sprites.Get("still").Frames[0]); var clip = Sprites.Get("run"); running = Enumerable.Range(0, 12).Select(i => Icon(clip.Frames[i * clip.Frames.Length / 12])).ToArray();
         data = new() { Size = (uint)Marshal.SizeOf<NotifyData>(), Window = Handle, Id = 1, Flags = 1 | 2 | 4, Callback = CallbackMessage, Icon = still.Handle, Tip = "ZCRE 서포터", Info = "", Title = "" };
-        ShellNotifyIcon(0, ref data);
+        Registered = ShellNotifyIcon(0, ref data);
         animation.Tick += (_, _) => { if (!store.IsSleeping && SystemParameters.ClientAreaAnimation && (store.ActiveCount > 0 || IsDebugWorking?.Invoke() == true)) data.Icon = running[frame++ % running.Length].Handle; else data.Icon = still.Handle; Update(); };
         store.Changed += Refresh; Refresh();
+        SystemParameters.StaticPropertyChanged += ParametersChanged;
     }
     private static System.Drawing.Icon Icon(BitmapSource frame)
     {
@@ -38,9 +44,20 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
     {
         var tooltip = "ZCRE 서포터" + (store.Preferences.ShowTrayCredits ? " · " + store.CreditText + " Credit" : "") + " · 작업 " + store.ActiveCount;
         data.Tip = tooltip.Length <= 127 ? tooltip : tooltip[..127]; Update();
-        if (!store.IsSleeping && (store.ActiveCount > 0 || IsDebugWorking?.Invoke() == true)) animation.Start(); else { animation.Stop(); data.Icon = still.Handle; Update(); }
+        if (!store.IsSleeping && SystemParameters.ClientAreaAnimation && (store.ActiveCount > 0 || IsDebugWorking?.Invoke() == true)) animation.Start(); else { animation.Stop(); data.Icon = still.Handle; Update(); }
     }
-    private void Update() { data.Flags = 2 | 4; ShellNotifyIcon(1, ref data); }
+    private void ParametersChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) { if (e.PropertyName == nameof(SystemParameters.ClientAreaAnimation)) Refresh(); }
+    private void Update() { data.Flags = 2 | 4; if (lastTip == data.Tip && lastIcon == data.Icon) return; if (ShellNotifyIcon(1, ref data)) { lastTip = data.Tip; lastIcon = data.Icon; } }
+    public TrayAnchor Anchor()
+    {
+        var identity = new NotifyIdentity { Size = (uint)Marshal.SizeOf<NotifyIdentity>(), Window = Handle, Id = data.Id };
+        IconRectangleResult = ShellNotifyIconGetRect(ref identity, out var rect);
+        // Match SUCCEEDED(hr) in Microsoft's NotificationIcon sample; Shell also returns S_FALSE with a rectangle.
+        HasIconRectangle = IconRectangleResult >= 0 && rect.Right > rect.Left && rect.Bottom > rect.Top;
+        return HasIconRectangle
+            ? TrayPopupHost.ForIcon(new(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top))
+            : TrayPopupHost.CursorAnchor();
+    }
     public bool Notify(Alert alert, bool sound)
     {
         data.Flags = 16; data.Info = alert.Body.Length > 255 ? alert.Body[..255] : alert.Body; data.Title = alert.Title.Length > 63 ? alert.Title[..63] : alert.Title; data.InfoFlags = 1u | (sound ? 0u : 0x10u); data.Timeout = 8000; var accepted = ShellNotifyIcon(1, ref data); Update(); return accepted;
@@ -48,7 +65,7 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
     public void ClearNotification() { data.Flags = 16; data.Info = ""; data.Title = ""; ShellNotifyIcon(1, ref data); Update(); }
     protected override void WndProc(ref System.Windows.Forms.Message message)
     {
-        if ((uint)message.Msg == taskbarCreated) { data.Flags = 1 | 2 | 4; ShellNotifyIcon(0, ref data); }
+        if ((uint)message.Msg == taskbarCreated) { data.Flags = 1 | 2 | 4; Registered = ShellNotifyIcon(0, ref data); }
         if ((uint)message.Msg == CallbackMessage)
         {
             switch ((int)message.LParam)
@@ -64,7 +81,10 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
         }
         base.WndProc(ref message);
     }
-    public void Dispose() { animation.Stop(); store.Changed -= Refresh; ShellNotifyIcon(2, ref data); DestroyHandle(); menu.Dispose(); still.Dispose(); foreach (var icon in running) icon.Dispose(); }
+    public void Dispose() { animation.Stop(); SystemParameters.StaticPropertyChanged -= ParametersChanged; store.Changed -= Refresh; ShellNotifyIcon(2, ref data); DestroyHandle(); menu.Dispose(); still.Dispose(); foreach (var icon in running) icon.Dispose(); }
+    [StructLayout(LayoutKind.Sequential)] private struct NotifyIdentity { public uint Size; public IntPtr Window; public uint Id; public Guid Guid; }
+    [StructLayout(LayoutKind.Sequential)] private struct IconRect { public int Left, Top, Right, Bottom; }
+    [DllImport("shell32.dll", EntryPoint = "Shell_NotifyIconGetRect")] private static extern int ShellNotifyIconGetRect(ref NotifyIdentity identity, out IconRect rect);
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct NotifyData
     {

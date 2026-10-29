@@ -22,9 +22,9 @@ public sealed class PetMenuLayout
     public PetMenuLayout(RectD anchor, RectD screen, int count, bool home, double labelWidth = 110)
     {
         var bounds = screen.Inflate(-8); var body = anchor.Inflate(4); var label = new RectD(anchor.MidX - labelWidth / 2, anchor.Y - 30, labelWidth, 24); var protectedFrame = body.Union(label); Protected = [body, label];
-        const double edge = 56, spacing = 6;
+        var edge = home && count == 6 ? 50d : 56d; const double spacing = 6;
         RectD Box(double angle, double radius) { var a = angle * Math.PI / 180; return new(anchor.MidX + Math.Cos(a) * radius - edge / 2, anchor.MidY + Math.Sin(a) * radius - edge / 2, edge, edge); }
-        var angles = home ? count == 5 ? new double[] { 150, 30, 330, 210, 270 } : [180, 0, 270] : Enumerable.Range(0, count).Select(i => 135 + i * 270d / Math.Max(1, count - 1)).ToArray();
+        var angles = home ? count == 6 ? new double[] { 150, 30, 342, 198, 246, 294 } : count == 5 ? [150, 30, 330, 210, 270] : [180, 0, 270] : Enumerable.Range(0, count).Select(i => 135 + i * 270d / Math.Max(1, count - 1)).ToArray();
         var radius = Math.Max(80, anchor.Width / 2 + edge / 2 + spacing);
         while (true)
         {

@@ -10,6 +10,8 @@ internal sealed class PetWindow : Window
     private readonly CompanionStore store;
     private readonly Canvas canvas = new() { Background = Brushes.Transparent };
     private readonly Image image = new() { Stretch = Stretch.Fill, Cursor = Cursors.Hand };
+    private readonly ScaleTransform facingTransform = new();
+    private readonly RotateTransform grabTransform = new();
     private readonly TextBlock label = new() { TextAlignment = TextAlignment.Center, FontSize = 11, Foreground = Brushes.White };
     private readonly TextBlock bubbleText = new() { FontSize = 14, Foreground = Brushes.White, TextAlignment = TextAlignment.Center };
     private readonly Border bubble;
@@ -41,6 +43,7 @@ internal sealed class PetWindow : Window
         this.store = store;
         Title = "ZCRE 지크"; Width = 280; Height = 265; AllowsTransparency = true; Background = Brushes.Transparent; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         Content = canvas; canvas.Children.Add(image); canvas.Children.Add(label);
+        var transforms = new TransformGroup(); transforms.Children.Add(facingTransform); transforms.Children.Add(grabTransform); image.RenderTransform = transforms;
         bubble = new Border { Background = new SolidColorBrush(Color.FromRgb(33, 36, 42)), BorderBrush = Brushes.DimGray, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Padding = new Thickness(10), Width = 252, Child = bubbleText, IsHitTestVisible = false };
         canvas.Children.Add(bubble); Canvas.SetLeft(bubble, 14); Canvas.SetTop(bubble, 4); bubble.Visibility = Visibility.Collapsed;
         Canvas.SetTop(label, 230); Canvas.SetLeft(label, 35); label.Width = 210;
@@ -166,16 +169,16 @@ internal sealed class PetWindow : Window
         else destination = null;
         var next = testMotion ?? (dragging ? "drag" : failing ? "cry" : reacting ? "complete" : working ? "working" : destination is not null ? WalkingMotion : waveStarted is not null ? "wave" : "idle");
         SetMotion(next);
-        mirrored = PetFacing.Resolve(next, dragging, mirrored, Left + Width / 2 > ScreenBounds().Left + ScreenBounds().Width / 2, direction);
+        var facingBounds = ScreenBounds(); mirrored = PetFacing.Resolve(next, dragging, mirrored, Left + Width / 2 > facingBounds.Left + facingBounds.Width / 2, direction);
         var clip = Sprites.Get(motion); var animationElapsed = motion == "complete" && testMotion is null && store.Celebration is { } completeAt ? (DateTimeOffset.UtcNow - completeAt).TotalSeconds : motion == "cry" && testMotion is null && store.Failure is { } failAt ? (DateTimeOffset.UtcNow - failAt).TotalSeconds : now - motionStarted;
         if (motion == "idle") animationElapsed = Math.Floor(animationElapsed * 12) / 12;
         var index = SpriteTiming.Frame(animationElapsed, clip.Frames.Length, clip.Delay, clip.Loop, !reduced);
         var scale = 108.5 * store.Preferences.PetScale / clip.BodyHeight * (motion == "drag" ? clip.GrabScale(index) : 1);
         image.Source = clip.Frames[index]; image.Width = clip.Frames[index].PixelWidth * scale; image.Height = clip.Frames[index].PixelHeight * scale;
         Canvas.SetLeft(image, (Width - image.Width) / 2); Canvas.SetTop(image, 223 - image.Height);
-        var transform = new TransformGroup(); transform.Children.Add(new ScaleTransform(mirrored ? -1 : 1, 1, image.Width / 2, image.Height / 2));
-        if (motion == "drag") { var anchor = clip.GrabAnchor(index); var ax = (mirrored ? clip.Frames[index].PixelWidth - anchor.X : anchor.X) * scale; transform.Children.Add(new RotateTransform(mirrored ? -clip.GrabRotation : clip.GrabRotation, ax, anchor.Y * scale)); }
-        image.RenderTransform = transform;
+        facingTransform.ScaleX = mirrored ? -1 : 1; facingTransform.CenterX = image.Width / 2; facingTransform.CenterY = image.Height / 2;
+        grabTransform.Angle = 0;
+        if (motion == "drag") { var anchor = clip.GrabAnchor(index); grabTransform.CenterX = (mirrored ? clip.Frames[index].PixelWidth - anchor.X : anchor.X) * scale; grabTransform.CenterY = anchor.Y * scale; grabTransform.Angle = mirrored ? -clip.GrabRotation : clip.GrabRotation; }
         if (motionStatus is not null) motionStatus.Text = $"모션 {motion} · 방향 {(mirrored ? "왼쪽" : "오른쪽")}" + (lastTestDistance is { } moved ? $" · 최근 이동 {moved:F1}pt" : "");
         if (dragging) PositionAtScruff(CursorPoint());
         timer.Interval = TimeSpan.FromSeconds(motion == "idle" ? 1d / 12 : 1d / 24);
@@ -210,7 +213,7 @@ internal sealed class PetWindow : Window
         {
             "image" => [("이미지 생성", "/studio/image"), ("캐릭터 시트", "/studio/character-sheet"), ("부분 수정", "/studio/partial-edit"), ("배경 제거", "/studio/image?tool=background-removal"), ("고화질 변환", "/studio/image?tool=upscale"), ("크기 변환", "/studio/image?tool=resize"), ("뒤로", "home"), ("닫기", "close")],
             "video" => [("영상 생성", "/studio/video"), ("고화질 변환", "/studio/image?tool=upscale&media=video"), ("프레임 보간", "/studio/frame-interpolation"), ("영상 번역", "/studio/video-translate"), ("뒤로", "home"), ("닫기", "close")],
-            _ => [("이미지", "image"), ("영상", "video"), ("주짓수", "/studio/jiujitsu"), ("오디오", "/studio/audio"), ("닫기", "close")]
+            _ => [("이미지", "image"), ("영상", "video"), ("주짓수", "/studio/jiujitsu"), ("오디오", "/studio/audio"), ("닫기", "close"), ("캔버스", "/studio/canvas")]
         };
         var scale = store.Preferences.PetScale;
         var anchor = new RectD(Left + Width / 2 - 45 * scale, -(Top + 223), 90 * scale, 108.5 * scale);
@@ -221,14 +224,15 @@ internal sealed class PetWindow : Window
         {
             var item = items[i]; var box = layout.Buttons[i]; var x = box.X; var y = -box.MaxY;
             var button = Ui.Action(item.Name.Replace(" ", "\n"), () => { if (item.Target == "close") CloseMenu(); else if (item.Target.StartsWith('/')) { CloseMenu(); ToolRequested?.Invoke(item.Target); } else ShowMenu(item.Target); });
-            button.Width = button.Height = 56; button.FontSize = 10.5; button.Padding = new Thickness(2); button.Margin = new Thickness(0); button.ToolTip = item.Name;
+            button.Width = button.Height = box.Width; button.FontSize = 10.5; button.Padding = new Thickness(2); button.Margin = new Thickness(0); button.ToolTip = item.Name;
             var template = new ControlTemplate(typeof(Button)); var border = new FrameworkElementFactory(typeof(Border)); border.SetValue(Border.CornerRadiusProperty, new CornerRadius(28)); border.SetValue(Border.BackgroundProperty, Ui.Surface); border.SetValue(Border.BorderBrushProperty, Brushes.Gray); border.SetValue(Border.BorderThicknessProperty, new Thickness(1)); var content = new FrameworkElementFactory(typeof(ContentPresenter)); content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center); content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center); border.AppendChild(content); template.VisualTree = border; button.Template = template;
-            Panel(button, x, y, 56, false);
+            Panel(button, x, y, box.Width, false);
         }
     }
     private void Panel(UIElement content, double x, double y, double width, bool card = true)
     {
         var panel = new Window { Title = "지크 원형 메뉴", Width = width, SizeToContent = SizeToContent.Height, Left = x, Top = y, WindowStyle = WindowStyle.None, AllowsTransparency = true, Background = Brushes.Transparent, Topmost = true, ShowInTaskbar = false, Owner = this };
+        panel.Deactivated += (_, _) => Dispatcher.BeginInvoke(() => { if (!menuWindows.Any(w => w.IsActive) && !IsActive) CloseMenu(); });
         panel.Content = card ? Ui.Card(content) : content; panel.PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) CloseMenu(); }; menuWindows.Add(panel); panel.Show();
     }
     public void ShowMotionTests()
