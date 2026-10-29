@@ -202,7 +202,7 @@ internal sealed class PetWindow : Window
         if (menuCreditText is null || menuCountText is null) return;
         menuCreditText.Text = "사용 가능 " + store.CreditText + " Credit";
         var limits = store.Snapshot?.Concurrency;
-        menuCountText.Text = $"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}";
+        menuCountText.Text = $"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}{(limits is null ? "" : "/" + limits.TotalLimit)}";
     }
     internal void ShowMenu(string category)
     {

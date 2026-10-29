@@ -30,9 +30,9 @@ internal static class MenuChecks
                 var credit = texts.Single(t => t.Text.StartsWith("사용 가능 "));
                 var counts = texts.Single(t => t.Text.StartsWith("이미지 "));
                 var beforeCredit = credit.Text; var beforeCounts = counts.Text;
-                if (!beforeCredit.Contains("1,160") || !beforeCounts.EndsWith("합계 2")) throw new InvalidOperationException();
+                if (!beforeCredit.Contains("1,160") || !beforeCounts.EndsWith("합계 2/4")) throw new InvalidOperationException("Radial summary omitted the available total concurrency limit.");
                 store.SimulateCompletion(); await Task.Delay(250);
-                if (!credit.Text.Contains("1,240") || !counts.Text.EndsWith("합계 1") || windows.Any(w => !w.IsVisible) || app.Windows.Cast<Window>().Count(w => w.Title == "지크 원형 메뉴") != 7) throw new InvalidOperationException();
+                if (!credit.Text.Contains("1,240") || !counts.Text.EndsWith("합계 1/4") || windows.Any(w => !w.IsVisible) || app.Windows.Cast<Window>().Count(w => w.Title == "지크 원형 메뉴") != 7) throw new InvalidOperationException();
                 var outside = new Window { Title = "Isolated menu dismissal test", Width = 200, Height = 120 };
                 outside.Show(); outside.Activate(); await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 if (app.Windows.Cast<Window>().Any(w => w.Title == "지크 원형 메뉴")) throw new InvalidOperationException("Radial menu did not close after outside activation.");
