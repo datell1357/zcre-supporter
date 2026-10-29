@@ -43,8 +43,8 @@
 
 ## 시작하기
 
-1. [v0.0.3 릴리즈](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)에서 `ZCRE-Supporter-0.0.3-universal-local.zip`을 다운로드합니다.
-2. 압축을 풀고 **ZCRE 서포터.app**을 응용 프로그램 폴더로 옮겨 실행합니다.
+1. [v0.0.3 릴리즈](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)에서 `ZCRE-Supporter-0.0.3-macOS-universal.dmg`를 다운로드합니다.
+2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮겨 실행합니다. 설치 창에 첫 실행 안내가 표시됩니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
 
@@ -52,6 +52,8 @@
 > 이 버전은 Apple Developer ID 서명과 공증을 받지 않았습니다. 최초 실행이 차단되면 실행을 시도한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**에서 해당 앱을 허용할 수 있습니다. [Apple 실행 안내](https://support.apple.com/ko-kr/102445)
 >
 > 파일이 손상되었거나 악성 소프트웨어가 감지되었다는 경고가 나오면 실행하지 말고 다운로드 파일을 확인해 주세요.
+
+![ZCRE 서포터 처음 실행 안내](docs/assets/install-guide-ko.png)
 
 로그인 전에는 앱의 **연결 전에 미리 둘러보기**로 가상 작업과 지크를 체험할 수 있습니다. 가상 데이터는 실제 크레딧을 사용하지 않습니다.
 
