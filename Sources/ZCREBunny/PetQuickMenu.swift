@@ -7,7 +7,7 @@ import ZCRECore
 enum ZCREQuickTool: String, CaseIterable, Identifiable {
     case image, characterSheet, partialEdit, backgroundRemoval, imageUpscale, resize
     case video, videoUpscale, frameInterpolation, videoTranslate
-    case jiujitsu, audio
+    case jiujitsu, audio, canvas
     var id: String { rawValue }
     var isImage: Bool { [.image, .characterSheet, .partialEdit, .backgroundRemoval, .imageUpscale, .resize].contains(self) }
     var isVideo: Bool { [.video, .videoUpscale, .frameInterpolation, .videoTranslate].contains(self) }
@@ -24,6 +24,7 @@ enum ZCREQuickTool: String, CaseIterable, Identifiable {
         case .videoTranslate: "영상 번역"
         case .jiujitsu: "주짓수"
         case .audio: "오디오"
+        case .canvas: "캔버스"
         }
     }
     var symbol: String {
@@ -39,6 +40,7 @@ enum ZCREQuickTool: String, CaseIterable, Identifiable {
         case .videoTranslate: "captions.bubble"
         case .jiujitsu: "figure.martial.arts"
         case .audio: "waveform"
+        case .canvas: "square.stack.3d.up"
         }
     }
     var url: URL {
@@ -55,6 +57,7 @@ enum ZCREQuickTool: String, CaseIterable, Identifiable {
         case .videoTranslate: "/studio/video-translate"
         case .jiujitsu: "/studio/jiujitsu"
         case .audio: "/studio/audio"
+        case .canvas: "/studio/canvas"
         }
         return URL(string: "https://www.zcre.co.kr" + path)!
     }
@@ -83,7 +86,7 @@ struct PetQuickMenu: View {
                 .position(x: layout.summary.midX, y: Self.size - layout.summary.midY)
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 if layout.buttons.indices.contains(index) {
-                    QuickMenuButton(item: item) {
+                    QuickMenuButton(item: item, size: layout.buttons[index].width) {
                         switch item.action {
                         case .category(let next): category = next
                         case .close: close()
@@ -108,7 +111,8 @@ private struct QuickMenuItem: Identifiable {
                     .init(id: "video", title: "영상", symbol: "video", action: .category(.video)),
                     .init(id: "jiujitsu", title: "주짓수", symbol: ZCREQuickTool.jiujitsu.symbol, action: .tool(.jiujitsu)),
                     .init(id: "audio", title: "오디오", symbol: ZCREQuickTool.audio.symbol, action: .tool(.audio)),
-                    .init(id: "close", title: "닫기", symbol: "xmark", action: .close)]
+                    .init(id: "close", title: "닫기", symbol: "xmark", action: .close),
+                    .init(id: "canvas", title: "캔버스", symbol: ZCREQuickTool.canvas.symbol, action: .tool(.canvas))]
         }
         return ZCREQuickTool.allCases.filter { category == .video ? $0.isVideo : $0.isImage }
             .map { .init(id: $0.id, title: $0.title, symbol: $0.symbol, action: .tool($0)) }
@@ -128,6 +132,7 @@ private struct MenuArc: Shape {
 
 private struct QuickMenuButton: View {
     let item: QuickMenuItem
+    let size: CGFloat
     let action: () -> Void
     @State private var hovered = false
     var body: some View {
@@ -140,7 +145,7 @@ private struct QuickMenuButton: View {
                     .font(.system(size: 10.5, weight: .semibold))
                     .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.9)
                     .frame(width: 40, height: 26)
-            }.frame(width: PetQuickMenuLayout.buttonSize, height: PetQuickMenuLayout.buttonSize)
+            }.frame(width: size, height: size)
                 .foregroundStyle(BunnyTheme.foreground)
                 .background(hovered ? BunnyTheme.elevated : BunnyTheme.surface, in: Circle())
                 .overlay(Circle().strokeBorder(hovered ? BunnyTheme.accent : BunnyTheme.border))
@@ -209,7 +214,7 @@ private struct QuickMenuButton: View {
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(BunnyTheme.border))
         panels.append(makePanel(summary, frame: layout.summary))
         for (index, item) in items.enumerated() where layout.buttons.indices.contains(index) {
-            panels.append(makePanel(QuickMenuButton(item: item) { [weak self] in
+            panels.append(makePanel(QuickMenuButton(item: item, size: layout.buttons[index].width) { [weak self] in
                 guard let self else { return }
                 switch item.action {
                 case .close: self.close()

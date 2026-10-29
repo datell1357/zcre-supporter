@@ -5,7 +5,7 @@ import Foundation
 @Test func quickMenuKeepsPetAndWorkingLabelClear() {
     let screen = CGRect(x: 0, y: 0, width: 1440, height: 900)
     let anchor = CGRect(x: 640, y: 360, width: 90, height: 110)
-    for (count, home) in [(3, true), (5, true), (8, false), (6, false)] {
+    for (count, home) in [(3, true), (5, true), (6, true), (8, false), (6, false)] {
         let layout = PetQuickMenuLayout(anchor: anchor, screen: screen, count: count, home: home)
         #expect(layout.buttons.count == count)
         #expect(layout.summary.minY > anchor.maxY)
@@ -22,7 +22,7 @@ import Foundation
             for x in [screen.minX - 20, screen.midX, screen.maxX - size.width + 20] {
                 for y in [screen.minY - 15, screen.midY, screen.maxY - size.height + 15] {
                     let anchor = CGRect(origin: CGPoint(x: x, y: y), size: size)
-                    for (count, home) in [(3, true), (5, true), (8, false), (6, false)] {
+                    for (count, home) in [(3, true), (5, true), (6, true), (8, false), (6, false)] {
                         let layout = PetQuickMenuLayout(anchor: anchor, screen: screen, count: count, home: home)
                         #expect(layout.buttons.count == count)
                         #expect(screen.contains(layout.summary))
@@ -37,6 +37,22 @@ import Foundation
                 }
             }
         }
+    }
+}
+
+@Test func sixHomeButtonsKeepSummaryAboveAndShareTheLowerArc() {
+    let anchor = CGRect(x: 640, y: 360, width: 90, height: 110)
+    let layout = PetQuickMenuLayout(anchor: anchor, screen: CGRect(x: 0, y: 0, width: 1440, height: 900), count: 6, home: true)
+    #expect(layout.buttons.count == 6)
+    #expect(layout.radius <= 128)
+    #expect(layout.buttons[4].midY < anchor.midY)
+    let previous = PetQuickMenuLayout(anchor: anchor, screen: CGRect(x: 0, y: 0, width: 1440, height: 900), count: 5, home: true)
+    #expect(abs(layout.summary.minY - previous.summary.minY) <= 2)
+    let ordered = [0, 3, 4, 5, 2, 1].map { layout.buttons[$0] }
+    let expectedGap = 2 * layout.radius * sin(24 * .pi / 180)
+    for i in 0..<5 {
+        let gap = hypot(ordered[i].midX - ordered[i + 1].midX, ordered[i].midY - ordered[i + 1].midY)
+        #expect(abs(gap - expectedGap) < 0.01)
     }
 }
 

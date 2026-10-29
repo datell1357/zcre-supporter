@@ -21,13 +21,15 @@ public struct PetQuickMenuLayout {
         protectedFrame = protected
         protectedFrames = [body, label]
         let uniformHome = home && count == 5
-        let edge = Self.buttonSize, spacing: CGFloat = 6
+        let edge: CGFloat = home && count == 6 ? 50 : Self.buttonSize
+        let spacing: CGFloat = 6
         func box(_ angle: CGFloat, _ distance: CGFloat) -> CGRect {
             let a = angle * .pi / 180
             return CGRect(x: anchor.midX + cos(a) * distance - edge / 2,
                           y: anchor.midY + sin(a) * distance - edge / 2, width: edge, height: edge)
         }
-        let angles: [CGFloat] = home ? (uniformHome ? [150, 30, 330, 210, 270] : [180, 0, 270]) : (0..<count).map { 135 + CGFloat($0) * 270 / CGFloat(max(1, count - 1)) }
+        // 여섯 항목은 위쪽 현황판을 비우고 기존 하단 원호에 48도 간격으로 배치한다.
+        let angles: [CGFloat] = home ? (count == 6 ? [150, 30, 342, 198, 246, 294] : (uniformHome ? [150, 30, 330, 210, 270] : [180, 0, 270])) : (0..<count).map { 135 + CGFloat($0) * 270 / CGFloat(max(1, count - 1)) }
         var compactRadius = max(80, anchor.width / 2 + edge / 2 + spacing)
         while true {
             let frames = angles.map { box($0, compactRadius) }

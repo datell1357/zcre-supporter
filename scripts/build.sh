@@ -37,15 +37,17 @@ STAGING=""
 DESTINATION="$DIST_DIR/$APP_NAME.app"
 # 실패하면 보관해 둔 이전 앱을 복원하고 이 실행의 임시 폴더와 잠금만 정리한다.
 cleanup() {
+    local result=$?
     if [ -n "$STAGING" ] && [ ! -e "$DESTINATION" ] && [ -d "$STAGING/previous.app" ]; then
         if ! mv "$STAGING/previous.app" "$DESTINATION"; then
             printf '이전 앱을 복원하지 못했습니다. 보존 위치: %s/previous.app\n' "$STAGING" >&2
             rmdir "$LOCK"
-            return
+            return 1
         fi
     fi
     if [ -n "$STAGING" ] && [ -d "$STAGING" ]; then rm -rf "$STAGING"; fi
     rmdir "$LOCK"
+    return "$result"
 }
 trap cleanup EXIT
 # 분류: 컴파일과 번들 조립. 실행 파일·개인정보 선언·스프라이트 등 필수 리소스를 함께 묶는다.
@@ -83,7 +85,7 @@ if [ -n "${SIGN_ENTITLEMENTS_FILE:-}" ]; then
     plutil -lint "$SIGN_ENTITLEMENTS_FILE"
     APP_SIGN_OPTIONS+=(--entitlements "$SIGN_ENTITLEMENTS_FILE")
 fi
-codesign "${SIGN_OPTIONS[@]}" "${APP_SIGN_OPTIONS[@]}" --options runtime "$APP"
+codesign "${SIGN_OPTIONS[@]}" ${APP_SIGN_OPTIONS[@]+"${APP_SIGN_OPTIONS[@]}"} --options runtime "$APP"
 codesign --verify --deep --strict "$APP"
 # 실행 중인 앱의 리소스를 교체하지 않도록 안전하게 중단한다.
 if pgrep -x ZCREBunny >/dev/null; then

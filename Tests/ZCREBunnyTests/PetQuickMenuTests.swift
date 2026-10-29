@@ -3,7 +3,7 @@ import XCTest
 
 final class PetQuickMenuTests: XCTestCase {
     func testAllToolsStayOnOfficialHTTPSOrigin() {
-        XCTAssertEqual(ZCREQuickTool.allCases.count, 12)
+        XCTAssertEqual(ZCREQuickTool.allCases.count, 13)
         for tool in ZCREQuickTool.allCases {
             XCTAssertEqual(tool.url.scheme, "https")
             XCTAssertEqual(tool.url.host, "www.zcre.co.kr")
@@ -19,7 +19,8 @@ final class PetQuickMenuTests: XCTestCase {
     func testDirectToolsUseOfficialPagesWithoutEnteringImageMenus() {
         XCTAssertEqual(ZCREQuickTool.jiujitsu.url.path, "/studio/jiujitsu")
         XCTAssertEqual(ZCREQuickTool.audio.url.path, "/studio/audio")
-        for tool in [ZCREQuickTool.jiujitsu, .audio] {
+        XCTAssertEqual(ZCREQuickTool.canvas.url.path, "/studio/canvas")
+        for tool in [ZCREQuickTool.jiujitsu, .audio, .canvas] {
             XCTAssertFalse(tool.isImage)
             XCTAssertFalse(tool.isVideo)
         }
