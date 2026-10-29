@@ -43,13 +43,13 @@
 
 ## 시작하기
 
-1. [v0.0.3 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.3/ZCRE-Supporter-0.0.3-macOS-universal-v6.dmg)을 다운로드합니다.
+1. [v0.0.3 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.3/ZCRE-Supporter-0.0.3-macOS-universal-v8.dmg)을 다운로드합니다.
 2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮깁니다. 설치 창의 **Applications**를 두 번 클릭한 뒤 앱을 열면 됩니다. 첫 실행 안내도 설치 창에 표시됩니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
 
 > [!NOTE]
-> 이 버전은 Apple Developer ID 서명과 공증을 받지 않았습니다. 최초 실행이 차단되면 실행을 시도한 뒤 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**에서 해당 앱을 허용할 수 있습니다. [Apple 실행 안내](https://support.apple.com/ko-kr/102445)
+> 이 버전은 Apple Developer ID 서명과 공증을 받지 않았습니다. 최초 실행이 차단되면 안내 창을 닫고 설치 창의 **보안 설정 열기**를 두 번 클릭하세요. 열린 **개인정보 보호 및 보안** 화면을 아래로 내려 **보안 → 그래도 열기**에서 해당 앱을 직접 허용할 수 있습니다. 바로가기가 작동하지 않으면 시스템 설정에서 직접 이동해 주세요. [Apple 실행 안내](https://support.apple.com/ko-kr/102445)
 >
 > 파일이 손상되었거나 악성 소프트웨어가 감지되었다는 경고가 나오면 실행하지 말고 다운로드 파일을 확인해 주세요.
 
