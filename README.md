@@ -43,7 +43,7 @@
 
 ## 시작하기
 
-1. [v0.0.3 릴리즈](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)에서 `ZCRE-Supporter-0.0.3-macOS-universal.dmg`를 다운로드합니다.
+1. [v0.0.3 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.3/ZCRE-Supporter-0.0.3-macOS-universal-v2.dmg)을 다운로드합니다.
 2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮겨 실행합니다. 설치 창에 첫 실행 안내가 표시됩니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
