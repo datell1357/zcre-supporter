@@ -26,6 +26,10 @@ internal static class Ui
     {
         window.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/ZcreSupporter;component/SettingsTheme.xaml", UriKind.Relative) });
         window.WindowStyle = WindowStyle.None; window.MinWidth = 320; window.MinHeight = 240;
+        window.StateChanged += (_, _) =>
+        {
+            if (window.WindowState == WindowState.Maximized) window.Dispatcher.BeginInvoke(() => { if (window.WindowState == WindowState.Maximized) TrayPopupHost.FitToWorkArea(window); });
+        };
         System.Windows.Shell.WindowChrome.SetWindowChrome(window, new()
         {
             CaptionHeight = 52, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0),

@@ -27,7 +27,9 @@ internal sealed class WebSession : IDisposable
     public WebSession(Func<Task<CoreWebView2Environment>>? createEnvironment = null)
     {
         this.createEnvironment = createEnvironment ?? (() => CoreWebView2Environment.CreateAsync(null, LocalData.PathFor("WebView2")));
-        window = new Window { Title = "ZCRE 서포터 · 계정 연결", Width = 1060, Height = 760, MinWidth = 760, MinHeight = 560, Content = View, WindowStartupLocation = WindowStartupLocation.CenterScreen };
+        window = Ui.Window("계정 연결", View, 1060, 760);
+        ((Border)window.Content).Padding = new Thickness(0);
+        window.MinWidth = Math.Min(760, window.Width); window.MinHeight = Math.Min(560, window.Height);
         window.Closing += (_, e) => { if (!disposed) { e.Cancel = true; window.Hide(); } };
     }
     public Task StartAsync()
@@ -73,7 +75,8 @@ internal sealed class WebSession : IDisposable
         try
         {
             var browser = new WebView2();
-            var popup = new Window { Title = "ZCRE 서포터 · 로그인", Width = 700, Height = 780, Content = browser, Owner = window };
+            var popup = Ui.Window("로그인", browser, 700, 780);
+            ((Border)popup.Content).Padding = new Thickness(0); popup.Owner = window;
             popups.Add(popup); popup.Show();
             await browser.EnsureCoreWebView2Async(environment);
             browser.CoreWebView2.NavigationStarting += (_, n) => { if (!HttpsOrBlank(n.Uri)) n.Cancel = true; };

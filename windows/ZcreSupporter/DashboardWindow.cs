@@ -24,6 +24,7 @@ internal sealed class DashboardWindow : Window
     {
         this.store = store; this.status = status;
         Title = "ZCRE 서포터"; Width = 980; Height = 600; popup = new(this);
+        Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/ZcreSupporter;component/SettingsTheme.xaml", UriKind.Relative) });
         Background = (Brush)Application.Current.FindResource("BackgroundBrush"); Foreground = Brushes.White; FontFamily = new FontFamily("Malgun Gothic"); FontSize = 13;
         var root = new DockPanel { Margin = new Thickness(18), Background = Background };
         var header = new DockPanel { Margin = new Thickness(0, 0, 0, 12) };
@@ -31,15 +32,37 @@ internal sealed class DashboardWindow : Window
         var title = new StackPanel(); title.Children.Add(Ui.Text("ZCRE 서포터", 17, true)); title.Children.Add(connection); header.Children.Add(title);
         DockPanel.SetDock(header, Dock.Top); root.Children.Add(header); DockPanel.SetDock(timestamps, Dock.Bottom); root.Children.Add(timestamps); timestamps.Foreground = Ui.Muted;
         storageError.Foreground = Brushes.Orange; DockPanel.SetDock(storageError, Dock.Top); root.Children.Add(storageError);
-        var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(31, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(35, GridUnitType.Star) }); columns.ColumnDefinitions.Add(new() { Width = new GridLength(34, GridUnitType.Star) });
+        var columns = new Grid { Name = "DashboardSections" };
         var left = Ui.Section("진행 작업"); left.Children.Add(jobs);
         var middle = Ui.Section("크레딧"); middle.Children.Add(balance);
         connectAccount = Ui.Action("ZCRE 계정 연결", () => { Hide(); _ = store.ConnectAsync(); }); middle.Children.Add(connectAccount);
         petVisibility = Ui.Action("", () => { store.Preferences.PetVisible = !store.Preferences.PetVisible; store.SavePreferences(); }); middle.Children.Add(petVisibility);
         middle.Children.Add(Ui.Action("설정", ShowSettings)); middle.Children.Add(Ui.Text("최근 알림", 16, true)); middle.Children.Add(alerts); middle.Children.Add(Ui.Action("알림 전체 보기 · 상세 현황", ShowDetails)); middle.Children.Add(Ui.Action("ZCRE 열기 ↗", () => OpenWeb("https://www.zcre.co.kr")));
         var right = Ui.Section("서비스 상태"); right.Children.Add(statusTime); right.Children.Add(services); right.Children.Add(Ui.Action("ZCRE 상태 페이지 ↗", () => OpenWeb("https://www.zcre.co.kr/status")));
-        foreach (var (panel, index) in new[] { (left, 0), (middle, 1), (right, 2) }) { var scroll = new ScrollViewer { Content = panel, Margin = new Thickness(index == 0 ? 0 : 16, 0, 0, 0) }; Grid.SetColumn(scroll, index); columns.Children.Add(scroll); }
-        root.Children.Add(columns); Content = root;
+        var panels = new[] { left, middle, right };
+        var sections = panels.Select(panel => new ScrollViewer { Content = panel }).ToArray();
+        var body = new ScrollViewer { Content = columns, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
+        bool? compactLayout = null;
+        void ArrangeColumns()
+        {
+            var compact = (ActualWidth > 0 ? ActualWidth : Width) < 800;
+            if (compactLayout == compact) return; compactLayout = compact;
+            columns.Children.Clear(); columns.ColumnDefinitions.Clear(); columns.RowDefinitions.Clear();
+            foreach (var weight in compact ? new[] { 1 } : new[] { 31, 35, 34 }) columns.ColumnDefinitions.Add(new() { Width = new GridLength(weight, GridUnitType.Star) });
+            for (var i = 0; i < (compact ? 3 : 1); i++) columns.RowDefinitions.Add(new() { Height = compact ? GridLength.Auto : new GridLength(1, GridUnitType.Star) });
+            for (var i = 0; i < sections.Length; i++)
+            {
+                panels[i].Margin = new Thickness(0);
+                sections[i].Content = compact ? null : panels[i];
+                FrameworkElement child = compact ? panels[i] : sections[i];
+                Grid.SetColumn(child, compact ? 0 : i); Grid.SetRow(child, compact ? i : 0);
+                child.Margin = compact ? new Thickness(0, i == 0 ? 0 : 24, 0, 0) : new Thickness(i == 0 ? 0 : 16, 0, 0, 0);
+                columns.Children.Add(child);
+            }
+            body.VerticalScrollBarVisibility = compact ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled;
+        }
+        SizeChanged += (_, _) => ArrangeColumns(); ArrangeColumns();
+        root.Children.Add(body); Content = root;
         PreviewKeyDown += (_, e) =>
         {
             if (e.Key == System.Windows.Input.Key.Escape) { Hide(); e.Handled = true; return; }
@@ -145,7 +168,7 @@ internal sealed class DashboardWindow : Window
         var saveError = Ui.Text("", 12); saveError.Foreground = Brushes.Orange; panel.Children.Add(saveError);
         synchronizers.Add(() => { saveError.Text = storageError.Text; saveError.Visibility = storageError.Visibility; }); saveError.Text = storageError.Text; saveError.Visibility = storageError.Visibility;
         void Toggle(string title, Func<bool> get, Action<bool> set) { var checkbox = new CheckBox { Content = title, IsChecked = get() }; checkbox.Checked += (_, _) => { if (!synchronizing) { set(true); store.SavePreferences(); } }; checkbox.Unchecked += (_, _) => { if (!synchronizing) { set(false); store.SavePreferences(); } }; synchronizers.Add(() => checkbox.IsChecked = get()); panel.Children.Add(checkbox); }
-        void Heading(string title) => panel.Children.Add(Ui.Text("\n" + title, 17, true));
+        void Heading(string title) { var heading = Ui.Text(title, 17, true); heading.Margin = new Thickness(0, 24, 0, 8); panel.Children.Add(heading); }
         var p = store.Preferences;
         Heading("바탕화면"); Toggle("바탕화면에 지크 보이기", () => p.PetVisible, v => p.PetVisible = v); Toggle("산책 활성화", () => p.Roaming, v => p.Roaming = v); Toggle("트레이 툴팁에 크레딧 표시", () => p.ShowTrayCredits, v => p.ShowTrayCredits = v);
         panel.Children.Add(Ui.Text("Windows 트레이는 아이콘 옆 숫자를 지원하지 않아 툴팁과 현황판에 표시해요.", 11));

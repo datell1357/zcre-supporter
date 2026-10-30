@@ -71,6 +71,11 @@ internal sealed class TrayPopupHost : IDisposable
         if (!SetWindowPos(new WindowInteropHelper(target).Handle, IntPtr.Zero, (int)Math.Round(bounds.X), (int)Math.Round(bounds.Y),
             (int)Math.Round(bounds.Width), (int)Math.Round(bounds.Height), 0x14)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
     }
+    internal static void FitToWorkArea(Window target)
+    {
+        if (!GetWindowRect(new WindowInteropHelper(target).Handle, out var rect)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        PlaceWindow(target, ForIcon(rect.ToRect()).WorkArea);
+    }
     internal static TrayAnchor ForIcon(RectD icon)
     {
         var point = new NativePoint { X = (int)icon.MidX, Y = (int)icon.MidY };
@@ -93,4 +98,5 @@ internal sealed class TrayPopupHost : IDisposable
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
     [DllImport("shcore.dll")] private static extern int GetDpiForMonitor(IntPtr monitor, int type, out uint x, out uint y);
     [DllImport("user32.dll", SetLastError = true)] private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int width, int height, uint flags);
+    [DllImport("user32.dll", SetLastError = true)] private static extern bool GetWindowRect(IntPtr hwnd, out NativeRect rect);
 }

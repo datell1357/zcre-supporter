@@ -13,6 +13,8 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--tray-popup") return TrayChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recovery") return RecoveryChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--account-read") return AccountChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--account-identity") return AccountChecks.Identity(args[1]);
+        if (args.Length == 3 && args[0] == "--layout") return LayoutChecks.Execute(args[1], args[2]);
         if (args.Length == 1 && args[0] == "--audio-source") { using var sound = new System.Media.SoundPlayer(LocalData.Asset("Sounds/typing.wav")); sound.PlayLooping(); Thread.Sleep(5000); sound.Stop(); return 0; }
         if (args.Length == 2 && args[0] is "--media" or "--saved-media" || args.Length == 3 && args[0] == "--existing-result") return MediaChecks.Run(args);
         if (args.Length != 1 || !Path.IsPathFullyQualified(args[0])) throw new ArgumentException("An absolute workspace-local test-data directory is required.");
