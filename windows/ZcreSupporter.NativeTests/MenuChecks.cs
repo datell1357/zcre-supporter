@@ -17,8 +17,15 @@ internal static class MenuChecks
             {
                 LocalData.Initialize(["--data-dir", directory]);
                 using var store = new CompanionStore();
-                await store.StartAsync(true);
                 pet = new PetWindow(store); pet.Show(); await Task.Delay(250);
+                pet.ShowMenu("home"); await Task.Delay(100);
+                var connect = Buttons(app).SingleOrDefault(b => Equals(b.Content, "ZCRE 연결"));
+                if (connect is null || !connect.IsVisible) throw new InvalidOperationException("Disconnected radial summary omitted its account connection action.");
+                var summary = Window.GetWindow(connect);
+                if (summary.ActualHeight > 104) throw new InvalidOperationException("Disconnected radial summary exceeds its reserved frame.");
+                await store.StartAsync(true); await Task.Delay(100);
+                if (connect.IsVisible) throw new InvalidOperationException("Connected radial summary retained its login action.");
+                pet.CloseMenu();
                 var image = Descendants(pet).OfType<Image>().Single(); var transform = image.RenderTransform;
                 await Task.Delay(250);
                 if (!ReferenceEquals(transform, image.RenderTransform)) throw new InvalidOperationException("Pet rebuilt its transform graph on subsequent animation frames.");
@@ -32,6 +39,11 @@ internal static class MenuChecks
                 var counts = texts.Single(t => t.Text.StartsWith("이미지 "));
                 var beforeCredit = credit.Text; var beforeCounts = counts.Text;
                 if (!beforeCredit.Contains("1,160") || !beforeCounts.EndsWith("합계 2/4")) throw new InvalidOperationException("Radial summary omitted the available total concurrency limit.");
+                store.Sleep(); await Task.Delay(100);
+                if (!credit.Text.StartsWith("갱신 지연")) throw new InvalidOperationException("Paused radial summary presented its cached credits as fresh.");
+                store.Wake(); await Task.Delay(100);
+                if (!credit.Text.StartsWith("사용 가능")) throw new InvalidOperationException("Radial summary did not recover its normal credit presentation.");
+                Console.WriteLine("PASS disconnected radial summary has a reachable connection action; demo connection updates it in place; paused credits visibly show their stale state");
                 store.SimulateCompletion(); await Task.Delay(250);
                 if (!credit.Text.Contains("1,240") || !counts.Text.EndsWith("합계 1/4") || windows.Any(w => !w.IsVisible) || app.Windows.Cast<Window>().Count(w => w.Title == "지크 원형 메뉴") != 7) throw new InvalidOperationException();
                 var outside = new Window { Title = "Isolated menu dismissal test", Width = 200, Height = 120 };
@@ -82,7 +94,7 @@ internal static class MenuChecks
 
     private static void CheckVisuals(Window[] windows)
     {
-        foreach (var button in windows.SelectMany(Descendants).OfType<Button>())
+        foreach (var button in windows.SelectMany(Descendants).OfType<Button>().Where(b => b.IsVisible))
         {
             var icon = Descendants(button).OfType<Image>().SingleOrDefault();
             if (icon?.Source is not DrawingImage drawing || icon.ActualWidth != 16 || icon.ActualHeight != 16) throw new InvalidOperationException("A radial action is missing its visible 16 DIP vector icon.");
@@ -102,7 +114,7 @@ internal static class MenuChecks
         }
     }
 
-    private static Button[] Buttons(Application app) => app.Windows.Cast<Window>().Where(w => w.Title == "지크 원형 메뉴").SelectMany(Descendants).OfType<Button>().ToArray();
+    private static Button[] Buttons(Application app) => app.Windows.Cast<Window>().Where(w => w.Title == "지크 원형 메뉴").SelectMany(Descendants).OfType<Button>().Where(b => b.IsVisible).ToArray();
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {

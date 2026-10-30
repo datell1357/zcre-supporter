@@ -24,6 +24,7 @@ internal sealed class PetWindow : Window
     private TextBlock? motionStatus;
     private double? lastTestDistance;
     private TextBlock? menuCreditText, menuCountText;
+    private Button? menuConnect;
     private string motion = "idle";
     private double motionStarted = CompanionStore.Uptime, nextWalk, lastTick = CompanionStore.Uptime;
     private Point? destination, pressed;
@@ -196,11 +197,15 @@ internal sealed class PetWindow : Window
         if (store.DebugEnabled) Add("모션 테스트", ShowMotionTests);
         return menu;
     }
-    public void CloseMenu() { foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); menuCreditText = menuCountText = null; }
+    public void CloseMenu() { foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); menuCreditText = menuCountText = null; menuConnect = null; }
     private void UpdateMenuSummary()
     {
         if (menuCreditText is null || menuCountText is null) return;
-        menuCreditText.Text = "사용 가능 " + store.CreditText + " Credit";
+        var stale = store.Snapshot is not null && (store.Snapshot.BalanceIsStale || store.IsSleeping || store.IsOffline || !store.IsDemo && store.Connection != "연결됨");
+        menuCreditText.Text = store.Snapshot is null ? "계정 연결 필요" : (stale ? "갱신 지연 " : "사용 가능 ") + store.CreditText + " Credit";
+        menuCreditText.Foreground = stale ? Brushes.Orange : Brushes.White;
+        menuCountText.Visibility = store.Snapshot is null ? Visibility.Collapsed : Visibility.Visible;
+        if (menuConnect is not null) menuConnect.Visibility = store.Snapshot is null ? Visibility.Visible : Visibility.Collapsed;
         var limits = store.Snapshot?.Concurrency;
         menuCountText.Text = $"이미지 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "image") ?? 0}{(limits is null ? "" : "/" + limits.ImagesLimit)}  ·  영상 {store.Snapshot?.ActiveJobs.Count(j => j.MediaType == "video") ?? 0}{(limits is null ? "" : "/" + limits.VideosLimit)}  ·  합계 {store.ActiveCount}{(limits is null ? "" : "/" + limits.TotalLimit)}";
     }
@@ -208,7 +213,8 @@ internal sealed class PetWindow : Window
     {
         CloseMenu(); destination = null;
         var bounds = ScreenBounds();
-        var summary = new StackPanel(); menuCreditText = Ui.Text("", 16, true); menuCountText = Ui.Text("", 11); summary.Children.Add(menuCreditText); summary.Children.Add(menuCountText); UpdateMenuSummary();
+        var summary = new StackPanel(); menuCreditText = Ui.Text("", 16, true); menuCountText = Ui.Text("", 11); summary.Children.Add(menuCreditText); summary.Children.Add(menuCountText);
+        menuConnect = Ui.Action("ZCRE 연결", () => { CloseMenu(); _ = store.ConnectAsync(); }); menuConnect.FontSize = 12; menuConnect.Padding = new Thickness(8, 2, 8, 2); menuConnect.Margin = new Thickness(0); summary.Children.Add(menuConnect); UpdateMenuSummary();
         (string Name, string Target)[] items = category switch
         {
             "image" => [("이미지 생성", "/studio/image"), ("캐릭터 시트", "/studio/character-sheet"), ("부분 수정", "/studio/partial-edit"), ("배경 제거", "/studio/image?tool=background-removal"), ("고화질 변환", "/studio/image?tool=upscale"), ("크기 변환", "/studio/image?tool=resize"), ("뒤로", "home"), ("닫기", "close")],
