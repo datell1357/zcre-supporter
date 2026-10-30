@@ -39,19 +39,31 @@ internal static class TrayChecks
                 Console.WriteLine("PASS actual activation of another WPF window dismisses the popup");
                 dashboard.ShowSettings();
                 var settings = app.Windows.Cast<Window>().Single(w => w.Title == "ZCRE 서포터 · 설정");
-                if (dashboard.IsVisible || !settings.IsVisible || settings.WindowStyle != WindowStyle.SingleBorderWindow) throw new InvalidOperationException("Independent settings window was hidden or lost its normal chrome.");
+                if (dashboard.IsVisible || !settings.IsVisible || settings.WindowStyle != WindowStyle.None || settings.AllowsTransparency) throw new InvalidOperationException("Settings must use themed chrome without a native title bar or transparent capture surface.");
                 if (!GetWindowRect(new WindowInteropHelper(settings).Handle, out var settingsRect)) throw new InvalidOperationException("Settings frame bounds are unavailable.");
                 var settingsArea = TrayPopupHost.ForIcon(new(settingsRect.Left, settingsRect.Top, 1, 1)).WorkArea;
                 if (!settingsArea.Contains(new(settingsRect.Left, settingsRect.Top, settingsRect.Right - settingsRect.Left, settingsRect.Bottom - settingsRect.Top))) throw new InvalidOperationException("Settings frame extends outside its monitor work area.");
+                var settingsHandle = new WindowInteropHelper(settings).Handle;
+                if (HitTest(settingsHandle, settingsRect.Left + 100, settingsRect.Top + 24) != 2) throw new InvalidOperationException("The themed settings header is not a native draggable caption.");
+                var close = Buttons(settings).Single(b => System.Windows.Automation.AutomationProperties.GetAutomationId(b) == "SettingsClose");
+                var closePoint = close.PointToScreen(new Point(close.ActualWidth / 2, close.ActualHeight / 2));
+                if (HitTest(settingsHandle, (int)closePoint.X, (int)closePoint.Y) != 1 || !close.Focusable || string.IsNullOrEmpty(System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(close)?.GetName())) throw new InvalidOperationException("Settings close button is not an accessible client-area control.");
+                settings.Height = 360; settings.UpdateLayout();
+                var scroll = Descendants(settings).OfType<System.Windows.Controls.ScrollViewer>().First(); scroll.ScrollToEnd();
+                await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                if (scroll.ScrollableHeight <= 0 || scroll.VerticalOffset <= 0 || close.TranslatePoint(new Point(0, 0), settings).Y > 52) throw new InvalidOperationException("Compact settings lost content scrolling or its fixed close control.");
+                Console.WriteLine("PASS themed settings header exposes native caption dragging, accessible close and compact content scrolling");
                 await store.StartAsync(true); settings.UpdateLayout();
                 if (Buttons(dashboard).Any(b => Equals(b.Content, "ZCRE 계정 연결") && b.Visibility != Visibility.Collapsed)) throw new InvalidOperationException("Verified snapshot still displayed the initial account-connection prompt.");
                 if (!Buttons(settings).Any(b => Equals(b.Content, "미리보기 종료"))) throw new InvalidOperationException("Open settings did not update its demo action after a state transition.");
                 var demoButton = Buttons(settings).Single(b => Equals(b.Content, "미리보기 종료"));
                 if (System.Windows.Automation.Peers.UIElementAutomationPeer.CreatePeerForElement(demoButton)?.GetName() != "미리보기 종료") throw new InvalidOperationException("Dynamic action retained a stale accessibility name after its visible label changed.");
-                settings.Close(); dashboard.Present(); dashboard.ShowDetails();
+                close.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+                if (settings.IsVisible) throw new InvalidOperationException("The themed close action did not close settings.");
+                dashboard.Present(); dashboard.ShowDetails();
                 var detail = app.Windows.Cast<Window>().Single(w => w.Title == "ZCRE 서포터 · 상세 현황");
                 if (dashboard.IsVisible || !detail.IsVisible || detail.WindowStyle != WindowStyle.SingleBorderWindow) throw new InvalidOperationException("Independent detail window was hidden or lost its normal chrome.");
-                Console.WriteLine("PASS opening settings/details dismisses only the popup and preserves normal child-window chrome");
+                Console.WriteLine("PASS settings close action and independent normal detail window preserve popup dismissal behavior");
                 if (!tray.Notify(new("tray-qa", "completed", "ZCRE 로컬 알림 검사", "격리된 Windows 검증입니다. 생성 요청과 크레딧 사용이 없습니다.", DateTimeOffset.Now, false, "notification", null), false)) throw new InvalidOperationException("Shell rejected the local notification request.");
                 Console.WriteLine("PASS Windows Shell accepted a local no-sound notification; banner visibility is not asserted");
                 app.Shutdown(0);
@@ -64,10 +76,13 @@ internal static class TrayChecks
     [StructLayout(LayoutKind.Sequential)] private struct NativeRect { public int Left, Top, Right, Bottom; }
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int index);
     [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hwnd, out NativeRect rect);
-    private static IEnumerable<System.Windows.Controls.Button> Buttons(DependencyObject root)
+    [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam);
+    private static int HitTest(IntPtr handle, int x, int y) => SendMessage(handle, 0x84, IntPtr.Zero, new IntPtr((y << 16) | (x & 0xffff))).ToInt32();
+    private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {
-        if (root is System.Windows.Controls.Button button) yield return button;
+        yield return root;
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
-            foreach (var child in Buttons(VisualTreeHelper.GetChild(root, i))) yield return child;
+            foreach (var child in Descendants(VisualTreeHelper.GetChild(root, i))) yield return child;
     }
+    private static IEnumerable<System.Windows.Controls.Button> Buttons(DependencyObject root) => Descendants(root).OfType<System.Windows.Controls.Button>();
 }

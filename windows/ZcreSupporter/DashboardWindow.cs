@@ -170,9 +170,11 @@ internal sealed class DashboardWindow : Window
         var motionButton = Ui.Action("모션 테스트 열기", () => MotionTestsRequested?.Invoke()); motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed;
         panel.Children.Add(Ui.Actions(Ui.Action("디버그 활성화", () => { debugStatus.Text = store.EnableDebug(code.Password) ? "활성화됨" : "코드가 일치하지 않아요"; motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed; code.Clear(); }), motionButton, Ui.Action("디버그 끄기", () => { store.DisableDebug(); debugStatus.Text = "비활성화됨"; motionButton.Visibility = Visibility.Collapsed; })));
         panel.Children.Add(Ui.Text("\n0.2.20 Windows · 검증 중인 개발 빌드", 11));
-        settings = Ui.Window("설정", new ScrollViewer { Content = panel }, 620, 790);
+        settings = Ui.Window("설정", new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled }, 620, 790);
+        Ui.SettingsChrome(settings);
         settings.PreviewKeyDown += (_, e) =>
         {
+            if (e.Key == System.Windows.Input.Key.Escape) { settings?.Close(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.Q) { ((App)Application.Current).Quit(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.M && store.DebugEnabled) { MotionTestsRequested?.Invoke(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Alt && e.SystemKey == System.Windows.Input.Key.D)

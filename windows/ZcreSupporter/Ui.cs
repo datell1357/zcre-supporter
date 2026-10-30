@@ -22,6 +22,25 @@ internal static class Ui
         window.Loaded += (_, _) => TrayPopupHost.PlaceWindow(window, bounds);
         return window;
     }
+    public static void SettingsChrome(Window window)
+    {
+        window.WindowStyle = WindowStyle.None; window.MinWidth = 320; window.MinHeight = 240;
+        System.Windows.Shell.WindowChrome.SetWindowChrome(window, new()
+        {
+            CaptionHeight = 52, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0),
+            CornerRadius = new CornerRadius(14), UseAeroCaptionButtons = false, NonClientFrameEdges = System.Windows.Shell.NonClientFrameEdges.None
+        });
+        var content = (UIElement)window.Content; window.Content = null;
+        var frame = new DockPanel();
+        var header = new Grid { Height = 52, Background = Brushes.Transparent };
+        header.ColumnDefinitions.Add(new ColumnDefinition()); header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var brand = Text("ZCRE", 12, true); brand.Foreground = Accent; brand.Margin = new Thickness(24, 0, 0, 0); brand.VerticalAlignment = VerticalAlignment.Center; header.Children.Add(brand);
+        var close = Action("×", window.Close); close.Width = close.Height = 32; close.Padding = new Thickness(0); close.Margin = new Thickness(0, 0, 14, 0); close.FontSize = 20; close.VerticalAlignment = VerticalAlignment.Center; close.ToolTip = "설정 닫기 · Esc";
+        System.Windows.Automation.AutomationProperties.SetName(close, "설정 닫기"); System.Windows.Automation.AutomationProperties.SetAutomationId(close, "SettingsClose");
+        System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(close, true); Grid.SetColumn(close, 1); header.Children.Add(close);
+        DockPanel.SetDock(header, Dock.Top); frame.Children.Add(header); frame.Children.Add(content);
+        window.Content = new Border { BorderBrush = new SolidColorBrush(Color.FromRgb(48, 52, 60)), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(14), Child = frame };
+    }
     public static StackPanel Section(string title) { var panel = new StackPanel(); panel.Children.Add(Text(title, 16, true)); return panel; }
     public static WrapPanel Actions(params Button[] buttons) { var row = new WrapPanel(); foreach (var button in buttons) row.Children.Add(button); return row; }
 }
