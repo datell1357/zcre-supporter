@@ -43,21 +43,25 @@ internal static class AccountChecks
             try
             {
                 LocalData.Initialize(["--data-dir", directory]);
-                using var store = new CompanionStore();
-                await store.StartAsync(false);
+                using var session = new WebSession();
+                await session.StartAsync();
                 var deadline = DateTimeOffset.UtcNow.AddSeconds(35);
-                while (store.Snapshot is null && DateTimeOffset.UtcNow < deadline) await Task.Delay(200);
-                if (store.Snapshot is not { } snapshot) throw new InvalidOperationException("Existing session did not provide a verified snapshot; pageLoaded=" + store.Session.Loaded + "; state=" + store.Connection);
+                while ((!session.Loaded || await session.View.ExecuteScriptAsync("Boolean(window.Clerk?.loaded)") != "true") && DateTimeOffset.UtcNow < deadline) await Task.Delay(200);
+                using var readCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+                var candidate = await session.SnapshotAsync([], null, false, readCancellation.Token);
+                if (!session.Accept(candidate.Revision, candidate.Snapshot)) throw new InvalidOperationException("Existing session changed during the read-only snapshot check.");
+                var snapshot = candidate.Snapshot;
                 Console.WriteLine("PASS preserved app-owned login session supplies validated credits and job snapshot (values and identifiers omitted)");
                 var succeeded = snapshot.Jobs.FirstOrDefault(j => j.State == ZcreSupporter.Core.JobStatus.Succeeded);
                 if (succeeded is null) Console.WriteLine("UNVERIFIED existing result metadata: no completed job in the returned snapshot");
                 else
                 {
                     using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-                    var outputs = await store.Session.OutputsAsync(succeeded, snapshot.WorkspaceKey, cancellation.Token);
+                    var outputs = await session.OutputsAsync(succeeded, snapshot.WorkspaceKey, cancellation.Token);
                     if (outputs.Count == 0) throw new InvalidOperationException("Existing completed job returned no result metadata.");
                     Console.WriteLine("PASS existing completed result metadata returned validated HTTPS media; URLs and job content omitted; no media saved or generation requested");
                 }
+                Console.WriteLine("PASS account inspection used the session adapter only; no app preferences or alert history written");
                 app.Shutdown(0);
             }
             catch (Exception error) { Console.WriteLine("FAIL account read check: " + error.GetType().Name + (error is InvalidOperationException ? ": " + error.Message : "")); app.Shutdown(1); }
