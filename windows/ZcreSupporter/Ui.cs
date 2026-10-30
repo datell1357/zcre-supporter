@@ -24,6 +24,7 @@ internal static class Ui
     }
     public static void SettingsChrome(Window window)
     {
+        window.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/ZcreSupporter;component/SettingsTheme.xaml", UriKind.Relative) });
         window.WindowStyle = WindowStyle.None; window.MinWidth = 320; window.MinHeight = 240;
         System.Windows.Shell.WindowChrome.SetWindowChrome(window, new()
         {

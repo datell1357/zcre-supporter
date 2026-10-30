@@ -53,6 +53,7 @@ internal static class TrayChecks
                 await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 if (scroll.ScrollableHeight <= 0 || scroll.VerticalOffset <= 0 || close.TranslatePoint(new Point(0, 0), settings).Y > 52) throw new InvalidOperationException("Compact settings lost content scrolling or its fixed close control.");
                 Console.WriteLine("PASS themed settings header exposes native caption dragging, accessible close and compact content scrolling");
+                await SettingsScrollChecks.Run(scroll);
                 await store.StartAsync(true); settings.UpdateLayout();
                 if (Buttons(dashboard).Any(b => Equals(b.Content, "ZCRE 계정 연결") && b.Visibility != Visibility.Collapsed)) throw new InvalidOperationException("Verified snapshot still displayed the initial account-connection prompt.");
                 if (!Buttons(settings).Any(b => Equals(b.Content, "미리보기 종료"))) throw new InvalidOperationException("Open settings did not update its demo action after a state transition.");
