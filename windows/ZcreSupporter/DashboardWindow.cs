@@ -199,6 +199,7 @@ internal sealed class DashboardWindow : Window
         {
             if (e.Key == System.Windows.Input.Key.Escape) { settings?.Close(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.Q) { ((App)Application.Current).Quit(); e.Handled = true; return; }
+            if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.H) { ShowDetails(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && e.Key == System.Windows.Input.Key.M && store.DebugEnabled) { MotionTestsRequested?.Invoke(); e.Handled = true; return; }
             if (System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Alt && e.SystemKey == System.Windows.Input.Key.D)
             { debugStatus.Text = store.EnableDebug(code.Password) ? "활성화됨" : "코드가 일치하지 않아요"; motionButton.Visibility = store.DebugEnabled ? Visibility.Visible : Visibility.Collapsed; code.Clear(); e.Handled = true; }
