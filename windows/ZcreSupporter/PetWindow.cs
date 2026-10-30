@@ -224,8 +224,17 @@ internal sealed class PetWindow : Window
         {
             var item = items[i]; var box = layout.Buttons[i]; var x = box.X; var y = -box.MaxY;
             var button = Ui.Action(item.Name.Replace(" ", "\n"), () => { if (item.Target == "close") CloseMenu(); else if (item.Target.StartsWith('/')) { CloseMenu(); ToolRequested?.Invoke(item.Target); } else ShowMenu(item.Target); });
-            button.Width = button.Height = box.Width; button.FontSize = 10.5; button.Padding = new Thickness(2); button.Margin = new Thickness(0); button.ToolTip = item.Name;
-            var template = new ControlTemplate(typeof(Button)); var border = new FrameworkElementFactory(typeof(Border)); border.SetValue(Border.CornerRadiusProperty, new CornerRadius(28)); border.SetValue(Border.BackgroundProperty, Ui.Surface); border.SetValue(Border.BorderBrushProperty, Brushes.Gray); border.SetValue(Border.BorderThicknessProperty, new Thickness(1)); var content = new FrameworkElementFactory(typeof(ContentPresenter)); content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center); content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center); border.AppendChild(content); template.VisualTree = border; button.Template = template;
+            button.Width = button.Height = box.Width; button.FontSize = 10.5; button.Padding = new Thickness(0); button.Margin = new Thickness(0); button.ToolTip = item.Name;
+            var visuals = new StackPanel { Width = 40, Height = 46, IsHitTestVisible = false };
+            var icon = PetMenuIcon.Create(item.Target); icon.Margin = new Thickness(0, 0, 0, 2); visuals.Children.Add(icon);
+            visuals.Children.Add(new TextBlock { Text = item.Name.Replace(" ", "\n"), Width = 40, Height = 28, FontFamily = new FontFamily("Malgun Gothic"), FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = Brushes.White, TextAlignment = TextAlignment.Center, LineHeight = 14, LineStackingStrategy = LineStackingStrategy.BlockLineHeight });
+            button.Content = visuals; System.Windows.Automation.AutomationProperties.SetName(button, item.Name);
+            var template = new ControlTemplate(typeof(Button)); var border = new FrameworkElementFactory(typeof(Border), "MenuBorder"); border.SetValue(Border.CornerRadiusProperty, new CornerRadius(28)); border.SetValue(Border.BackgroundProperty, Ui.Surface); border.SetValue(Border.BorderBrushProperty, Brushes.Gray); border.SetValue(Border.BorderThicknessProperty, new Thickness(1)); var content = new FrameworkElementFactory(typeof(ContentPresenter)); content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center); content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center); border.AppendChild(content); template.VisualTree = border;
+            foreach (var property in new[] { IsMouseOverProperty, IsKeyboardFocusedProperty })
+            {
+                var trigger = new Trigger { Property = property, Value = true }; trigger.Setters.Add(new Setter(Border.BorderBrushProperty, Ui.Accent, "MenuBorder")); trigger.Setters.Add(new Setter(Border.BackgroundProperty, new SolidColorBrush(Color.FromRgb(37, 40, 46)), "MenuBorder")); template.Triggers.Add(trigger);
+            }
+            button.Template = template;
             Panel(button, x, y, box.Width, false);
         }
     }
