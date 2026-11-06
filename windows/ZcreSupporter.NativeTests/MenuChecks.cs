@@ -2,10 +2,56 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using ZcreSupporter;
 
 internal static class MenuChecks
 {
+    internal static int Interactive(string directory)
+    {
+        if (!Path.IsPathFullyQualified(directory) || Directory.Exists(directory)) throw new ArgumentException();
+        var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        app.Startup += async (_, _) =>
+        {
+            LocalData.Initialize(["--data-dir", directory]);
+            using var store = new CompanionStore();
+            store.Preferences.Roaming = false;
+            await store.StartAsync(true);
+            var pet = new PetWindow(store); pet.Show(); pet.Left = 900; pet.Top = 360;
+            var state = new TextBlock { Margin = new Thickness(20), FontSize = 18 };
+            var panel = new StackPanel { Background = Brushes.White };
+            var host = new Window { Title = "ZCRE radial menu isolated QA", Left = 100, Top = 100, Width = 1200, Height = 800, Content = panel };
+            var open = new Button { Content = "Open menu without activation", Width = 300, Height = 45, Margin = new Thickness(20) };
+            open.Click += (_, _) => { pet.ShowMenu("home"); state.Text = "Menu opened"; };
+            panel.Children.Add(open); panel.Children.Add(state);
+            panel.Children.Add(new TextBlock { Text = "Blank area: outside menu click. Pet/menu are the actual product windows. All data is synthetic; no generation.", Margin = new Thickness(20) });
+            var quit = new Button { Content = "Finish isolated QA", Width = 220, Height = 45, Margin = new Thickness(20) };
+            quit.Click += (_, _) => host.Close(); panel.Children.Add(quit);
+            var outsideClicks = 0;
+            var outside = new Window { Title = "Nonactivating outside click target", Left = 250, Top = 550, Width = 300, Height = 150, WindowStyle = WindowStyle.None, ShowActivated = false, ShowInTaskbar = false, Topmost = true, Background = Brushes.LightBlue, Content = new TextBlock { Text = "Outside target: does not take focus", Margin = new Thickness(20) } };
+            outside.SourceInitialized += (_, _) =>
+            {
+                var handle = new WindowInteropHelper(outside).Handle;
+                SetWindowLongPtr(handle, -20, GetWindowLongPtr(handle, -20) | 0x08000000L);
+                HwndSource.FromHwnd(handle).AddHook((IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam, ref bool handled) =>
+                {
+                    if (message != 0x21) return IntPtr.Zero;
+                    handled = true; return new IntPtr(3); // MA_NOACTIVATE, while still delivering the click.
+                });
+            };
+            outside.MouseDown += (_, _) => outsideClicks++;
+            string? requested = null; pet.ToolRequested += route => requested = route;
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            timer.Tick += (_, _) => state.Text = $"Menu windows: {app.Windows.Cast<Window>().Count(w => w.Title == "지크 원형 메뉴")} / active: {app.Windows.Cast<Window>().Where(w => w.IsActive).Select(w => w.Title).FirstOrDefault()} / route: {requested ?? "none"}\nPet: {pet.Left:F0},{pet.Top:F0} / outside clicks: {outsideClicks}";
+            timer.Start();
+            host.Closed += (_, _) => { timer.Stop(); outside.Close(); pet.Shutdown(); app.Shutdown(); };
+            host.Show(); outside.Show();
+            await Task.Delay(Timeout.Infinite);
+        };
+        return app.Run();
+    }
+
     internal static int Run(string directory)
     {
         if (!Path.IsPathFullyQualified(directory) || Directory.Exists(directory)) throw new ArgumentException();
@@ -33,6 +79,11 @@ internal static class MenuChecks
                 pet.ShowMenu("home"); await Task.Delay(250);
                 var windows = app.Windows.Cast<Window>().Where(w => w.Title == "지크 원형 메뉴").ToArray();
                 if (windows.Length != 7 || windows.Any(w => !w.IsVisible)) throw new InvalidOperationException("Expected summary and six visible menu actions, including canvas; actual windows=" + windows.Length);
+                if (!pet.HasMenuMouseListener) throw new InvalidOperationException("Open radial menu has no outside-click listener.");
+                pet.MenuPointerDown(new WindowInteropHelper(pet).Handle);
+                foreach (var window in windows) pet.MenuPointerDown(new WindowInteropHelper(window).Handle);
+                await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                if (!pet.HasMenuMouseListener || windows.Any(w => !w.IsVisible)) throw new InvalidOperationException("Pet or menu pointer target dismissed the menu.");
                 CheckVisuals(windows);
                 var texts = windows.SelectMany(Descendants).OfType<TextBlock>().ToArray();
                 var credit = texts.Single(t => t.Text.StartsWith("사용 가능 "));
@@ -50,6 +101,21 @@ internal static class MenuChecks
                 outside.Show(); outside.Activate(); await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 if (app.Windows.Cast<Window>().Any(w => w.Title == "지크 원형 메뉴")) throw new InvalidOperationException("Radial menu did not close after outside activation.");
                 outside.Close(); pet.ShowMenu("home");
+                if (!pet.HasMenuMouseListener) throw new InvalidOperationException("Reopened radial menu did not restart its listener.");
+                using (var target = new HwndSource(new HwndSourceParameters("Nonactivating outside target") { Width = 10, Height = 10 }))
+                {
+                    pet.MenuPointerDown(target.Handle);
+                    await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                    if (pet.HasMenuMouseListener || app.Windows.Cast<Window>().Any(w => w.Title == "지크 원형 메뉴")) throw new InvalidOperationException("Pointer target outside the menu did not dismiss it without an activation event.");
+                    pet.ShowMenu("home");
+                    pet.MenuPointerDown(target.Handle); pet.ShowMenu("image");
+                    await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                    if (!pet.HasMenuMouseListener || Buttons(app).Length != 8) throw new InvalidOperationException("Deferred outside click dismissed a replacement submenu.");
+                    pet.CloseMenu();
+                    if (pet.HasMenuMouseListener) throw new InvalidOperationException("Explicit close retained the outside-click listener.");
+                }
+                Console.WriteLine("PASS native hook starts on open; pet/menu targets are excluded; foreign target dismisses without activation; stale callbacks cannot close replacement menu; close releases hook");
+                pet.ShowMenu("home");
                 var canvas = Buttons(app).Single(b => System.Windows.Automation.AutomationProperties.GetName(b) == "캔버스");
                 string? requested = null; pet.ToolRequested += path => requested = path;
                 canvas.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -84,6 +150,9 @@ internal static class MenuChecks
                     }
                 }
                 Console.WriteLine("PASS all 20 home/image/video actions have visible vector icons, unclipped labels and accessible names; category/back/close and all 13 tool routes preserved without opening the web or generating media");
+                pet.ShowMenu("home"); var stoppedPet = pet; pet.Shutdown(); pet = null;
+                if (stoppedPet.HasMenuMouseListener) throw new InvalidOperationException("Shutdown retained the outside-click listener.");
+                Console.WriteLine("PASS pet shutdown releases the outside-click listener");
                 app.Shutdown(0);
             }
             catch (Exception error) { Console.WriteLine("FAIL native radial menu: " + error.GetType().Name + ": " + error.Message); app.Shutdown(1); }
@@ -115,6 +184,9 @@ internal static class MenuChecks
     }
 
     private static Button[] Buttons(Application app) => app.Windows.Cast<Window>().Where(w => w.Title == "지크 원형 메뉴").SelectMany(Descendants).OfType<Button>().Where(b => b.IsVisible).ToArray();
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern long GetWindowLongPtr(IntPtr hwnd, int index);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")] private static extern long SetWindowLongPtr(IntPtr hwnd, int index, long value);
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {

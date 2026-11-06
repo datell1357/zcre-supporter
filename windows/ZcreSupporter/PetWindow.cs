@@ -20,6 +20,10 @@ internal sealed class PetWindow : Window
     private double? waveStarted;
     private readonly PetAudio audio = new();
     private readonly List<Window> menuWindows = [];
+    private readonly MouseHook menuMouseCallback;
+    private IntPtr menuMouseHook;
+    private int menuGeneration;
+    internal bool HasMenuMouseListener => menuMouseHook != IntPtr.Zero;
     private Window? motionTests;
     private TextBlock? motionStatus;
     private double? lastTestDistance;
@@ -42,6 +46,7 @@ internal sealed class PetWindow : Window
     public PetWindow(CompanionStore store)
     {
         this.store = store;
+        menuMouseCallback = MenuMouse;
         Title = "ZCRE 지크"; Width = 280; Height = 265; AllowsTransparency = true; Background = Brushes.Transparent; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; ShowInTaskbar = false; Topmost = true; ShowActivated = false;
         Content = canvas; canvas.Children.Add(image); canvas.Children.Add(label);
         var transforms = new TransformGroup(); transforms.Children.Add(facingTransform); transforms.Children.Add(grabTransform); image.RenderTransform = transforms;
@@ -197,7 +202,25 @@ internal sealed class PetWindow : Window
         if (store.DebugEnabled) Add("모션 테스트", ShowMotionTests);
         return menu;
     }
-    public void CloseMenu() { foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); menuCreditText = menuCountText = null; menuConnect = null; }
+    public void CloseMenu()
+    {
+        menuGeneration++;
+        if (menuMouseHook != IntPtr.Zero) { UnhookWindowsHookEx(menuMouseHook); menuMouseHook = IntPtr.Zero; }
+        foreach (var panel in menuWindows) panel.Close(); menuWindows.Clear(); menuCreditText = menuCountText = null; menuConnect = null;
+    }
+    private IntPtr MenuMouse(int code, IntPtr message, IntPtr data)
+    {
+        if (code >= 0 && (message.ToInt64() == 0x201 || message.ToInt64() == 0x204))
+            MenuPointerDown(GetAncestor(WindowFromPoint(Marshal.PtrToStructure<CursorPosition>(data)), 2));
+        return CallNextHookEx(IntPtr.Zero, code, message, data);
+    }
+    internal void MenuPointerDown(IntPtr target)
+    {
+        // Native hit testing follows transparent pixels and physical coordinates on every monitor.
+        if (menuWindows.Count == 0 || target == new WindowInteropHelper(this).Handle || menuWindows.Any(w => new WindowInteropHelper(w).Handle == target)) return;
+        var generation = menuGeneration;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () => { if (generation == menuGeneration) CloseMenu(); });
+    }
     private void UpdateMenuSummary()
     {
         if (menuCreditText is null || menuCountText is null) return;
@@ -243,6 +266,8 @@ internal sealed class PetWindow : Window
             button.Template = template;
             Panel(button, x, y, box.Width, false);
         }
+        menuMouseHook = SetWindowsHookEx(14, menuMouseCallback, GetModuleHandle(null), 0);
+        if (menuMouseHook == IntPtr.Zero) System.Diagnostics.Trace.TraceWarning("Radial menu outside-click listener unavailable (Win32 error {0}); activation dismissal remains enabled.", Marshal.GetLastWin32Error());
     }
     private void Panel(UIElement content, double x, double y, double width, bool card = true)
     {
@@ -290,6 +315,13 @@ internal sealed class PetWindow : Window
     public void StopTest() { var changed = testMotion is not null; if (testDirection is not null) lastTestDistance = (new Point(Left, Top) - testOrigin).Length; testMotion = null; testDirection = null; destination = null; nextWalk = CompanionStore.Uptime + 3; if (changed) store.NotifyVisualState(); }
     public void Shutdown() { shuttingDown = true; store.Changed -= Refresh; motionTests?.Close(); timer.Stop(); CloseMenu(); audio.Dispose(); Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= DisplayChanged; Close(); }
     [StructLayout(LayoutKind.Sequential)] private struct CursorPosition { public int X, Y; }
+    private delegate IntPtr MouseHook(int code, IntPtr message, IntPtr data);
+    [DllImport("user32.dll", SetLastError = true)] private static extern IntPtr SetWindowsHookEx(int kind, MouseHook callback, IntPtr module, uint thread);
+    [DllImport("user32.dll")] private static extern bool UnhookWindowsHookEx(IntPtr hook);
+    [DllImport("user32.dll")] private static extern IntPtr CallNextHookEx(IntPtr hook, int code, IntPtr message, IntPtr data);
+    [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(CursorPosition point);
+    [DllImport("user32.dll")] private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr GetModuleHandle(string? name);
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out CursorPosition point);
     [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] private static extern long GetWindowLongPtr(IntPtr hwnd, int index);
