@@ -153,7 +153,7 @@ internal sealed class DashboardWindow : Window
         if (revision == renderedDetail) return;
         renderedDetail = revision;
         var panel = new StackPanel(); panel.Children.Add(Ui.Text("작업 기록과 알림", 24, true));
-        panel.Children.Add(Ui.Action("알림 전체 지우기", () => { if (MessageBox.Show("이 앱에 보관된 최근 알림 기록만 비웁니다. 서버 작업은 유지됩니다.\n대상: " + LocalData.PathFor("RecentAlerts.json"), "알림 기록 지우기", MessageBoxButton.OKCancel) == MessageBoxResult.OK) { store.ClearHistory(); detail?.Close(); ShowDetails(); } }));
+        panel.Children.Add(Ui.Action("현재 알림 지우기", () => { if (MessageBox.Show(store.Snapshot is null ? "이 기기에 보관된 테스트 알림을 비웁니다. 계정의 최근 알림과 서버 작업은 유지됩니다." : "이 기기에 보관된 현재 계정의 최근 알림을 비웁니다. 테스트 알림과 서버 작업은 유지됩니다.", "알림 기록 지우기", MessageBoxButton.OKCancel) == MessageBoxResult.OK) { store.ClearHistory(); detail?.Close(); ShowDetails(); } }));
         foreach (var job in store.Snapshot?.Jobs ?? []) panel.Children.Add(JobCard(job));
         panel.Children.Add(Ui.Text("전체 알림 · 최대 30개", 18, true)); foreach (var alert in store.History.Alerts) panel.Children.Add(AlertCard(alert));
         if (store.History.Alerts.Count == 0) panel.Children.Add(Ui.Text("아직 보관된 알림이 없어요."));
@@ -184,7 +184,7 @@ internal sealed class DashboardWindow : Window
         start.LostFocus += (_, _) => { p.FocusStartMinute = ParseTime(start.Text, p.FocusStartMinute); start.Text = Time(p.FocusStartMinute); store.SavePreferences(); }; end.LostFocus += (_, _) => { p.FocusEndMinute = ParseTime(end.Text, p.FocusEndMinute); end.Text = Time(p.FocusEndMinute); store.SavePreferences(); };
         panel.Children.Add(Ui.Text("시작 / 종료 · 현지 시각 HH:mm")); panel.Children.Add(start); panel.Children.Add(end); panel.Children.Add(Ui.Text("자정을 넘는 일정도 지원해요. 시작·종료가 같으면 하루 종일 조용히 기록해요.", 11));
         var demoButton = Ui.Action(store.IsDemo ? "미리보기 종료" : "미리보기 체험", () => { if (store.IsDemo) store.LeaveDemo(); else store.EnterDemo(); }); synchronizers.Add(() => demoButton.Content = store.IsDemo ? "미리보기 종료" : "미리보기 체험");
-        Heading("계정"); panel.Children.Add(Ui.Actions(Ui.Action("계정 열기", () => _ = store.ConnectAsync()), demoButton, Ui.Action("연결 해제", async () => { if (MessageBox.Show("앱의 로그인 웹 데이터와 로컬 알림을 비웁니다.\n대상: " + LocalData.PathFor("WebView2") + "\n" + LocalData.PathFor("RecentAlerts.json"), "연결 해제", MessageBoxButton.OKCancel) == MessageBoxResult.OK) await store.DisconnectAsync(); })));
+        Heading("계정"); panel.Children.Add(Ui.Actions(Ui.Action("계정 열기", () => _ = store.ConnectAsync()), demoButton, Ui.Action("연결 해제", async () => { if (MessageBox.Show("이 기기의 로그인 정보와 최근 알림·테스트 알림을 비웁니다. 서버 작업은 유지됩니다.", "연결 해제", MessageBoxButton.OKCancel) == MessageBoxResult.OK) await store.DisconnectAsync(); })));
         Heading("앱"); var startup = new CheckBox { Content = "Windows 로그인 시 자동 실행", IsChecked = LocalData.StartupEnabled };
         startup.Click += (_, _) => { try { if (MessageBox.Show("시작 프로그램 값을 변경합니다.\nHKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\ZcreSupporter\n실행파일: " + Environment.ProcessPath, "자동 실행 설정", MessageBoxButton.OKCancel) == MessageBoxResult.OK) LocalData.SetStartup(startup.IsChecked == true); startup.IsChecked = LocalData.StartupEnabled; } catch { startup.IsChecked = false; MessageBox.Show("시작 프로그램 설정을 변경하지 못했어요."); } }; panel.Children.Add(startup);
         panel.Children.Add(Ui.Action("진단 정보 내보내기…", ExportDiagnostics));

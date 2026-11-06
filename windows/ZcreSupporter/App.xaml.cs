@@ -13,24 +13,57 @@ public partial class App : Application
     private PetWindow? pet;
     private TrayIcon? tray;
     private ServiceStatus? status;
+    private WindowsNotificationService? notifications;
+    private NotificationActivationChannel? activationChannel;
+    private readonly PendingNotificationActivation notificationActivation = new();
+    private bool hadVerifiedWorkspace;
     private Window? banner;
     private DispatcherTimer? bannerTimer;
     private DispatcherTimer? notificationTimer;
     private readonly List<Alert> pendingAlerts = [];
-    private bool exiting;
+    private volatile bool exiting;
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        if (e.Args.Contains("--software-rendering")) RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+        var activatedFromNotification = NotificationLaunchProfile.IsActivation(e.Args);
         DispatcherUnhandledException += (_, error) => { error.Handled = true; MessageBox.Show("앱 동작을 마치지 못했어요. 계정 정보가 없는 진단을 설정에서 저장할 수 있습니다.\n오류 종류: " + error.Exception.GetType().Name, "ZCRE 서포터"); };
         single = new Mutex(true, @"Local\ZcreSupporter.Windows", out var first);
-        if (!first) { try { using var existing = EventWaitHandle.OpenExisting(@"Local\ZcreSupporter.Show"); existing.Set(); } catch (WaitHandleCannotBeOpenedException) { } Shutdown(); return; }
-        LocalData.Initialize(e.Args);
+        if (!first)
+        {
+            try
+            {
+                var delivered = await SecondaryInstanceActivation.RouteAsync(activatedFromNotification, ForwardNotificationActivationAsync, () =>
+                {
+                    try { using var existing = EventWaitHandle.OpenExisting(@"Local\ZcreSupporter.Show"); existing.Set(); } catch (WaitHandleCannotBeOpenedException) { }
+                });
+                if (!delivered) MessageBox.Show("실행 중인 앱에 알림을 연결하지 못했어요. 앱의 최근 알림을 확인해 주세요.", "ZCRE 서포터");
+            }
+            finally { Shutdown(); }
+            return;
+        }
+        var launchArgs = activatedFromNotification ? NotificationLaunchProfile.Restore() : e.Args;
+        if (launchArgs is null) { MessageBox.Show("알림의 실행 프로필을 찾지 못했어요. 앱을 직접 연 뒤 최근 알림을 확인해 주세요.", "ZCRE 서포터"); Shutdown(); return; }
+        if (launchArgs.Contains("--software-rendering")) RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+        LocalData.Initialize(launchArgs);
+        activationChannel = new(argument => ReceiveNotificationActivation(argument, "pipe"));
         showEvent = new(false, EventResetMode.AutoReset, @"Local\ZcreSupporter.Show");
         wait = ThreadPool.RegisterWaitForSingleObject(showEvent, (_, _) => Dispatcher.BeginInvoke(() => dashboard?.Present()), null, Timeout.Infinite, false);
         try
         {
             store = new(); status = new(); dashboard = new(store, status); MainWindow = dashboard;
+            store.Changed += PresentNotificationActivation;
+            store.Session.AccountChanged += () => { if (hadVerifiedWorkspace) notificationActivation.Clear(); hadVerifiedWorkspace = false; };
+            notifications = new();
+            try
+            {
+                notifications.Register(argument => ReceiveNotificationActivation(argument, "sdk"));
+                if (!activatedFromNotification) NotificationLaunchProfile.Save(LocalData.DirectoryPath, launchArgs.Contains("--software-rendering"));
+                else if (await ReadInitialNotificationArgumentAsync() is { } argument) ReceiveNotificationActivation(argument, "sdk-cold");
+            }
+            catch (Exception error) when (error is TimeoutException or System.Runtime.InteropServices.COMException or InvalidOperationException or IOException or UnauthorizedAccessException or System.Security.SecurityException)
+            {
+                notifications.Dispose(); notifications = null; store.SetNotificationStatus(false);
+            }
             pet = new(store); pet.DashboardRequested += dashboard.Present; pet.SettingsRequested += dashboard.ShowSettings; pet.ToolRequested += path => DashboardWindow.OpenWeb("https://www.zcre.co.kr" + path);
             dashboard.ResetPetRequested += () => { store.Preferences.PetX = store.Preferences.PetY = null; pet.RestorePosition(); store.SavePreferences(); }; dashboard.MotionTestsRequested += pet.ShowMotionTests;
             tray = new(store) { IsDebugWorking = () => pet.DebugWorking }; tray.Open += dashboard.Present; tray.OpenSettings += dashboard.ShowSettings; tray.OpenAlerts += dashboard.ShowDetails; tray.Exit += ExitApp;
@@ -42,18 +75,23 @@ public partial class App : Application
                 var batch = pendingAlerts.ToArray(); pendingAlerts.Clear();
                 if (store.FocusActive || store.IsSleeping) return;
                 var alert = batch.Length == 1 ? batch[0] : new Alert(Guid.NewGuid().ToString(), "completed", batch.Length + "개의 작업 알림", string.Join(" · ", batch.Select(a => a.Title)), DateTimeOffset.Now, false, "notification", null);
-                if (!store.IsDemo) store.SetNotificationStatus(tray.Notify(alert, store.Preferences.NotificationSound));
+                if (!store.IsDemo)
+                {
+                    var scope = NotificationActivation.ScopeFor(LocalData.DirectoryPath, store.Snapshot is { } snapshot ? Json.Hash(snapshot.WorkspaceKey) : null);
+                    store.SetNotificationStatus(notifications?.Notify(alert, store.Preferences.NotificationSound, scope) == true);
+                }
                 if (!store.Preferences.PetVisible && store.Preferences.BannerAlerts) ShowBanner(alert);
             };
             store.AlertRaised += alert => { pendingAlerts.Add(alert); notificationTimer.Stop(); notificationTimer.Start(); };
             store.ResetAlerts += () => { pendingAlerts.Clear(); notificationTimer.Stop(); banner?.Close(); tray.ClearNotification(); };
             SystemEvents.PowerModeChanged += PowerChanged; SystemEvents.SessionSwitch += SessionChanged;
             pet.Show();
-            if (!e.Args.Contains("--background") && (!store.Preferences.HasLaunched || e.Args.Contains("--demo") || e.Args.Contains("--show-dashboard"))) dashboard.Present();
+            if (!activatedFromNotification && !launchArgs.Contains("--background") && (!store.Preferences.HasLaunched || launchArgs.Contains("--demo") || launchArgs.Contains("--show-dashboard"))) dashboard.Present();
             store.Preferences.HasLaunched = true; store.SavePreferences();
-            await store.StartAsync(e.Args.Contains("--demo"));
-            if (e.Args.Contains("--show-settings")) dashboard.ShowSettings();
-            if (e.Args.Contains("--connect") && !store.IsDemo) await store.ConnectAsync();
+            PresentNotificationActivation();
+            await store.StartAsync(launchArgs.Contains("--demo"));
+            if (launchArgs.Contains("--show-settings")) dashboard.ShowSettings();
+            if (launchArgs.Contains("--connect") && !store.IsDemo) await store.ConnectAsync();
             if (e.Args.Contains("--demo") && e.Args.Contains("--render-proof"))
             {
                 await Task.Delay(500); dashboard.UpdateLayout();
@@ -69,6 +107,44 @@ public partial class App : Application
             }
         }
         catch (Exception error) { MessageBox.Show("시작하지 못했어요. WebView2 런타임과 리소스를 확인해 주세요.\n오류 종류: " + error.GetType().Name, "ZCRE 서포터"); ExitApp(); }
+    }
+    private async Task<bool> ForwardNotificationActivationAsync()
+    {
+        try
+        {
+            using var receiver = new WindowsNotificationService();
+            receiver.Register(_ => { });
+            var argument = await ReadInitialNotificationArgumentAsync();
+            return argument is not null && NotificationActivation.Parse(argument, DateTimeOffset.UtcNow) is not null && await NotificationActivationChannel.SendAsync(argument);
+        }
+        catch (Exception error) when (error is TimeoutException or System.Runtime.InteropServices.COMException or InvalidOperationException or IOException or UnauthorizedAccessException or System.Security.SecurityException) { return false; }
+    }
+    private static async Task<string?> ReadInitialNotificationArgumentAsync()
+    {
+        var arguments = await Task.Run(() => Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs()).WaitAsync(TimeSpan.FromSeconds(10));
+        return arguments.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.AppNotification && arguments.Data is Microsoft.Windows.AppNotifications.AppNotificationActivatedEventArgs notification ? notification.Argument : null;
+    }
+    private void ReceiveNotificationActivation(string argument, string source)
+    {
+        var activation = NotificationActivation.Parse(argument, DateTimeOffset.UtcNow);
+        if (exiting || Dispatcher.HasShutdownStarted) return;
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (exiting) return;
+            store?.RecordNotificationActivation(source + "-received");
+            if (activation is null) { store?.RecordNotificationActivation("rejected"); return; }
+            notificationActivation.Set(activation); store?.RecordNotificationActivation("queued"); PresentNotificationActivation();
+        });
+    }
+    private void PresentNotificationActivation()
+    {
+        if (exiting || store is null || dashboard is null) return;
+        var workspace = store.Snapshot is { } snapshot ? Json.Hash(snapshot.WorkspaceKey) : null;
+        hadVerifiedWorkspace |= workspace is not null;
+        if (!notificationActivation.TakeReady(LocalData.DirectoryPath, workspace, store.History.WorkspaceHash.Length == 0, DateTimeOffset.UtcNow)) return;
+        store.ObserveNotificationCallback(NotificationEventState.Clicked);
+        dashboard.ShowDetails();
+        store.RecordNotificationActivation("details-opened");
     }
     private void PowerChanged(object sender, PowerModeChangedEventArgs e) => Dispatcher.BeginInvoke(() => { if (e.Mode == PowerModes.Suspend) { store?.Sleep(); status?.Pause(true); } else if (e.Mode == PowerModes.Resume) { store?.Wake(); status?.Pause(false); } });
     private void SessionChanged(object sender, SessionSwitchEventArgs e) => Dispatcher.BeginInvoke(() => { if (e.Reason == SessionSwitchReason.SessionLock) { store?.Sleep(); status?.Pause(true); } else if (e.Reason == SessionSwitchReason.SessionUnlock) { store?.Wake(); status?.Pause(false); } });
@@ -88,6 +164,7 @@ public partial class App : Application
         if (exiting) return; exiting = true;
         SystemEvents.PowerModeChanged -= PowerChanged; SystemEvents.SessionSwitch -= SessionChanged;
         bannerTimer?.Stop(); notificationTimer?.Stop(); pendingAlerts.Clear(); banner?.Close(); pet?.Shutdown(); dashboard?.Shutdown(); tray?.Dispose(); status?.Dispose(); store?.Dispose();
+        notificationActivation.Clear(); activationChannel?.Dispose(); notifications?.Dispose();
         wait?.Unregister(null); showEvent?.Dispose(); Shutdown();
     }
     internal void Quit() => ExitApp();

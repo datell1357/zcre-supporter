@@ -5,7 +5,7 @@ namespace ZcreSupporter;
 
 internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
 {
-    private const uint CallbackMessage = 0x8001;
+    internal const uint CallbackMessage = 0x8001;
     private readonly uint taskbarCreated = RegisterWindowMessage("TaskbarCreated");
     private readonly System.Drawing.Icon[] running;
     private readonly System.Drawing.Icon still;
@@ -76,7 +76,10 @@ internal sealed class TrayIcon : System.Windows.Forms.NativeWindow, IDisposable
                     menu.Items.Add("현황판", null, (_, _) => Open?.Invoke()); menu.Items.Add("설정", null, (_, _) => OpenSettings?.Invoke());
                     menu.Items.Add(store.Preferences.PetVisible ? "지크 숨기기" : "지크 보이기", null, (_, _) => { store.Preferences.PetVisible = !store.Preferences.PetVisible; store.SavePreferences(); });
                     menu.Items.Add("최근 알림", null, (_, _) => OpenAlerts?.Invoke()); menu.Items.Add("종료", null, (_, _) => Exit?.Invoke()); menu.Show(System.Windows.Forms.Cursor.Position); break;
-                case 0x405: Application.Current.Dispatcher.BeginInvoke(() => OpenAlerts?.Invoke()); break;
+                case 0x402: store.ObserveNotificationCallback(NotificationEventState.Shown); break; // NIN_BALLOONSHOW
+                case 0x403: store.ObserveNotificationCallback(NotificationEventState.Hidden); break; // NIN_BALLOONHIDE
+                case 0x404: store.ObserveNotificationCallback(NotificationEventState.TimedOut); break; // NIN_BALLOONTIMEOUT
+                case 0x405: store.ObserveNotificationCallback(NotificationEventState.Clicked); Application.Current.Dispatcher.BeginInvoke(() => OpenAlerts?.Invoke()); break; // NIN_BALLOONUSERCLICK
             }
         }
         base.WndProc(ref message);

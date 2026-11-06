@@ -105,4 +105,5 @@ Check("debug left drag keeps mirrored direction", PetFacing.Resolve("drag", fals
 TrayPopupChecks.Run(Check);
 ParityAuditChecks.Run(Check);
 LayoutAuditChecks.Run(Check);
+NotificationActivationChecks.Run(Check, repo);
 Console.WriteLine(JsonSerializer.Serialize(new { status = "passed", count = passed.Count, tests = passed }, Json.Options));

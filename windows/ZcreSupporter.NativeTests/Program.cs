@@ -9,8 +9,14 @@ internal static class Program
     {
         Console.OutputEncoding = new System.Text.UTF8Encoding(false);
         if (args.Length == 1 && args[0] == "--audio-coexist") return AudioChecks.Run();
+        if (args.Length == 1 && args[0] == "--notification-transport") return NotificationTransportChecks.Run();
+        if (args.Length == 1 && args[0] == "--notification-payload") return NotificationPayloadChecks.Run();
+        if (args.Length == 3 && args[0] == "--notification-com") return NotificationComChecks.Run(args[1], args[2]);
+        if (args.Length == 3 && args[0] == "--notification-com-warm") return NotificationComChecks.Run(args[1], args[2], false);
+        if (args.Length == 2 && args[0] == "--notification-local-state") return NotificationChecks.LocalState(args[1]);
         if (args.Length == 2 && args[0] == "--pet-menu") return MenuChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--tray-popup") return TrayChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--notification-lifecycle") return NotificationChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recovery") return RecoveryChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--account-read") return AccountChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--account-identity") return AccountChecks.Identity(args[1]);
