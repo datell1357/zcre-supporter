@@ -11,7 +11,7 @@ MSI 버전은 0.0.3이며 앱 내부 개발 빌드 버전은 0.2.20.1입니다.
   공식 다운로드: https://developer.microsoft.com/microsoft-edge/webview2/
 - 실행 중인 ZCRE를 먼저 정상 종료한 뒤 MSI를 실행하세요.
 - 현재 사용자에게만 설치하며 관리자 권한, 자동 실행, 트레이 아이콘 자동 고정을 요청하지 않습니다.
-- 설치 위치: %LOCALAPPDATA%\Programs\ZCRE Supporter
+- 설치 위치: %LOCALAPPDATA%\ZCRE Supporter Windows Test
 - 시작 메뉴의 ZCRE Supporter Windows Test로 실행하세요. 설치가 끝나도 앱을 자동 실행하지 않습니다.
 - 이 테스트 설치 파일과 앱은 코드 서명되지 않았습니다. Windows 보안 설정을 변경하지 마세요.
 

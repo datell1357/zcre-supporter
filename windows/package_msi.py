@@ -2,6 +2,7 @@
 from collections import Counter
 from pathlib import Path
 import argparse
+import ctypes
 import hashlib
 import json
 import os
@@ -24,6 +25,34 @@ def element(parent, name, **attributes):
 
 def sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def clear_companion_languages(path, parent_file):
+    """Companions follow the app version; SDK LCID lists need no MSI language selection."""
+    msi = ctypes.WinDLL("msi")
+    handle = ctypes.c_uint
+    msi.MsiOpenDatabaseW.argtypes = [ctypes.c_wchar_p, ctypes.c_void_p, ctypes.POINTER(handle)]
+    msi.MsiDatabaseOpenViewW.argtypes = [handle, ctypes.c_wchar_p, ctypes.POINTER(handle)]
+    msi.MsiRecordSetStringW.argtypes = [handle, ctypes.c_uint, ctypes.c_wchar_p]
+    msi.MsiCreateRecord.restype = handle
+    database, view = handle(), handle()
+    record = handle()
+
+    def check(result):
+        if result:
+            raise RuntimeError("Windows Installer database operation failed: " + str(result))
+
+    try:
+        check(msi.MsiOpenDatabaseW(str(path), ctypes.c_void_p(1), ctypes.byref(database)))
+        check(msi.MsiDatabaseOpenViewW(database, "UPDATE `File` SET `Language` = ? WHERE `Version` = ?", ctypes.byref(view)))
+        record = handle(msi.MsiCreateRecord(2))
+        check(msi.MsiRecordSetStringW(record, 2, parent_file))
+        check(msi.MsiViewExecute(view, record))
+        check(msi.MsiDatabaseCommit(database))
+    finally:
+        for value in (record, view, database):
+            if value.value:
+                msi.MsiCloseHandle(value)
 
 
 def main():
@@ -91,11 +120,13 @@ def main():
     element(build, "RegistrySearch", Root="HKLM", Key=r"SOFTWARE\Microsoft\Windows NT\CurrentVersion", Name="CurrentBuildNumber", Type="raw", Bitness="always64")
     element(package, "Launch", Condition="Installed OR (VersionNT64 AND WINDOWSBUILD >= 19044)", Message="Windows 10 build 19044 or later (x64) is required.")
     local = element(package, "StandardDirectory", Id="LocalAppDataFolder")
-    programs = element(local, "Directory", Id="UserPrograms", Name="Programs")
-    install = element(programs, "Directory", Id="INSTALLFOLDER", Name="ZCRE Supporter")
+    install = element(local, "Directory", Id="INSTALLFOLDER", Name="ZCRE Supporter Windows Test")
     directories = {Path(): install}
     feature = element(package, "Feature", Id="Main", Title="ZCRE Supporter Windows Test", Level="1")
-    for directory in sorted({p.relative_to(payload).parent for p in files}, key=lambda p: p.as_posix()):
+    all_directories = {parent for p in files for parent in [p.relative_to(payload).parent, *p.relative_to(payload).parents]}
+    app_file = "file_" + hashlib.sha256(b"ZcreSupporter.exe").hexdigest()[:24]
+    companions = 0
+    for directory in sorted(all_directories, key=lambda p: p.as_posix()):
         for parent in [*reversed(directory.parents), directory]:
             if parent in directories:
                 continue
@@ -104,11 +135,16 @@ def main():
         key = "cmp_" + hashlib.sha256(directory.as_posix().encode()).hexdigest()[:24]
         component = element(directories[directory], "Component", Id=key, Guid=str(uuid.uuid5(IDENTITY, directory.as_posix())))
         element(component, "RegistryValue", Root="HKCU", Key=r"Software\ZCRE\Supporter\Installer\Components", Name=key, Type="integer", Value="1", KeyPath="yes")
+        element(component, "RemoveFolder", Id="remove_" + key, On="uninstall")
         for path in files:
             relative = path.relative_to(payload)
             if relative.parent == directory:
                 file_id = "file_" + hashlib.sha256(relative.as_posix().encode()).hexdigest()[:24]
-                element(component, "File", Id=file_id, Source=str(path), KeyPath="no")
+                attributes = dict(Id=file_id, Source=str(path), KeyPath="no")
+                if path.name.lower() in {"microsoft.ui.xaml.dll", "microsoft.ui.xaml.phone.dll", "microsoft.ui.xaml.dll.mui", "microsoft.ui.xaml.phone.dll.mui"}:
+                    attributes["CompanionFile"] = app_file
+                    companions += 1
+                element(component, "File", **attributes)
         element(feature, "ComponentRef", Id=key)
     menu = element(package, "StandardDirectory", Id="ProgramMenuFolder")
     shortcut = element(menu, "Component", Id="StartMenuShortcut", Guid=str(uuid.uuid5(IDENTITY, "start-menu")))
@@ -120,6 +156,8 @@ def main():
     ET.ElementTree(wix).write(source, encoding="utf-8", xml_declaration=True)
     msi = output / ("ZCRE-Supporter-" + args.version + "-Windows-x64-test.msi")
     run("msi-build", [tool, "build", source, "-arch", "x64", "-intermediateFolder", output / "wix-obj", "-o", msi])
+    clear_companion_languages(msi, app_file)
+    run("msi-validation", [tool, "msi", "validate", msi, "-intermediateFolder", output / "validate"])
     extracted = output / "extracted"
     decompiled = output / "decompiled.wxs"
     run("msi-extract", [tool, "msi", "decompile", msi, "-x", extracted, "-intermediateFolder", scratch, "-o", decompiled])
@@ -127,7 +165,9 @@ def main():
     packaged = []
     for file in document.findall(".//{" + NS + "}File"):
         path = Path(file.attrib["Source"])
-        if not path.is_absolute():
+        if path.parts[0] == "SourceDir":
+            path = extracted.joinpath(*path.parts[1:])
+        elif not path.is_absolute():
             path = output / path
         if not path.resolve().is_relative_to(output) or not path.is_file():
             raise SystemExit("Extracted file missing or outside output")
@@ -140,7 +180,7 @@ def main():
     if any(item.get("Root") != "HKCU" for item in document.findall(".//{" + NS + "}RegistryValue")):
         raise SystemExit("Machine registry write in MSI")
     manifest = {p.relative_to(payload).as_posix(): sha256(p) for p in files}
-    proof = dict(**provenance, file_count=len(files), extracted_files=len(packaged), private_data_found=[], per_user=True, custom_actions=0, actual_install_run=False, self_contained=True, resources_equal=True, payload_sha256=manifest, installer_sha256=sha256(msi), installer_bytes=msi.stat().st_size)
+    proof = dict(**provenance, file_count=len(files), extracted_files=len(packaged), private_data_found=[], per_user=True, custom_actions=0, actual_install_run=False, self_contained=True, resources_equal=True, sdk_app_companions=companions, msi_validation_errors=0, payload_sha256=manifest, installer_sha256=sha256(msi), installer_bytes=msi.stat().st_size)
     (output / "verification.json").write_text(json.dumps(proof, indent=2), encoding="utf-8")
     msi.with_suffix(".sha256").write_text(sha256(msi) + "  " + msi.name + "\n", encoding="ascii")
     print(json.dumps({k: v for k, v in proof.items() if k != "payload_sha256"}, indent=2))
