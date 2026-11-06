@@ -172,6 +172,8 @@ internal sealed class DashboardWindow : Window
         var p = store.Preferences;
         Heading("바탕화면"); Toggle("바탕화면에 지크 보이기", () => p.PetVisible, v => p.PetVisible = v); Toggle("산책 활성화", () => p.Roaming, v => p.Roaming = v); Toggle("트레이 툴팁에 크레딧 표시", () => p.ShowTrayCredits, v => p.ShowTrayCredits = v);
         panel.Children.Add(Ui.Text("Windows 트레이는 아이콘 옆 숫자를 지원하지 않아 툴팁과 현황판에 표시해요.", 11));
+        panel.Children.Add(Ui.Text("지크 아이콘을 항상 보려면 숨겨진 아이콘(∧)에서 작업표시줄 알림 영역으로 끌어 놓으세요. Windows 설정에서도 표시할 아이콘을 선택할 수 있어요.", 11));
+        panel.Children.Add(Ui.Action("트레이 아이콘 표시 설정 열기", () => OpenWeb("ms-settings:taskbar")));
         panel.Children.Add(Ui.Text("지크 크기 · 70~150%")); var scale = new Slider { Minimum = .7, Maximum = 1.5, TickFrequency = .1, IsSnapToTickEnabled = true, Value = p.PetScale }; scale.ValueChanged += (_, _) => { p.PetScale = scale.Value; store.SavePreferences(); }; panel.Children.Add(scale); panel.Children.Add(Ui.Action("지크를 화면 아래로 데려오기", () => ResetPetRequested?.Invoke()));
         Heading("지크 효과음"); Toggle("지크 효과음 사용", () => p.PetSounds, v => p.PetSounds = v); panel.Children.Add(Ui.Text("음량 · 0~100%")); var volume = new Slider { Minimum = 0, Maximum = 1, Value = p.PetSoundVolume }; volume.ValueChanged += (_, _) => { p.PetSoundVolume = volume.Value; store.SavePreferences(); }; panel.Children.Add(volume); panel.Children.Add(Ui.Text("다른 앱의 소리·통화 중에는 타자음이 쉬어요. 장치 음량과 오디오 내용은 건드리지 않아요.", 11));
         Heading("알림"); Toggle("지크 숨김 시 바탕화면 배너", () => p.BannerAlerts, v => p.BannerAlerts = v); Toggle("작업 완료", () => p.CompletionAlerts, v => p.CompletionAlerts = v); Toggle("작업 실패", () => p.FailureAlerts, v => p.FailureAlerts = v); Toggle("크레딧 부족", () => p.LowCreditAlerts, v => p.LowCreditAlerts = v); Toggle("시스템 알림 소리", () => p.NotificationSound, v => p.NotificationSound = v);
@@ -217,7 +219,7 @@ internal sealed class DashboardWindow : Window
     }
     public static void OpenWeb(string url)
     {
-        if (url != "ms-settings:notifications" && (JobOutput.SafeUrl(url) is null || new Uri(url).Host != "www.zcre.co.kr")) return;
+        if (url is not ("ms-settings:notifications" or "ms-settings:taskbar") && (JobOutput.SafeUrl(url) is null || new Uri(url).Host != "www.zcre.co.kr")) return;
         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
     private async void ShowResults(Job job)

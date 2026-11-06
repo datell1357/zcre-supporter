@@ -32,6 +32,18 @@ internal static class TrayChecks
                 if (!GetWindowRect(handle, out var actual) || Math.Abs(actual.Left - expected.X) > 2 || Math.Abs(actual.Top - expected.Y) > 2 || Math.Abs(actual.Right - actual.Left - expected.Width) > 2 || Math.Abs(actual.Bottom - actual.Top - expected.Height) > 2)
                     throw new InvalidOperationException("Actual HWND rectangle differs from the tray placement.");
                 Console.WriteLine("PASS Shell tray anchor and actual HWND placement: " + ZcreSupporter.Core.TrayPopupPlacement.Edge(anchor) + " / scale=" + anchor.Scale + " / HRESULT=" + tray.IconRectangleResult.ToString("X8") + " / popup=" + expected);
+                foreach (var edge in Enum.GetValues<ZcreSupporter.Core.TaskbarEdge>())
+                {
+                    var offset = TrayPopupHost.EntranceOffset(edge, true);
+                    if (offset.Length != 16 || TrayPopupHost.EntranceOffset(edge, false) != new Vector()) throw new InvalidOperationException("Tray entrance lost its reduced-motion path.");
+                    if (edge == ZcreSupporter.Core.TaskbarEdge.Bottom && offset.Y <= 0 || edge == ZcreSupporter.Core.TaskbarEdge.Top && offset.Y >= 0 || edge == ZcreSupporter.Core.TaskbarEdge.Left && offset.X >= 0 || edge == ZcreSupporter.Core.TaskbarEdge.Right && offset.X <= 0) throw new InvalidOperationException("Tray entrance moves toward the taskbar.");
+                }
+                await Task.Delay(220);
+                var content = (UIElement)dashboard.Content;
+                if (content.Opacity != 1 || content.RenderTransform is TranslateTransform t && (Math.Abs(t.X) > .01 || Math.Abs(t.Y) > .01)) throw new InvalidOperationException($"Tray entrance did not settle to its final layout: opacity={content.Opacity}, transform={content.RenderTransform}, visible={dashboard.IsVisible}.");
+                dashboard.Hide(); dashboard.Present(); dashboard.Present();
+                if (content.Opacity != 1 || content.RenderTransform is TranslateTransform repeated && (Math.Abs(repeated.X) > .01 || Math.Abs(repeated.Y) > .01)) throw new InvalidOperationException("Repeated tray presentation retained an in-progress entrance.");
+                Console.WriteLine("PASS 160ms tray content entrance settles; repeated presentation clears animation; all taskbar directions and reduced-motion offsets preserved; native frame stays in work area");
                 var other = new Window { Title = "Isolated popup dismissal test", Width = 200, Height = 120 };
                 other.Show(); other.Activate(); await app.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 if (dashboard.IsVisible) throw new InvalidOperationException("Dashboard stayed open after a different normal window became active.");
