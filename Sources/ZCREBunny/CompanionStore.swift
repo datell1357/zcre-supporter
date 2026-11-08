@@ -145,7 +145,7 @@ final class CompanionStore {
     func connect() {
         if isDemo { leaveDemo() }
         pollingAllowed = true
-        webSession.show()
+        webSession.show(closeAfterConnection: snapshot == nil)
         connection = .connecting
         restartPolling()
     }

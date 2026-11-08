@@ -26,6 +26,7 @@ final class Preferences {
     var sound: Bool { didSet { defaults.set(sound, forKey: "sound") } }
     // macOS 알림 소리와 별개로 지크의 붙잡힘·타자 효과음을 제어한다.
     var petSounds: Bool { didSet { defaults.set(petSounds, forKey: "petSounds") } }
+    var pauseTypingForOtherAudio: Bool { didSet { defaults.set(pauseTypingForOtherAudio, forKey: "pauseTypingForOtherAudio") } }
     var petSoundVolume: Double { didSet { defaults.set(petSoundVolume, forKey: "petSoundVolume") } }
     var lowCreditThreshold: Double { didSet { defaults.set(lowCreditThreshold, forKey: "lowCreditThreshold") } }
     /// 기본 설정을 등록하고 예전 70% 크기를 새 100% 기준으로 한 번 변환한다.
@@ -58,6 +59,7 @@ final class Preferences {
         completionAlerts = defaults.bool(forKey: "completionAlerts"); failureAlerts = defaults.bool(forKey: "failureAlerts")
         lowCreditAlerts = defaults.bool(forKey: "lowCreditAlerts"); sound = defaults.bool(forKey: "sound")
         petSounds = defaults.bool(forKey: "petSounds")
+        pauseTypingForOtherAudio = defaults.bool(forKey: "pauseTypingForOtherAudio")
         let savedVolume = defaults.double(forKey: "petSoundVolume")
         petSoundVolume = savedVolume.isFinite ? min(1, max(0, savedVolume)) : 0.35
         lowCreditThreshold = max(0, defaults.double(forKey: "lowCreditThreshold"))

@@ -11,6 +11,7 @@ import Testing
     @Test func stableVersionsOnlyAndNoDowngrade() throws {
         #expect(try release().isNewer(than: "0.0.3"))
         #expect(try release("v0.4.1").isNewer(than: "0.0.4"))
+        #expect(try release("v0.4.2").isNewer(than: "0.4.1"))
         #expect(try release("v0.10.0").isNewer(than: "0.9.9"))
         #expect(try !release("v0.0.3").isNewer(than: "0.0.3"))
         #expect(try !release("v0.0.2").isNewer(than: "0.0.3"))
@@ -56,15 +57,11 @@ import Testing
         }
         #expect(store.release != nil)
         #expect(store.asset != nil)
-        store.downloadUpdate()
-        let timeout = Date.now.addingTimeInterval(330)
-        while store.isDownloading && Date.now < timeout { try await Task.sleep(for: .milliseconds(100)) }
-        defer { store.stop() }
-        let installer = try #require(store.installer)
-        defer { try? FileManager.default.removeItem(at: installer.deletingLastPathComponent()) }
-        #expect(try AppRelease.verifyInstaller(installer, asset: #require(store.asset)))
-        let quarantine = try (installer as NSURL).resourceValues(forKeys: [.quarantinePropertiesKey])
-        #expect(quarantine[.quarantinePropertiesKey] != nil)
+        let asset = try #require(store.asset)
+        let (file, response) = try await URLSession.shared.download(from: asset.browserDownloadURL)
+        defer { try? FileManager.default.removeItem(at: file); store.stop() }
+        #expect((response as? HTTPURLResponse)?.statusCode == 200)
+        #expect(try AppRelease.verifyInstaller(file, asset: asset))
     }
     @Test @MainActor func appStoreNeverChecksOrDownloadsFromGitHub() async {
         let name = "UpdateTests-\(UUID())"
@@ -73,10 +70,9 @@ import Testing
         let store = AppUpdateStore(defaults: defaults, isAppStore: true)
         var networkChecks = 0
         store.networkAvailable = { networkChecks += 1; return true }
-        store.start(); await store.check(); store.downloadUpdate()
+        store.start(); await store.check(); store.installUpdate()
         #expect(networkChecks == 0)
         #expect(store.release == nil)
-        #expect(!store.isDownloading)
         #expect(store.message.contains("App Store"))
         store.stop()
     }

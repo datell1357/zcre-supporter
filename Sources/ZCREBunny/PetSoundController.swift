@@ -50,6 +50,7 @@ final class PetSoundController {
         let motion: ZicMotion
         let audible: Bool
         let volume: Float
+        let pauseForOtherAudio: Bool
     }
     private let grab: (any PetSoundPlaying)?
     private let typing: (any PetSoundPlaying)?
@@ -76,10 +77,10 @@ final class PetSoundController {
         self.otherAudio = otherAudio; self.uptime = uptime; self.automaticTicks = automaticTicks
     }
 
-    /// 드래그는 한 번, 타자는 짧은 구간만 재생한다. 다른 앱의 오디오를 감지하면 즉시 양보한다.
-    func update(motion: ZicMotion, enabled: Bool, visible: Bool, sleeping: Bool, volume: Double) {
+    /// 드래그는 한 번, 타자는 짧은 구간만 재생한다. 양보 옵션을 켜면 다른 앱의 오디오를 감지해 중단한다.
+    func update(motion: ZicMotion, enabled: Bool, visible: Bool, sleeping: Bool, volume: Double, pauseForOtherAudio: Bool = true) {
         let level = Float(volume.isFinite ? min(1, max(0, volume)) : 0)
-        let next = State(motion: motion, audible: enabled && visible && !sleeping && level > 0, volume: level)
+        let next = State(motion: motion, audible: enabled && visible && !sleeping && level > 0, volume: level, pauseForOtherAudio: pauseForOtherAudio)
         guard next != state else { return }
         let enteringDrag = motion == .drag && state?.motion != .drag
         let wasWorking = state?.motion == .working && state?.audible == true
@@ -101,12 +102,12 @@ final class PetSoundController {
         guard state?.motion == .working, state?.audible == true else { stopTyping(); return }
         let now = uptime()
         if typingActive {
-            if now - typingStarted >= 1 || otherAudio(true) {
+            if now - typingStarted >= 1 || (state?.pauseForOtherAudio == true && otherAudio(true)) {
                 typing?.stop(); typingActive = false
                 nextTyping = max(nextTyping, now + 2)
             }
         } else if now >= nextTyping {
-            if otherAudio(false) { nextTyping = now + 2 }
+            if state?.pauseForOtherAudio == true && otherAudio(false) { nextTyping = now + 2 }
             else {
                 typingActive = typing?.play(loop: false) ?? false
                 typingStarted = now

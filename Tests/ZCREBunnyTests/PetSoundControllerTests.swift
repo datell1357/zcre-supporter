@@ -139,13 +139,37 @@ private final class SilentPlayer: PetSoundPlaying {
     defer { defaults.removePersistentDomain(forName: domain) }
     let preferences = Preferences(defaults: defaults, domainName: domain)
     #expect(preferences.petSounds)
+    #expect(!preferences.pauseTypingForOtherAudio)
     #expect(preferences.petSoundVolume == 0.35)
     #expect(!preferences.sound)
+    preferences.pauseTypingForOtherAudio = true
     preferences.petSounds = false
     preferences.petSoundVolume = 0.21
     preferences.sound = true
     let restored = Preferences(defaults: defaults, domainName: domain)
+    #expect(restored.pauseTypingForOtherAudio)
     #expect(!restored.petSounds)
     #expect(restored.petSoundVolume == 0.21)
     #expect(restored.sound)
+}
+
+// 영상 편집기 등이 오디오 장치를 계속 사용해도 기본 설정에서는 짧은 타자음을 재생한다.
+@Test @MainActor func typingCanMixWithOtherAppsWithoutLoopingOrChangingVolume() {
+    let typing = SilentPlayer()
+    var now = 0.0
+    let sound = PetSoundController(grab: SilentPlayer(), typing: typing,
+        otherAudio: { _ in true }, uptime: { now }, automaticTicks: false)
+    sound.update(motion: .working, enabled: true, visible: true, sleeping: false, volume: 0.1, pauseForOtherAudio: false)
+    #expect(typing.plays == [false])
+    #expect(typing.volume == 0.1)
+    now = 0.5; sound.checkTyping()
+    #expect(typing.stops == 0)
+    now = 1; sound.checkTyping()
+    #expect(typing.stops == 1)
+    now = 6; sound.checkTyping()
+    #expect(typing.plays == [false, false])
+    // 사용자가 양보 옵션을 켜면 현재 재생도 중지한다.
+    sound.update(motion: .working, enabled: true, visible: true, sleeping: false, volume: 0.1, pauseForOtherAudio: true)
+    #expect(typing.stops == 2)
+    sound.stop()
 }

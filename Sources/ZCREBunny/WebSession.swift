@@ -11,6 +11,7 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     var outputsRetryAt = Date.distantPast
     var outputGeneration = 0
     private var window: NSWindow?
+    private var closeAfterConnection = false
     private var popups: [NSWindow] = []
     private let script: String
     var didNavigate: (() -> Void)?
@@ -53,13 +54,15 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     }
 
     /// 기존 웹 세션을 사용하는 로그인 창을 열고 입력 가능한 상태로 활성화한다.
-    func show() {
+    func show(closeAfterConnection: Bool = false) {
+        self.closeAfterConnection = closeAfterConnection
         start()
         if window == nil {
             let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1060, height: 740), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             panel.title = "\(AppInfo.name) · 계정 연결"
             panel.minSize = NSSize(width: 760, height: 560)
             panel.isReleasedWhenClosed = false
+            panel.delegate = self
             panel.contentView = webView
             panel.center()
             window = panel
@@ -69,7 +72,7 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     }
 
     /// 로그인 창만 숨긴다. 인증 세션과 페이지 스크립트는 유지된다.
-    func hide() { window?.orderOut(nil) }
+    func hide() { closeAfterConnection = false; window?.orderOut(nil) }
 
     // MARK: - 인증된 데이터 읽기
     /// 웹 내부에서 조회한 최소 메타데이터를 검증해 네이티브 모델로 변환한다. 토큰은 네이티브로 전달하지 않는다.
@@ -163,6 +166,13 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
               candidateSnapshot.fetchedAt == snapshot.fetchedAt else { return }
         acceptedSnapshotRevision = candidateSnapshot.revision
         self.candidateSnapshot = nil
+        // 실제 계정 데이터가 수락된 뒤에만 닫고 감시용 웹 세션은 유지한다.
+        if closeAfterConnection {
+            hide()
+            let finishedPopups = popups
+            popups.removeAll()
+            for popup in finishedPopups { popup.close() }
+        }
     }
 
     // MARK: - 취소와 연결 해제
@@ -180,7 +190,7 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
         acceptedSnapshotRevision = ""
         candidateSnapshot = nil
         webView.stopLoading()
-        window?.orderOut(nil)
+        hide()
         for popup in popups { popup.close() }
         popups.removeAll()
         let store = webView.configuration.websiteDataStore
@@ -216,7 +226,11 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
               ["www.zcre.co.kr", "zcre.co.kr"].contains(origin.host),
               let event = message.body as? String, ["ready", "changed"].contains(event) else { return }
         pendingSnapshot?.finish(.failure(CancellationError()))
-        if event == "ready" { didNavigate?() } else { clearOutputs(); didChangeSession?() }
+        if event == "ready" { didNavigate?() } else {
+            // 연결된 계정 창에서 로그아웃·계정 전환 후 다시 로그인한 경우도 확인 뒤 닫는다.
+            if window?.isVisible == true { closeAfterConnection = true }
+            clearOutputs(); didChangeSession?()
+        }
     }
 
     /// OAuth 로그인에 필요한 HTTPS 이동과 빈 페이지만 허용하고 다른 URL 스킴을 차단한다.
@@ -242,7 +256,10 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     func webViewDidClose(_ webView: WKWebView) { popups.first { $0.contentView === webView }?.close() }
     /// 닫힌 팝업 창을 목록에서 제거한다.
     func windowWillClose(_ notification: Notification) {
-        if let window = notification.object as? NSWindow { popups.removeAll { $0 === window } }
+        if let closed = notification.object as? NSWindow {
+            if closed === window { closeAfterConnection = false }
+            popups.removeAll { $0 === closed }
+        }
     }
 }
 

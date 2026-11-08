@@ -162,7 +162,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
             _ = store.preferences.focusNow; _ = store.preferences.focusSchedule
             _ = store.preferences.focusStartMinute; _ = store.preferences.focusEndMinute
             _ = store.debugModeEnabled
-            _ = store.preferences.petSounds; _ = store.preferences.petSoundVolume
+            _ = store.preferences.petSounds; _ = store.preferences.petSoundVolume; _ = store.preferences.pauseTypingForOtherAudio
         } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }

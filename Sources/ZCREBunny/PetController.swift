@@ -312,7 +312,7 @@ final class PetController {
         let state = ZicMotion.resolve(test: motion.testMotion, dragging: motion.dragging, celebrating: celebrating,
                                       working: !store.activeJobs.isEmpty, moving: motion.moving, direction: motion.direction, failing: failing, waving: motion.waveStart != nil)
         sounds.update(motion: state, enabled: store.preferences.petSounds && !store.preferences.isFocusActive(), visible: store.preferences.petVisible,
-                      sleeping: store.isSleeping, volume: store.preferences.petSoundVolume)
+                      sleeping: store.isSleeping, volume: store.preferences.petSoundVolume, pauseForOtherAudio: store.preferences.pauseTypingForOtherAudio)
     }
     /// 앱 종료 시 로컬 효과음 재생을 정리한다.
     func stopSounds() { idleWaveTask?.cancel(); idleWaveTask = nil; motion.waveStart = nil; sounds.stop() }

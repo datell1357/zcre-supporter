@@ -4,6 +4,9 @@ import CryptoKit
 import Foundation
 import Observation
 import ZCRECore
+#if canImport(Sparkle)
+import Sparkle
+#endif
 
 struct AppRelease: Decodable, Equatable {
     struct Asset: Decodable, Equatable {
@@ -68,13 +71,13 @@ final class AppUpdateStore {
     }
     private(set) var release: AppRelease?
     private(set) var isChecking = false
-    private(set) var isDownloading = false
-    private(set) var installer: URL?
     private(set) var message = "새 버전은 12시간 간격으로 확인해요"
     @ObservationIgnored private let currentVersion: String
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var loop: Task<Void, Never>?
-    @ObservationIgnored private var download: Task<Void, Never>?
+    #if canImport(Sparkle)
+    @ObservationIgnored private var updaterController: SPUStandardUpdaterController?
+    #endif
     @ObservationIgnored private var nextCheck = Date.distantPast
     @ObservationIgnored var networkAvailable: () -> Bool = { true }
     @ObservationIgnored var didFindUpdate: (() -> Void)?
@@ -103,7 +106,7 @@ final class AppUpdateStore {
             }
         }
     }
-    func stop() { loop?.cancel(); loop = nil; download?.cancel(); download = nil }
+    func stop() { loop?.cancel(); loop = nil }
 
     func check() async {
         guard !isAppStore, !isChecking, networkAvailable(), Date.now >= nextCheck else { return }
@@ -126,51 +129,24 @@ final class AppUpdateStore {
             nextCheck = .now.addingTimeInterval(43_200)
             if value.isNewer(than: currentVersion) {
                 let changed = release?.tagName != value.tagName
-                if changed { installer = nil }
                 release = value
                 message = "\(value.tagName) 업데이트가 있어요"
                 if changed { didFindUpdate?() }
-            } else { release = nil; installer = nil; message = "최신 버전을 사용 중이에요 · \(currentVersion)" }
+            } else { release = nil; message = "최신 버전을 사용 중이에요 · \(currentVersion)" }
         } catch is CancellationError { }
         catch { message = "업데이트를 확인하지 못했어요 · 잠시 후 다시 시도해 주세요" }
     }
-    /// 명시적으로 누른 경우에만 다운로드한다. 파일을 교체하거나 실행 중 앱을 강제 종료하지 않는다.
-    func downloadUpdate() {
-        guard !isAppStore, !isDownloading, let asset else { return }
-        isDownloading = true; message = "업데이트 다운로드 및 무결성 확인 중…"
-        download = Task { [weak self] in
-            guard let self else { return }
-            defer { self.isDownloading = false; self.download = nil }
-            do {
-                var request = URLRequest(url: asset.browserDownloadURL); request.timeoutInterval = 300
-                let (temporary, response) = try await URLSession.shared.download(for: request)
-                defer { try? FileManager.default.removeItem(at: temporary) }
-                try Task.checkCancellation()
-                guard let http = response as? HTTPURLResponse, http.statusCode == 200,
-                      let final = http.url, final.scheme == "https", ["github.com", "release-assets.githubusercontent.com", "objects.githubusercontent.com"].contains(final.host ?? "") else { throw URLError(.badServerResponse) }
-                // 해시는 백그라운드에서 청크 단위로 계산해 화면/모션을 막지 않는다.
-                let valid = try await Task.detached(priority: .utility) {
-                    try AppRelease.verifyInstaller(temporary, asset: asset)
-                }.value
-                try Task.checkCancellation()
-                guard valid else { throw URLError(.cannotDecodeContentData) }
-                let folder = FileManager.default.temporaryDirectory.appendingPathComponent("ZCRE-Update-\(UUID().uuidString)", isDirectory: true)
-                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-                let target = folder.appendingPathComponent(asset.name)
-                try FileManager.default.moveItem(at: temporary, to: target)
-                // OS의 다운로드 출처 검사도 유지한다. 해시 검증을 Gatekeeper 대체로 사용하지 않는다.
-                try (target as NSURL).setResourceValue([
-                    "LSQuarantineType": "LSQuarantineTypeWebDownload",
-                    "LSQuarantineAgentName": AppInfo.name,
-                    "LSQuarantineDataURL": asset.browserDownloadURL,
-                    "LSQuarantineOriginURL": Self.releasesURL
-                ], forKey: .quarantinePropertiesKey)
-                self.installer = target; self.message = "검증 완료 · 설치 파일을 열어 Applications의 앱을 교체해 주세요"
-            } catch is CancellationError { self.message = "업데이트 다운로드가 취소됐어요" }
-            catch { self.message = "다운로드 또는 무결성 확인에 실패했어요 · 기존 앱은 유지돼요" }
+    /// 설치는 Sparkle이 서명 검증·앱 교체·재실행까지 수행한다. 사용자가 누르기 전에는 실행하지 않는다.
+    func installUpdate() {
+        guard !isAppStore, networkAvailable() else { return }
+        #if canImport(Sparkle)
+        if updaterController == nil {
+            updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
         }
+        guard let updaterController, updaterController.updater.canCheckForUpdates else { return }
+        updaterController.checkForUpdates(nil)
+        #endif
     }
-    func openInstaller() { if let installer { NSWorkspace.shared.open(installer) } }
     func openDistribution() {
         NSWorkspace.shared.open(isAppStore ? URL(string: "macappstore://showUpdatesPage")! : Self.releasesURL)
     }

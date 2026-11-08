@@ -61,6 +61,9 @@ cp Resources/Info.plist "$APP/Contents/Info.plist"
 # 스토어 후보는 영수증 발급 전에도 외부 업데이트를 실행하지 않는다.
 if [ "${DISTRIBUTION_CHANNEL:-direct}" = app-store ]; then
     /usr/libexec/PlistBuddy -c 'Add :ZCREDistribution string app-store' "$APP/Contents/Info.plist"
+    for key in SUFeedURL SUPublicEDKey SUEnableAutomaticChecks SUAllowsAutomaticUpdates SUVerifyUpdateBeforeExtraction; do
+        /usr/libexec/PlistBuddy -c "Delete :$key" "$APP/Contents/Info.plist"
+    done
 fi
 cp Resources/PrivacyInfo.xcprivacy "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
 # 스토어 프로파일은 명시한 후보에만 포함한다. 일반 배포/기존 사용자 앱에는 적용하지 않는다.
@@ -76,6 +79,14 @@ ditto "$RESOURCE_BUNDLE" "$APP/Contents/Resources/ZCREBunny_ZCREBunny.bundle"
 swift scripts/make-icon.swift "$PROJECT_ROOT/.build/AppIcon.iconset"
 iconutil -c icns "$PROJECT_ROOT/.build/AppIcon.iconset" -o "$APP/Contents/Resources/AppIcon.icns"
 plutil -lint "$APP/Contents/Info.plist" "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
+# 직접 배포본에만 Sparkle을 보존 복사한다. 스토어 후보에는 외부 업데이터를 링크·포함하지 않는다.
+if [ "${DISTRIBUTION_CHANNEL:-direct}" != app-store ]; then
+    SPARKLE="$PROJECT_ROOT/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+    test -d "$SPARKLE"
+    mkdir -p "$APP/Contents/Frameworks"
+    ditto "$SPARKLE" "$APP/Contents/Frameworks/Sparkle.framework"
+    cp "$PROJECT_ROOT/.build/artifacts/sparkle/Sparkle/LICENSE" "$APP/Contents/Resources/Sparkle-LICENSE.txt"
+fi
 # 분류: 코드 서명. 로컬 서명과 배포용 인증서 서명을 구분한다.
 if [ "$SIGN_IDENTITY" = "-" ]; then
     SIGN_OPTIONS=(--force --sign - --timestamp=none)
@@ -84,6 +95,14 @@ else
 fi
 # 안쪽 리소스부터 서명하며 강화된 런타임을 약화하는 권한은 추가하지 않는다.
 codesign "${SIGN_OPTIONS[@]}" "$APP/Contents/Resources/ZCREBunny_ZCREBunny.bundle"
+if [ -d "$APP/Contents/Frameworks/Sparkle.framework" ]; then
+    FRAMEWORK="$APP/Contents/Frameworks/Sparkle.framework"
+    # 실행 가능한 내부 구성요소부터 바깥 프레임워크 순서로 같은 배포 인증서로 서명한다.
+    for component in "Versions/B/Autoupdate" "Versions/B/Updater.app" "Versions/B/XPCServices/Downloader.xpc" "Versions/B/XPCServices/Installer.xpc"; do
+        codesign "${SIGN_OPTIONS[@]}" --preserve-metadata=identifier,entitlements --options runtime "$FRAMEWORK/$component"
+    done
+    codesign "${SIGN_OPTIONS[@]}" --options runtime "$FRAMEWORK"
+fi
 APP_SIGN_OPTIONS=()
 if [ -n "${SIGN_ENTITLEMENTS_FILE:-}" ]; then
     plutil -lint "$SIGN_ENTITLEMENTS_FILE"

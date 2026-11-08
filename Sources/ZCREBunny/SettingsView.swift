@@ -48,7 +48,8 @@ struct SettingsView: View {
                         .disabled(!prefs.petSounds)
                         .accessibilityLabel("지크 효과음 음량")
                         .accessibilityValue("\(Int((prefs.petSoundVolume * 100).rounded()))퍼센트")
-                    Text("붙잡을 때 효과음과 작업 중 짧은 타자 소리가 나요. 다른 앱에서 소리를 재생하거나 통화 중이면 타자음은 쉬어요.")
+                    Toggle("다른 앱 재생 중 타자음 쉬기", isOn: $prefs.pauseTypingForOtherAudio)
+                    Text("작업 중 타자음은 짧게 재생돼요. 다른 앱 재생 중 쉬기를 켜면 음악·영상·통화 중에는 타자음을 쉬어요.")
                         .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
                     Text("macOS 알림 소리는 아래 알림 설정에서 따로 선택해요.")
                         .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
@@ -126,16 +127,10 @@ struct SettingsView: View {
                         HStack {
                             Button(store.updates.isChecking ? "확인 중…" : "업데이트 확인") { Task { await store.updates.check() } }
                                 .buttonStyle(ZCREButtonStyle()).disabled(store.updates.isChecking || store.isOffline)
-                            if store.updates.installer != nil {
-                                Button("설치 파일 열기") { store.updates.openInstaller() }.buttonStyle(ZCREButtonStyle(prominent: true))
-                            } else if store.updates.asset != nil {
-                                Button(store.updates.isDownloading ? "다운로드 중…" : "업데이트 다운로드") { store.updates.downloadUpdate() }
-                                    .buttonStyle(ZCREButtonStyle(prominent: true)).disabled(store.updates.isDownloading || store.isOffline)
-                            } else if store.updates.release != nil {
-                                Button("릴리즈 보기") { store.updates.openDistribution() }.buttonStyle(ZCREButtonStyle())
-                            }
+                            Button("업데이트 설치 및 재시작") { store.updates.installUpdate() }
+                                .buttonStyle(ZCREButtonStyle(prominent: true)).disabled(store.isOffline)
                         }
-                        Text("GitHub에만 버전을 확인해요 · 12시간 간격 · 설치 파일 SHA-256 검증 후 직접 교체해요")
+                        Text("12시간 간격으로 확인해요 · 설치를 누르면 서명 검증 후 앱을 교체하고 재시작해요")
                             .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
                     }
                 }

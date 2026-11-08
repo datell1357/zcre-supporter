@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>ZCRE 서포터 업데이트</title>
+    <item>
+      <title>ZCRE 서포터 0.4.2</title>
+      <sparkle:version>29</sparkle:version>
+      <sparkle:shortVersionString>0.4.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description>로그인 확인 후 연결 창 자동 닫기 · 서명 검증 후 직접 업데이트 · 작업 타자음 개선</description>
+      <enclosure url="https://github.com/datell1357/zcre-supporter/releases/download/v0.4.2/ZCRE-Supporter-0.4.2-macOS-universal-notarized.dmg" length="59367745" type="application/octet-stream" sparkle:edSignature="UlKauZ3M4VdtmMz3swxY5zSXgn7zkoT4tYmSGFH7FdTOUTlQ4QhXnD2x44dNWrO9I1zE9G7O05BYfZYz7cwKDw==" />
+    </item>
+  </channel>
+</rss>
