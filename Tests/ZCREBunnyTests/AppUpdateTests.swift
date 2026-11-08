@@ -10,6 +10,7 @@ import Testing
     }
     @Test func stableVersionsOnlyAndNoDowngrade() throws {
         #expect(try release().isNewer(than: "0.0.3"))
+        #expect(try release("v0.4.1").isNewer(than: "0.0.4"))
         #expect(try release("v0.10.0").isNewer(than: "0.9.9"))
         #expect(try !release("v0.0.3").isNewer(than: "0.0.3"))
         #expect(try !release("v0.0.2").isNewer(than: "0.0.3"))
@@ -47,8 +48,12 @@ import Testing
         let name = "UpdateDownloadTest-\(UUID())"
         let defaults = UserDefaults(suiteName: name)!
         defer { defaults.removePersistentDomain(forName: name) }
-        let store = AppUpdateStore(defaults: defaults, isAppStore: false, currentVersion: "0.0.0")
+        let installed = ProcessInfo.processInfo.environment["ZCRE_TEST_INSTALLED_VERSION"] ?? "0.0.0"
+        let store = AppUpdateStore(defaults: defaults, isAppStore: false, currentVersion: installed)
         await store.check()
+        if let expected = ProcessInfo.processInfo.environment["ZCRE_EXPECTED_UPDATE_TAG"] {
+            #expect(store.release?.tagName == expected)
+        }
         #expect(store.release != nil)
         #expect(store.asset != nil)
         store.downloadUpdate()
