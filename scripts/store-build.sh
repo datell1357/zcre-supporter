@@ -17,8 +17,10 @@ fi
 umask 077
 mkdir -p "$PROJECT_ROOT/.build"
 WORK="$(mktemp -d "$PROJECT_ROOT/.build/store-package.XXXXXX")"
-trap 'rm -rf "$WORK"' EXIT
+PACKAGE_STAGE=""
+trap 'rm -rf "$WORK"; if [ -n "$PACKAGE_STAGE" ]; then rm -rf "$PACKAGE_STAGE"; fi' EXIT
 export ARCHS=universal
+export DISTRIBUTION_CHANNEL=app-store
 unset EMBEDDED_PROVISIONING_PROFILE
 export SIGN_ENTITLEMENTS_FILE="$PROJECT_ROOT/Resources/AppStore.entitlements"
 if [ "$MODE" = --package ]; then
@@ -53,7 +55,30 @@ cp "$WORK/tests.log" "$DIST_DIR/tests.log"
 if [ "$MODE" = --package ]; then
     VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)"
     PKG="ZCRE-Supporter-$VERSION-MacAppStore.pkg"
-    productbuild --component "$APP" /Applications --sign "$APP_STORE_INSTALLER_IDENTITY" "$WORK/$PKG"
+    # productbuild가 경로 처리 오류에도 빈 페이로드로 성공할 수 있어 영문 임시 경로에서 묶는다.
+    PACKAGE_STAGE="$(mktemp -d /private/tmp/zcre-store-package.XXXXXX)"
+    PACKAGE_APP="$PACKAGE_STAGE/ZCRE Supporter.app"
+    ditto --norsrc --noextattr "$APP" "$PACKAGE_APP"
+    # 개인 키와 작업 폴더는 0700/0600을 유지하되 설치될 앱은 모든 사용자가 읽을 수 있어야 한다.
+    python3 - "$PACKAGE_APP" <<'PY'
+import sys
+from pathlib import Path
+app = Path(sys.argv[1])
+for item in [app, *app.rglob('*')]:
+    if not item.is_symlink():
+        item.chmod(0o755 if item.is_dir() or item.stat().st_mode & 0o111 else 0o644)
+PY
+    # Apple이 발급한 다운로드 프로파일의 격리 메타데이터도 업로드 번들에는 허용되지 않는다.
+    xattr -lr "$PACKAGE_APP" > "$WORK/attributes.txt"
+    if grep -Fq 'com.apple.quarantine' "$WORK/attributes.txt"; then
+        xattr -dr com.apple.quarantine "$PACKAGE_APP"
+    fi
+    codesign --verify --deep --strict "$PACKAGE_APP"
+    productbuild --component "$PACKAGE_APP" /Applications --sign "$APP_STORE_INSTALLER_IDENTITY" "$WORK/$PKG"
+    pkgutil --payload-files "$WORK/$PKG" > "$WORK/payload.txt"
+    if ! grep -Fxq './ZCRE Supporter.app/Contents/MacOS/ZCREBunny' "$WORK/payload.txt"; then
+        printf '앱 실행 파일이 패키지에 포함되지 않아 배포를 중단합니다.\n' >&2; exit 1
+    fi
     pkgutil --check-signature "$WORK/$PKG"
     mv "$WORK/$PKG" "$DIST_DIR/$PKG"
     (cd "$DIST_DIR" && shasum -a 256 "$PKG" > "$PKG.sha256")

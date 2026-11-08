@@ -5,6 +5,41 @@ import SwiftUI
 /// 개발용 미리보기 렌더러로 실제 바탕화면을 촬영하거나 계정 데이터를 읽지 않는다.
 @MainActor
 enum PreviewExporter {
+    /// 실제 앱 뷰와 명시적인 가상 데이터로 2560×1600 스토어 설명 이미지를 만든다.
+    static func exportStore(to directory: URL) {
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let defaults = UserDefaults(suiteName: "kr.co.zcre.bunny.preview")!
+        let store = CompanionStore(preferences: Preferences(defaults: defaults, domainName: "kr.co.zcre.bunny.preview"))
+        store.enterDemo()
+        func save<V: View>(_ view: V, title: String, subtitle: String, name: String) {
+            let scene = HStack(spacing: 36) {
+                VStack(alignment: .leading, spacing: 24) {
+                    Text("ZCRE 서포터").font(.system(size: 22, weight: .heavy)).foregroundStyle(BunnyTheme.accent)
+                    Text(title).font(.system(size: 34, weight: .bold))
+                    Text(subtitle).font(.system(size: 17)).foregroundStyle(BunnyTheme.muted)
+                    RabbitView(animate: false).frame(width: 190, height: 230)
+                    Text("미리보기 모드 · 가상 데이터와 번들 샘플").font(.system(size: 11)).foregroundStyle(BunnyTheme.muted)
+                }.frame(width: 300, alignment: .leading)
+                view.clipShape(RoundedRectangle(cornerRadius: 18))
+            }.frame(width: 1280, height: 800).background(BunnyTheme.background)
+                .foregroundStyle(BunnyTheme.foreground).preferredColorScheme(.dark)
+            // AppKit 기반 Picker·ScrollView도 실제로 그리도록 호스팅 창에서 캡처한다.
+            let size = NSSize(width: 2560, height: 1600)
+            let host = NSHostingView(rootView: scene.scaleEffect(2, anchor: .topLeading)
+                .frame(width: size.width, height: size.height, alignment: .topLeading))
+            let window = NSWindow(contentRect: NSRect(origin: .zero, size: size), styleMask: .borderless, backing: .buffered, defer: false)
+            window.contentView = host; host.setFrameSize(size); host.layoutSubtreeIfNeeded(); window.displayIfNeeded()
+            guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 2560, pixelsHigh: 1600, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return }
+            bitmap.size = size; host.cacheDisplay(in: host.bounds, to: bitmap)
+            guard let png = bitmap.representation(using: .png, properties: [:]) else { return }
+            try? png.write(to: directory.appendingPathComponent(name + ".png"))
+        }
+        save(MenuBarView(store: store, serviceStatus: ServiceStatusStore(), showDashboard: {}, showSettings: {}, close: {}, size: CGSize(width: 840, height: 600)),
+             title: "필요한 현황을\n한눈에", subtitle: "크레딧 · 작업 · 최근 알림 · 서비스 상태", name: "01-status")
+        save(SettingsView(store: store, resetPosition: {}), title: "내 작업 리듬에\n맞추는 지크", subtitle: "표시 · 산책 · 소리 · 작업별 알림", name: "02-settings")
+        save(DemoResultView(store: store), title: "결과를 재생하고\n원하는 곳에 저장", subtitle: "이미지 · 영상 · 오디오 미리보기", name: "03-results")
+        print("store-ui=exported")
+    }
     /// 네트워크 조회 없이 세 패널의 배치와 가독성을 검토한다.
     static func exportMenu(to url: URL) {
         let defaults = UserDefaults(suiteName: "kr.co.zcre.bunny.preview")!
@@ -51,6 +86,11 @@ enum PreviewExporter {
         save(PetStatusView(store: store, showSettings: {}), "compact", size: PetStatusView.preferredSize)
         let status = ServiceStatusStore()
         if let task = status.refresh(manual: false) { await task.value }
+        // 서비스 패널 단독 검수: 공개 실데이터만 포함하며 데모 계정 수치는 제외한다.
+        let serviceSize = CGSize(width: MenuBarView.preferredSize.width * 0.34 - 2, height: 500)
+        save(ServiceStatusView(status: status).frame(width: serviceSize.width, height: serviceSize.height)
+            .background(BunnyTheme.background).foregroundStyle(BunnyTheme.foreground).preferredColorScheme(.dark),
+            "service-status", size: serviceSize)
         save(MenuBarView(store: store, serviceStatus: status, showDashboard: {}, showSettings: {}, close: {}, size: MenuBarView.preferredSize), "dashboard", size: MenuBarView.preferredSize)
         status.stop()
         print("promo-ui=exported")

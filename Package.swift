@@ -8,7 +8,7 @@ let package = Package(
     products: [.executable(name: "ZCREBunny", targets: ["ZCREBunny"])],
     targets: [
         .target(name: "ZCRECore"),
-        .executableTarget(name: "ZCREBunny", dependencies: ["ZCRECore"], resources: [.copy("Resources/ReadSnapshot.js"), .copy("Resources/ReadOutputs.js"), .copy("Resources/ObserveSession.js"), .copy("Resources/Zic"), .copy("Resources/Sounds")]),
+        .executableTarget(name: "ZCREBunny", dependencies: ["ZCRECore"], resources: [.copy("Resources/ReadSnapshot.js"), .copy("Resources/ReadOutputs.js"), .copy("Resources/ReadCreatorMetrics.js"), .copy("Resources/ObserveSession.js"), .copy("Resources/Zic"), .copy("Resources/Sounds"), .copy("Resources/ReviewDemo")]),
         .testTarget(name: "ZCRECoreTests", dependencies: ["ZCRECore"]),
         .testTarget(name: "ZCREBunnyTests", dependencies: ["ZCREBunny"])
     ]

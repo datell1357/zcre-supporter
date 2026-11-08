@@ -116,6 +116,29 @@ struct SettingsView: View {
                         Button("연결 해제") { store.disconnect() }.buttonStyle(.plain).foregroundStyle(BunnyTheme.muted).disabled(store.isDemo)
                     }
                 }
+                section("업데이트") {
+                    if store.updates.isAppStore {
+                        Text("App Store에서 자동 업데이트를 관리해요").font(.caption).foregroundStyle(BunnyTheme.muted)
+                        Button("App Store 업데이트 열기") { store.updates.openDistribution() }.buttonStyle(ZCREButtonStyle())
+                    } else {
+                        Toggle("새 버전 자동 확인", isOn: Binding(get: { store.updates.automatic }, set: { store.updates.automatic = $0 }))
+                        Text(store.updates.message).font(.system(size: 11)).foregroundStyle(BunnyTheme.muted)
+                        HStack {
+                            Button(store.updates.isChecking ? "확인 중…" : "업데이트 확인") { Task { await store.updates.check() } }
+                                .buttonStyle(ZCREButtonStyle()).disabled(store.updates.isChecking || store.isOffline)
+                            if store.updates.installer != nil {
+                                Button("설치 파일 열기") { store.updates.openInstaller() }.buttonStyle(ZCREButtonStyle(prominent: true))
+                            } else if store.updates.asset != nil {
+                                Button(store.updates.isDownloading ? "다운로드 중…" : "업데이트 다운로드") { store.updates.downloadUpdate() }
+                                    .buttonStyle(ZCREButtonStyle(prominent: true)).disabled(store.updates.isDownloading || store.isOffline)
+                            } else if store.updates.release != nil {
+                                Button("릴리즈 보기") { store.updates.openDistribution() }.buttonStyle(ZCREButtonStyle())
+                            }
+                        }
+                        Text("GitHub에만 버전을 확인해요 · 12시간 간격 · 설치 파일 SHA-256 검증 후 직접 교체해요")
+                            .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
+                    }
+                }
                 section("앱") {
                     Toggle("Mac 로그인 시 자동 실행", isOn: Binding(get: { loginItem.isEnabled }, set: { loginItem.setEnabled($0) }))
                     Text(loginItem.label).font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)

@@ -477,7 +477,7 @@ private final class PetMouseView: NSView {
     /// 현재 산책·디버그 상태에 맞는 지크 우클릭 메뉴를 구성한다.
     override func menu(for event: NSEvent) -> NSMenu? {
         let menu = NSMenu()
-        for (title, action) in [("현황 보기", #selector(showDashboard)), (actions?.roaming == true ? "산책 비활성화" : "산책 활성화", #selector(toggleRoaming)), ("지크 숨기기", #selector(hidePet)), ("설정", #selector(showSettings))] {
+        for (title, action) in [(actions?.roaming == true ? "산책 비활성화" : "산책 활성화", #selector(toggleRoaming)), ("지크 숨기기", #selector(hidePet)), ("설정", #selector(showSettings))] {
             let item = menu.addItem(withTitle: title, action: action, keyEquivalent: "")
             item.target = self
         }
@@ -490,8 +490,6 @@ private final class PetMouseView: NSView {
     }
     /// 디버그 모드일 때만 모션 테스트 창을 연다.
     @objc private func showTests() { if actions?.debugModeEnabled == true { actions?.showTests() } }
-    /// 지크의 간단 현황 열기 콜백을 실행한다.
-    @objc private func showDashboard() { actions?.click() }
     /// 산책 활성화 설정을 전환한다.
     @objc private func toggleRoaming() { actions?.toggleRoaming() }
     /// 지크 설정 창 열기 콜백을 실행한다.

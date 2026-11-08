@@ -4,10 +4,11 @@ import ZCRECore
 
 struct ServiceStatusView: View {
     var status: ServiceStatusStore
+    @State private var clock = Date.now
 
     // 표시 시각의 로컬 갱신과 실제 HTTP 조회 주기는 별개다. HTTP 조회 수명은 ServiceStatusStore가 관리한다.
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 30)) { _ in
+        let _ = clock
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("서비스 상태").font(.system(size: 14, weight: .semibold))
@@ -24,13 +25,20 @@ struct ServiceStatusView: View {
                     } else {
                         Text(summary(snapshot)).font(.system(size: 11)).foregroundStyle(BunnyTheme.muted)
                     }
-                    ScrollView {
-                        LazyVStack(spacing: 6) {
-                            ForEach(snapshot.models) { model in
-                                serviceRow(model)
+                    VStack(spacing: 4) {
+                        ForEach(0..<((snapshot.models.count + 1) / 2), id: \.self) { row in
+                            HStack(spacing: 4) {
+                                ForEach(0..<2, id: \.self) { column in
+                                    let index = row * 2 + column
+                                    if index < snapshot.models.count {
+                                        serviceRow(snapshot.models[index])
+                                            .frame(maxWidth: .infinity).frame(height: 30)
+                                            .background(BunnyTheme.surface, in: RoundedRectangle(cornerRadius: 6))
+                                    } else { Color.clear.frame(maxWidth: .infinity).frame(height: 30) }
+                                }
                             }
                         }
-                    }
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 } else {
                     Spacer()
                     VStack(spacing: 10) {
@@ -56,22 +64,27 @@ struct ServiceStatusView: View {
                         .buttonStyle(.plain).font(.system(size: 11, weight: .medium))
                 }.padding(.top, 8).frame(maxWidth: .infinity, alignment: .leading)
                     .overlay(alignment: .top) { Rectangle().fill(BunnyTheme.border).frame(height: 1) }
-            }.padding(.horizontal, 18).padding(.bottom, 16)
-        }
+            }.padding(.horizontal, 12).padding(.bottom, 12)
+                .task {
+                    while !Task.isCancelled {
+                        do { try await Task.sleep(for: .seconds(30)) } catch { return }
+                        clock = .now
+                    }
+                }
     }
-    /// 서비스별 상태와 모델 변형의 상태를 한 행에 표시한다.
+    /// 두 열 카드 안에서 모델 이름과 상태를 분리해 긴 이름도 겹치지 않게 표시한다.
     private func serviceRow(_ model: ServiceStatusSnapshot.Model) -> some View {
         let health = status.health(for: model)
-        return HStack(spacing: 9) {
-            Circle().fill(color(health)).frame(width: 6, height: 6)
-            Text(model.label).font(.system(size: 12, weight: .medium)).lineLimit(1)
-            Spacer(minLength: 4)
-            Text(health.label).font(.system(size: 10, weight: .medium))
+        return HStack(spacing: 4) {
+            Circle().fill(color(health)).frame(width: 4, height: 4)
+            Text(model.label).font(.system(size: 10.5, weight: .medium))
+                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(health.label).font(.system(size: 9, weight: .medium))
                 .foregroundStyle(color(health)).fixedSize()
-        }.padding(.horizontal, 11).padding(.vertical, 10)
-            .background(BunnyTheme.surface, in: RoundedRectangle(cornerRadius: 8))
+        }.padding(.horizontal, 6)
             .accessibilityElement(children: .combine)
-            .help(status.isUnavailable ? "최신 상태를 확인할 수 없어요. 잠시 후 다시 조회해요." : model.series.map { "\($0.label): \($0.health.label)" }.joined(separator: " · "))
+            .help(model.label + " · " + (status.isUnavailable ? "최신 상태를 확인할 수 없어요. 잠시 후 다시 조회해요." : model.series.map { "\($0.label): \($0.health.label)" }.joined(separator: " · ")))
     }
     /// 현재 공개 스냅샷의 정상·장애·확인 중 모델 수를 요약한다.
     private func summary(_ snapshot: ServiceStatusSnapshot) -> String {

@@ -10,6 +10,8 @@ struct MenuBarView: View {
     var showSettings: () -> Void
     var close: () -> Void
     var size: CGSize
+    @State private var tab = PanelTab.work
+    private enum PanelTab: String, CaseIterable { case work = "작업", creator = "크리에이터" }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,12 +23,25 @@ struct MenuBarView: View {
                 Button(action: close) { Image(systemName: "xmark") }
                     .padding(.leading, 8).accessibilityLabel("현황 닫기")
             }.buttonStyle(.plain).padding(18)
-            HStack(alignment: .top, spacing: 0) {
-                ActiveJobsView(store: store).frame(width: size.width * 0.31)
-                Rectangle().fill(BunnyTheme.border).frame(width: 1)
-                accountPanel.frame(width: size.width * 0.35)
-                Rectangle().fill(BunnyTheme.border).frame(width: 1)
-                ServiceStatusView(status: serviceStatus).frame(maxWidth: .infinity, maxHeight: .infinity)
+            if let release = store.updates.release {
+                Button { showSettings() } label: {
+                    HStack { Image(systemName: "arrow.down.circle"); Text("\(release.tagName) 업데이트가 있어요"); Spacer(); Text("설정에서 업데이트 →") }
+                        .font(.system(size: 11)).padding(.horizontal, 18).padding(.bottom, 8)
+                }.buttonStyle(.plain).foregroundStyle(BunnyTheme.accent)
+            }
+            Picker("현황판 탭", selection: $tab) {
+                ForEach(PanelTab.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+            }.pickerStyle(.segmented).frame(width: 260).padding(.bottom, 12)
+            if tab == .creator {
+                CreatorMetricsView(store: store)
+            } else {
+                HStack(alignment: .top, spacing: 0) {
+                    ActiveJobsView(store: store).frame(width: size.width * 0.31)
+                    Rectangle().fill(BunnyTheme.border).frame(width: 1)
+                    accountPanel.frame(width: size.width * 0.35)
+                    Rectangle().fill(BunnyTheme.border).frame(width: 1)
+                    ServiceStatusView(status: serviceStatus).frame(width: max(0, size.width * 0.34 - 2)).frame(maxHeight: .infinity)
+                }
             }
         }.frame(width: size.width, height: size.height)
             .background(BunnyTheme.background).foregroundStyle(BunnyTheme.foreground)

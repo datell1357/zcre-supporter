@@ -161,7 +161,7 @@ private struct ResultMediaView: View {
 }
 
 // SwiftUI VideoPlayer의 런타임 의존성을 피하고 AppKit 재생 컨트롤을 사용한다.
-private struct NativeResultPlayer: NSViewRepresentable {
+struct NativeResultPlayer: NSViewRepresentable {
     let player: AVPlayer
     func makeNSView(context: Context) -> AVPlayerView {
         let view = AVPlayerView()

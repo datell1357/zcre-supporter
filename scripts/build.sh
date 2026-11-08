@@ -58,6 +58,10 @@ APP="$STAGING/$APP_NAME.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/ZCREBunny" "$APP/Contents/MacOS/ZCREBunny"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
+# 스토어 후보는 영수증 발급 전에도 외부 업데이트를 실행하지 않는다.
+if [ "${DISTRIBUTION_CHANNEL:-direct}" = app-store ]; then
+    /usr/libexec/PlistBuddy -c 'Add :ZCREDistribution string app-store' "$APP/Contents/Info.plist"
+fi
 cp Resources/PrivacyInfo.xcprivacy "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
 # 스토어 프로파일은 명시한 후보에만 포함한다. 일반 배포/기존 사용자 앱에는 적용하지 않는다.
 if [ -n "${EMBEDDED_PROVISIONING_PROFILE:-}" ]; then

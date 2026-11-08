@@ -7,12 +7,12 @@
 
   ZCRE의 크레딧과 작업 현황을 바탕화면에서 확인하는 macOS 동반자
 
-  [![Release](https://img.shields.io/badge/release-v0.0.3-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)
+  [![Release](https://img.shields.io/badge/release-v0.0.4-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.4)
   ![macOS](https://img.shields.io/badge/macOS-14%2B-26292f?style=flat-square&logo=apple)
   ![Architecture](https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-26292f?style=flat-square)
   ![Swift](https://img.shields.io/badge/Swift-6-26292f?style=flat-square&logo=swift)
 
-  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)** · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
+  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.4)** · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
 </div>
 
 <br>
@@ -39,21 +39,25 @@
     <td><strong>↗ 작업 알림</strong><br><br>작업 완료와 실패를 알려줍니다. 작업 종류별 알림과 집중 모드를 설정할 수 있습니다.</td>
     <td><strong>♡ 나만의 지크</strong><br><br>바탕화면 산책과 드래그를 즐기고 크기·효과음을 조절하세요. 지크를 숨겨도 작업 감시는 계속됩니다.</td>
   </tr>
+  <tr>
+    <td><strong>▥ 크리에이터 그래프</strong><br><br>연결한 SNS의 팔로워·구독자 수와 최근 30일 수집 추이를 2×2 그래프로 확인합니다.</td>
+    <td><strong>↻ 업데이트와 서비스 상태</strong><br><br>서비스 상태는 스크롤 없는 2열로 표시합니다. 설정에서 새 버전 자동 확인과 검증된 설치 파일 다운로드를 사용할 수 있습니다.</td>
+  </tr>
 </table>
 
 ## 시작하기
 
-1. [v0.0.3 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.3/ZCRE-Supporter-0.0.3-macOS-universal-v11.dmg)을 다운로드합니다.
-2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮깁니다. 설치 창의 **지크 실행**을 두 번 클릭해 옮긴 앱을 엽니다. 첫 실행 안내도 설치 창에 표시됩니다.
+1. [v0.0.4 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.4/ZCRE-Supporter-0.0.4-macOS-universal-notarized.dmg)을 다운로드합니다.
+2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮긴 뒤, Applications에서 앱을 실행합니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
 
 > [!NOTE]
-> 이 버전은 Apple Developer ID 서명과 공증을 받지 않았습니다. 최초 실행이 차단되면 안내 창을 닫고 설치 창의 **보안 설정**을 두 번 클릭하세요. 열린 **개인정보 보호 및 보안** 화면을 아래로 내려 **보안 → 그래도 열기**에서 해당 앱을 직접 허용할 수 있습니다. 바로가기가 작동하지 않으면 시스템 설정에서 직접 이동해 주세요. [Apple 실행 안내](https://support.apple.com/ko-kr/102445)
->
-> 파일이 손상되었거나 악성 소프트웨어가 감지되었다는 경고가 나오면 실행하지 말고 다운로드 파일을 확인해 주세요.
+> macOS v0.0.4는 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
 
-![ZCRE 서포터 처음 실행 안내](docs/assets/install-guide-ko.png)
+[▶ 최신 기능 튜토리얼 영상](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.4/ZCRE-Supporter-Tutorial-0.0.4-Mobile.mp4) · [1080p 원본](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.4/ZCRE-Supporter-Tutorial-0.0.4-1080p.mp4)
+
+기존 공개 v0.0.3에는 자동 업데이트 기능이 없으므로, 이번에는 DMG를 받아 앱을 교체해 주세요. v0.0.4부터 다음 정식 버전을 자동으로 확인합니다.
 
 로그인 전에는 앱의 **연결 전에 미리 둘러보기**로 가상 작업과 지크를 체험할 수 있습니다. 가상 데이터는 실제 크레딧을 사용하지 않습니다.
 
@@ -62,6 +66,7 @@
 - **지크 숨기기 / 보이기** · 캐릭터만 숨기고 메뉴 막대에서 계속 확인할 수 있습니다.
 - **산책과 크기** · 자유로운 산책을 켜거나 끄고 지크 크기를 조절합니다.
 - **알림과 집중 모드** · 작업 종류별 알림과 조용히 지낼 시간을 선택합니다.
+- **업데이트** · 시작 시·12시간마다 새 버전을 확인하고, 설치 파일의 SHA-256을 검증한 뒤 직접 앱을 교체합니다.
 - **효과음** · 붙잡힘과 작업 소리의 음량을 조절하거나 끌 수 있습니다.
 
 ## 개인정보와 연결
@@ -86,7 +91,7 @@ bash scripts/test.sh
 
 - [코드 안내](docs/CODE-GUIDE-KO.md) · [배포 준비](docs/RELEASE.md) · [검증 기록](docs/VERIFICATION.md)
 - [기능·기술 참고 자료 (이전 버전 기록)](docs/REFERENCE-0.2.20.md)
-- [Windows 개발 현황](docs/WINDOWS.md) — Windows 버전은 별도 개발·검증 중이며 현재 macOS 릴리즈에 포함되지 않습니다.
+- [Windows 개발 현황](docs/WINDOWS.md) — 별도 [v0.0.3 테스트 설치 파일](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.3)이 있으며 v0.0.4 기능은 macOS에 먼저 반영했습니다.
 
 ---
 

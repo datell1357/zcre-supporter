@@ -36,6 +36,9 @@ struct DashboardView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Label("미리보기 · 실제 계정과 무관한 예시예요", systemImage: "sparkles")
                                 .font(.system(size: 11, weight: .medium)).foregroundStyle(BunnyTheme.accent)
+                            Button("결과 재생·저장 체험") {
+                                if let job = store.snapshot?.jobs.first(where: { $0.status == .succeeded }) { store.showResult?(job) }
+                            }.buttonStyle(ZCREButtonStyle())
                             HStack {
                                 Button("완료 알림 체험") { store.simulateCompletion() }
                                 Spacer()

@@ -39,3 +39,8 @@ __pycache__/
 /windows/**/WebView2/
 /windows/**/*.WebView2/
 *.pfx
+
+# 로컬 인증서와 App Store 제출 작업 기록
+*.cer
+store/2026-11-04/
+docs/windows-audit/

@@ -10,6 +10,10 @@ struct ZCREBunnyApp {
     /// 미리보기 내보내기 인자를 처리하거나 메뉴 막대 앱의 메인 이벤트 루프를 시작한다.
     @MainActor static func main() {
         let app = NSApplication.shared
+        if let index = CommandLine.arguments.firstIndex(of: "--render-store-ui"), CommandLine.arguments.count > index + 1 {
+            PreviewExporter.exportStore(to: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
+            return
+        }
         if let index = CommandLine.arguments.firstIndex(of: "--render-preview"), CommandLine.arguments.count > index + 1 {
             PreviewExporter.export(to: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
             return
@@ -48,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     private var dashboardWindow: NSWindow?
     private var resultWindow: NSWindow?
     private var motionTestWindow: NSWindow?
+    private var inspectionWindow: NSWindow?
 
     // MARK: - 앱 시작과 창 구성
     /// 창·메뉴·관찰 콜백을 한 번 연결하고 로그인 상태 감시와 첫 실행 알림 권한 흐름을 시작한다.
@@ -89,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         let demo = CommandLine.arguments.contains("--demo")
         store.start(demo: demo, reviewNotifications: !CommandLine.arguments.contains("--smoke-test"))
+        store.updates.start()
         updateStatus()
         if CommandLine.arguments.contains("--smoke-test") {
             DispatchQueue.main.asyncAfter(deadline: .now() + (demo ? 2 : 12)) { [weak self] in
@@ -99,7 +105,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
                 NSApp.terminate(nil)
             }
         } else {
-            let explicitWindow = ["--show-dashboard", "--connect", "--inspect-ui", "--demo"].contains(where: CommandLine.arguments.contains)
+            let explicitWindow = ["--show-dashboard", "--show-menu", "--connect", "--inspect-ui", "--demo"].contains(where: CommandLine.arguments.contains)
             let firstLaunch = !UserDefaults.standard.bool(forKey: "hasCompletedFirstLaunch")
             UserDefaults.standard.set(true, forKey: "hasCompletedFirstLaunch")
             // 첫 실행 이후에는 로그인 자동 실행을 포함해 메뉴 막대에서 조용히 감시한다.
@@ -109,8 +115,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         }
     }
     /// 실행 인자에 따라 계정 연결 창 또는 상세 현황 창을 연다.
-    private func showPrimaryWindow() {
-        if CommandLine.arguments.contains("--show-dashboard") {
+    @objc private func showPrimaryWindow() {
+        if CommandLine.arguments.contains("--show-menu"), CommandLine.arguments.contains("--inspect-ui") {
+            // 개발 검토 시에만 팝오버와 동일한 콘텐츠를 고정 창에 표시한다.
+            let window = NSWindow(contentRect: NSRect(origin: .zero, size: MenuBarView.preferredSize), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            window.title = "ZCRE 서포터 · 현황판 검토"
+            window.level = .statusBar
+            window.isReleasedWhenClosed = false
+            window.contentView = NSHostingView(rootView: MenuBarView(store: store, serviceStatus: serviceStatus, showDashboard: { [weak self] in self?.showDashboard() }, showSettings: { [weak self] in self?.showSettings() }, close: { [weak window] in window?.orderOut(nil) }, size: MenuBarView.preferredSize))
+            inspectionWindow = window
+            window.center(); window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        } else if CommandLine.arguments.contains("--show-menu") {
+            showMenuAlerts()
+        } else if CommandLine.arguments.contains("--show-dashboard") {
             showDashboard()
         } else if CommandLine.arguments.contains("--connect") {
             store.connect()
@@ -188,7 +206,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         window.title = "작업 결과 · \(job.workName)"
         window.isReleasedWhenClosed = false
         window.delegate = self
-        window.contentView = NSHostingView(rootView: JobResultView(store: store, job: job, workspace: workspace))
+        if store.isDemo && workspace == "demo" {
+            window.contentView = NSHostingView(rootView: DemoResultView(store: store))
+        } else {
+            window.contentView = NSHostingView(rootView: JobResultView(store: store, job: job, workspace: workspace))
+        }
         resultWindow = window
         window.center(); window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -289,7 +311,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     }
     /// 팝오버 종료 시 공개 상태 조회와 산책 일시정지 상태를 정리한다.
     func popoverDidClose(_ notification: Notification) {
-        if let popover = notification.object as? NSPopover, popover === menuPopover { serviceStatus.stop() }
+        if let popover = notification.object as? NSPopover, popover === menuPopover {
+            serviceStatus.stop(); store.creatorMetrics.stop()
+        }
         pet.paused = menuPopover.isShown || petPopover.isShown || quickMenu.isShown
     }
     /// 두 현황 팝오버를 함께 닫는다.
@@ -338,6 +362,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         let menu = NSMenu()
         let root = NSMenuItem(); menu.addItem(root)
         let appMenu = NSMenu(); root.submenu = appMenu
+        if CommandLine.arguments.contains("--inspect-ui"), CommandLine.arguments.contains("--show-menu") {
+            let item = appMenu.addItem(withTitle: "상단 바 현황 검토", action: #selector(showPrimaryWindow), keyEquivalent: "m")
+            item.target = self
+        }
         let dashboardItem = appMenu.addItem(withTitle: "현황 보기", action: #selector(showDashboard), keyEquivalent: "d")
         dashboardItem.target = self
         appMenu.addItem(.separator())

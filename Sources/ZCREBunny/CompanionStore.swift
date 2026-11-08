@@ -20,7 +20,11 @@ enum ConnectionState: Equatable {
 @MainActor @Observable
 final class CompanionStore {
     let preferences: Preferences
-    var snapshot: WorkspaceSnapshot?
+    var snapshot: WorkspaceSnapshot? {
+        didSet { creatorMetrics.setContext(workspace: snapshot?.workspaceKey, demo: isDemo) }
+    }
+    let creatorMetrics = CreatorMetricsStore()
+    let updates = AppUpdateStore()
     var connection: ConnectionState = .signedOut
     var isRefreshing = false
     var isDemo = false
@@ -67,6 +71,10 @@ final class CompanionStore {
     /// 웹 세션·알림 클릭 콜백을 연결한다. 모든 화면은 이 저장소의 동일한 스냅샷을 사용한다.
     init(preferences: Preferences) {
         self.preferences = preferences
+        let session = webSession
+        creatorMetrics.loader = { workspace in try await session.creatorMetrics(workspace: workspace) }
+        creatorMetrics.cancelRequest = { session.webView.evaluateJavaScript("window.__zcreSupporterMetricsAbort?.abort()", completionHandler: nil) }
+        updates.networkAvailable = { [weak self] in self.map { !$0.isOffline && !$0.isSleeping } ?? false }
         focusActive = preferences.isFocusActive()
         webSession.didNavigate = { [weak self] in self?.restartPolling() }
         webSession.didChangeSession = { [weak self] in self?.sessionChanged() }
@@ -292,6 +300,7 @@ final class CompanionStore {
     private func networkChanged(available: Bool) {
         guard isOffline == available else { return }
         isOffline = !available
+        if !available { creatorMetrics.stop() }
         // 계정 감시가 꺼져 있어도 공개 상태 조회에는 네트워크 상태를 즉시 전달한다.
         defer { onChange?() }
         guard !isDemo, pollingAllowed else { return }
@@ -305,10 +314,11 @@ final class CompanionStore {
         }
     }
     /// 잠자기 동안 계정 조회를 취소하고 늦게 도착하는 응답도 무효화한다.
-    func sleep() { isSleeping = true; focusTask?.cancel(); focusTask = nil; generation += 1; pollTask?.cancel(); webSession.cancelSnapshot(); isRefreshing = false }
+    func sleep() { isSleeping = true; updates.stop(); creatorMetrics.stop(); focusTask?.cancel(); focusTask = nil; generation += 1; pollTask?.cancel(); webSession.cancelSnapshot(); isRefreshing = false }
     /// 깨우기 이후 정상 조회 예약을 재개한다.
     func wake() {
         isSleeping = false
+        updates.start()
         refreshFocusPolicy()
         pollSchedule.resume(at: ProcessInfo.processInfo.systemUptime, jitter: Double.random(in: 0...1))
         refreshSoon()
