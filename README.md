@@ -12,10 +12,16 @@
   ![Architecture](https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-26292f?style=flat-square)
   ![Swift](https://img.shields.io/badge/Swift-6-26292f?style=flat-square&logo=swift)
 
-  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.4)** · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
+  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.0.4)** · [튜토리얼](#튜토리얼) · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
 </div>
 
 <br>
+
+## 튜토리얼
+
+지크의 모션과 원형 메뉴, 현황판, 크리에이터 그래프, 업데이트 설정을 **61.5초**로 확인하세요
+
+https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
 
 ## 지크가 작업을 함께 지켜봐요
 
@@ -54,8 +60,6 @@
 
 > [!NOTE]
 > macOS v0.0.4는 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
-
-[▶ 최신 기능 튜토리얼 영상](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.4/ZCRE-Supporter-Tutorial-0.0.4-Mobile.mp4) · [1080p 원본](https://github.com/datell1357/zcre-supporter/releases/download/v0.0.4/ZCRE-Supporter-Tutorial-0.0.4-1080p.mp4)
 
 기존 공개 v0.0.3에는 자동 업데이트 기능이 없으므로, 이번에는 DMG를 받아 앱을 교체해 주세요. v0.0.4부터 다음 정식 버전을 자동으로 확인합니다.
 
