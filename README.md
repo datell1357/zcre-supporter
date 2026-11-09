@@ -7,12 +7,12 @@
 
   ZCRE의 크레딧과 작업 현황을 바탕화면에서 확인하는 macOS 동반자
 
-  [![Release](https://img.shields.io/badge/release-v0.4.2-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.2)
+  [![Release](https://img.shields.io/badge/release-v0.4.3-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.3)
   ![macOS](https://img.shields.io/badge/macOS-14%2B-26292f?style=flat-square&logo=apple)
   ![Architecture](https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-26292f?style=flat-square)
   ![Swift](https://img.shields.io/badge/Swift-6-26292f?style=flat-square&logo=swift)
 
-  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.2)** · [튜토리얼](#튜토리얼) · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
+  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.3)** · [튜토리얼](#튜토리얼) · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
 </div>
 
 <br>
@@ -46,14 +46,14 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
     <td><strong>♡ 나만의 지크</strong><br><br>바탕화면 산책과 드래그를 즐기고 크기·효과음을 조절하세요. 지크를 숨겨도 작업 감시는 계속됩니다.</td>
   </tr>
   <tr>
-    <td><strong>▥ 크리에이터 그래프</strong><br><br>연결한 SNS의 팔로워·구독자 수와 최근 30일 수집 추이를 2×2 그래프로 확인합니다.</td>
+    <td><strong>▥ 크리에이터 그래프</strong><br><br>연결한 SNS의 팔로워·구독자 수와 최근 30일 수집 추이를 2×2 그래프로 확인합니다. 탭을 보는 동안 10분마다 조회하고, 새 응답이 오기 전까지 마지막 확인값을 유지합니다.</td>
     <td><strong>↻ 업데이트와 서비스 상태</strong><br><br>서비스 상태는 스크롤 없는 2열로 표시합니다. 설정에서 새 버전 자동 확인과 검증된 설치 파일 다운로드를 사용할 수 있습니다.</td>
   </tr>
 </table>
 
 ## 시작하기
 
-1. [v0.4.2 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.4.2/ZCRE-Supporter-0.4.2-macOS-universal-notarized.dmg)을 다운로드합니다.
+1. [v0.4.3 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.4.3/ZCRE-Supporter-0.4.3-macOS-universal-notarized.dmg)을 다운로드합니다.
 2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮긴 뒤, Applications에서 앱을 실행합니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
@@ -61,7 +61,7 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
 설정의 **업데이트 설치 및 재시작**을 누르면 서명을 확인한 뒤 앱이 교체되고 재시작됩니다. v0.4.1 이하 버전에서 v0.4.2로 올리는 최초 한 번은 DMG로 설치해 주세요. App Store 설치본은 App Store에서 업데이트합니다.
 
 > [!NOTE]
-> macOS v0.4.2는 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
+> macOS v0.4.3는 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
 
 
 로그인 전에는 앱의 **연결 전에 미리 둘러보기**로 가상 작업과 지크를 체험할 수 있습니다. 가상 데이터는 실제 크레딧을 사용하지 않습니다.

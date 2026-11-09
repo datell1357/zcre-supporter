@@ -73,7 +73,7 @@ final class CompanionStore {
         self.preferences = preferences
         let session = webSession
         creatorMetrics.loader = { workspace in try await session.creatorMetrics(workspace: workspace) }
-        creatorMetrics.cancelRequest = { session.webView.evaluateJavaScript("window.__zcreSupporterMetricsAbort?.abort()", completionHandler: nil) }
+        creatorMetrics.cancelRequest = { session.cancelCreatorMetricsRequest() }
         updates.networkAvailable = { [weak self] in self.map { !$0.isOffline && !$0.isSleeping } ?? false }
         focusActive = preferences.isFocusActive()
         webSession.didNavigate = { [weak self] in self?.restartPolling() }

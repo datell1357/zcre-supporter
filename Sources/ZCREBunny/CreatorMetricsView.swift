@@ -6,6 +6,7 @@ import AppKit
 struct CreatorMetricsView: View {
     @Bindable var store: CompanionStore
     private var metrics: CreatorMetricsStore { store.creatorMetrics }
+    private var online: Bool { !store.isOffline && !store.isSleeping }
     static let website = URL(string: "https://www.zcre.co.kr/zcre-next?tab=profile-metrics")!
 
     var body: some View {
@@ -22,9 +23,13 @@ struct CreatorMetricsView: View {
                         Text("7일 \(change(data.change7d)) · YouTube 제외").font(.caption).foregroundStyle(BunnyTheme.muted)
                     }
                 }
-                Button { load() } label: { Image(systemName: "arrow.clockwise") }
-                    .buttonStyle(ZCREButtonStyle()).disabled(!metrics.canRefresh || store.isOffline)
-                    .help("10분 캐시 · 기존 작업 감시는 그대로 유지해요")
+                Button { load(manual: true) } label: {
+                    if metrics.isRefreshing { ProgressView().controlSize(.small) }
+                    else { Image(systemName: "arrow.clockwise") }
+                }
+                .buttonStyle(ZCREButtonStyle()).disabled(!metrics.canRefresh || !online)
+                .accessibilityLabel("프로필 메트릭 새로고침")
+                .help(refreshStatus)
             }
             if store.isDemo { notice("미리보기에서는 실제 소셜 계정을 조회하지 않아요") }
             else if store.snapshot == nil {
@@ -56,20 +61,35 @@ struct CreatorMetricsView: View {
                             }
                         }
                     }
-                    Text("마지막 수집 \(data.updatedAt?.formatted(date: .abbreviated, time: .shortened) ?? "정보 없음") · 기록이 없는 날짜는 채우지 않아요")
+                    Text("서버 수집 \(timestamp(data.updatedAt)) · 앱 조회 \(timestamp(metrics.lastCheckedAt))")
                         .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
                 } else if metrics.isRefreshing { ProgressView("프로필 메트릭을 확인하고 있어요").frame(maxWidth: .infinity, maxHeight: .infinity) }
                 else if metrics.errorMessage == nil && !store.isOffline { notice("새로고침을 눌러 프로필 메트릭을 확인해 주세요") }
             }
             if metrics.snapshot == nil { Spacer(minLength: 0) }
             HStack {
-                Text("열 때만 조회 · 10분 메모리 캐시").font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
+                Text(refreshStatus).font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
                 Spacer()
                 Button("웹에서 자세히 보기 ↗") { NSWorkspace.shared.open(Self.website) }.buttonStyle(.plain).font(.system(size: 12))
             }.padding(.top, 10).overlay(alignment: .top) { Rectangle().fill(BunnyTheme.border).frame(height: 1) }
-        }.padding(18).task(id: store.snapshot?.workspaceKey) { load() }.onDisappear { metrics.stop() }
+        }.padding(18)
+            .task(id: online ? store.snapshot?.workspaceKey : nil) { if online { await metrics.refreshWhileVisible() } }
+            .task(id: online ? metrics.refreshDeadline : nil) { if online { await metrics.observeRefreshDeadline() } }
+            .onDisappear { metrics.stop() }
     }
-    private func load() { if !store.isOffline && !store.isSleeping { metrics.refresh() } }
+    private var refreshStatus: String {
+        if store.isDemo || store.snapshot == nil { return "계정 연결 후 조회할 수 있어요" }
+        if !online { return "온라인 상태에서 새로고침할 수 있어요" }
+        if metrics.isRefreshing { return "ZCRE 서버에서 조회 중" }
+        if metrics.retryDelay > 0 {
+            return "\(Date.now.addingTimeInterval(metrics.retryDelay).formatted(date: .omitted, time: .standard)) 이후 다시 조회할 수 있어요"
+        }
+        return "탭을 보는 동안 10분마다 조회 · 수동 새로고침 가능"
+    }
+    private func timestamp(_ date: Date?) -> String {
+        date?.formatted(date: .abbreviated, time: .shortened) ?? "정보 없음"
+    }
+    private func load(manual: Bool = false) { if online { metrics.refresh(manual: manual) } }
     private func notice(_ value: String) -> some View { Text(value).font(.caption).foregroundStyle(BunnyTheme.muted) }
     private func count(_ value: Int64?) -> String { value?.formatted() ?? "—" }
     private func change(_ value: Int64?) -> String { value.map { ($0 > 0 ? "+" : "") + $0.formatted() } ?? "—" }

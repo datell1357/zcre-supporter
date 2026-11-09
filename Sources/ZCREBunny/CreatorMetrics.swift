@@ -1,6 +1,7 @@
 // 기능 분류: 필요한 프로필 요약값만 메모리에 보관 · 계정 경계 · 10분 캐시
 import Foundation
 import Observation
+import WebKit
 import ZCRECore
 
 struct CreatorMetrics: Decodable, Equatable {
@@ -61,13 +62,15 @@ final class CreatorMetricsStore {
     private(set) var snapshot: CreatorMetrics?
     private(set) var isRefreshing = false
     private(set) var errorMessage: String?
+    private(set) var lastCheckedAt: Date?
+    private(set) var refreshDeadline: TimeInterval?
     @ObservationIgnored var loader: ((String) async throws -> CreatorMetrics)?
     @ObservationIgnored var cancelRequest: (() -> Void)?
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var workspace: String?
     @ObservationIgnored private var demo = false
     @ObservationIgnored private var revision = 0
-    @ObservationIgnored private var nextAllowed: TimeInterval = 0
+    @ObservationIgnored private var automaticCacheUntil: TimeInterval = 0
     @ObservationIgnored private let uptime: () -> TimeInterval
 
     init(uptime: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }, loader: ((String) async throws -> CreatorMetrics)? = nil) {
@@ -78,17 +81,40 @@ final class CreatorMetricsStore {
     func setContext(workspace: String?, demo: Bool) {
         guard self.workspace != workspace || self.demo != demo else { return }
         stop(); self.workspace = workspace; self.demo = demo
-        snapshot = nil; errorMessage = nil; nextAllowed = 0
+        snapshot = nil; errorMessage = nil; lastCheckedAt = nil
+        refreshDeadline = nil; automaticCacheUntil = 0
     }
 
-    var canRefresh: Bool { workspace != nil && !demo && !isRefreshing && uptime() >= nextAllowed }
+    var retryDelay: TimeInterval { max(0, (refreshDeadline ?? 0) - uptime()) }
+    var canRefresh: Bool { workspace != nil && !demo && !isRefreshing && retryDelay == 0 }
 
-    /// 탭을 열 때만 호출한다. 성공 후 10분, 실패 후 최소 60초는 다시 열어도 재요청하지 않는다.
-    @discardableResult func refresh() -> Task<Void, Never>? {
-        if let task { return task }
-        guard canRefresh, let workspace, let loader else { return nil }
+    /// 탭이 보이는 동안만 대기하고, 만료 시 화면을 갱신한다. 서버 요청은 보내지 않는다.
+    func observeRefreshDeadline() async {
+        guard let deadline = refreshDeadline else { return }
+        do { try await Task.sleep(for: .seconds(retryDelay)); try Task.checkCancellation() }
+        catch { return }
+        if refreshDeadline == deadline, uptime() >= deadline { refreshDeadline = nil }
+    }
+
+    /// 탭이 열린 동안 10분마다 재조회한다. 대기·실패 중에도 마지막 성공 값은 유지한다.
+    func refreshWhileVisible() async {
         let current = revision
-        nextAllowed = uptime() + 60
+        while !Task.isCancelled, revision == current, workspace != nil, !demo, loader != nil {
+            await refresh()?.value
+            guard !Task.isCancelled, revision == current else { return }
+            let wait = max(1, automaticCacheUntil - uptime(), retryDelay)
+            do { try await Task.sleep(for: .seconds(wait)) } catch { return }
+        }
+    }
+
+    /// 자동 조회는 10분 간격이고, 수동 조회도 최소 간격과 서버 재시도 제한은 지킨다.
+    @discardableResult func refresh(manual: Bool = false) -> Task<Void, Never>? {
+        if let task { return task }
+        guard canRefresh, manual || uptime() >= automaticCacheUntil, let workspace, let loader else { return nil }
+        let current = revision
+        let started = uptime()
+        refreshDeadline = started + 60
+        automaticCacheUntil = started + 600
         isRefreshing = true
         task = Task { [weak self] in
             guard let self else { return }
@@ -97,11 +123,12 @@ final class CreatorMetricsStore {
                 let value = try await loader(workspace)
                 guard !Task.isCancelled, self.revision == current else { return }
                 self.snapshot = value; self.errorMessage = nil
-                self.nextAllowed = self.uptime() + 600
+                self.lastCheckedAt = .now
+                self.automaticCacheUntil = self.uptime() + 600
             } catch {
                 guard !Task.isCancelled, self.revision == current else { return }
                 if let http = error as? CreatorMetricsHTTPError {
-                    self.nextAllowed = self.uptime() + max(60, min(86400, http.retryAfter))
+                    self.refreshDeadline = self.uptime() + max(60, min(86400, http.retryAfter))
                     self.errorMessage = http.status == 401 ? "ZCRE 로그인을 다시 확인해 주세요." : http.status == 403 ? "ZCRE NEXT 이용 권한과 등록 상태를 확인해 주세요." : "프로필 메트릭을 가져오지 못했어요. 잠시 후 다시 확인해 주세요."
                 } else { self.errorMessage = "프로필 메트릭을 가져오지 못했어요. 잠시 후 다시 확인해 주세요." }
             }
@@ -116,13 +143,38 @@ final class CreatorMetricsStore {
 }
 
 extension WebSession {
+    /// 진행 중인 메트릭 요청만 취소한다. 작업·크레딧 조회에는 영향을 주지 않는다.
+    func cancelCreatorMetricsRequest() {
+        webView.evaluateJavaScript("window.__zcreSupporterMetricsAbort?.abort()", completionHandler: nil)
+    }
+
     /// 인증은 기존 WebKit 안에 유지하고 최소 JSON만 네이티브로 반환한다.
     func creatorMetrics(workspace: String) async throws -> CreatorMetrics {
         guard isLoaded, let url = Bundle.module.url(forResource: "ReadCreatorMetrics", withExtension: "js") else { throw SnapshotError.network }
         let script = try String(contentsOf: url, encoding: .utf8)
-        let value = try await webView.callAsyncJavaScript(script, arguments: ["workspaceKey": workspace], in: nil, contentWorld: .page)
+        // WebKit이 응답하지 않아도 새로고침 버튼이 계속 잠기지 않도록 네이티브에서도 제한한다.
+        let pending = PendingWebSnapshot()
+        let json: String
+        do {
+            json = try await withTaskCancellationHandler {
+                try Task.checkCancellation()
+                return try await pending.value(timeout: .seconds(15)) {
+                    webView.callAsyncJavaScript(script, arguments: ["workspaceKey": workspace], in: nil, in: .page) { result in
+                        pending.finish(result.flatMap { value in
+                            guard let json = value as? String else { return .failure(SnapshotError.invalidResponse) }
+                            return .success(json)
+                        })
+                    }
+                }
+            } onCancel: {
+                Task { @MainActor in pending.finish(.failure(CancellationError())) }
+            }
+        } catch {
+            if !Task.isCancelled { cancelCreatorMetricsRequest() }
+            throw error
+        }
         try Task.checkCancellation()
-        guard let json = value as? String, let data = json.data(using: .utf8), data.count <= 98_304,
+        guard let data = json.data(using: .utf8), data.count <= 98_304,
               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw SnapshotError.invalidResponse }
         if let status = object["error"] as? Int {
             throw CreatorMetricsHTTPError(status: status, retryAfter: HTTPRetryAfter.seconds(object["retryAfter"] as? String, relativeTo: .now))

@@ -17,6 +17,7 @@ ET.register_namespace('sparkle', NS)
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('dmg', type=Path)
+    parser.add_argument('--description', required=True, help='업데이트 창에 표시할 짧은 변경 내용')
     parser.add_argument('--app', type=Path, default=ROOT / 'dist/ZCRE 서포터.app')
     args = parser.parse_args()
     dmg = args.dmg.resolve()
@@ -41,7 +42,7 @@ def main():
     ET.SubElement(item, f'{{{NS}}}version').text = build
     ET.SubElement(item, f'{{{NS}}}shortVersionString').text = version
     ET.SubElement(item, f'{{{NS}}}minimumSystemVersion').text = '14.0'
-    ET.SubElement(item, 'description').text = '로그인 확인 후 연결 창 자동 닫기 · 서명 검증 후 직접 업데이트 · 작업 타자음 개선'
+    ET.SubElement(item, 'description').text = args.description
     ET.SubElement(item, 'enclosure', {
         'url': f'https://github.com/datell1357/zcre-supporter/releases/download/v{version}/{expected}',
         'length': str(dmg.stat().st_size), 'type': 'application/octet-stream',

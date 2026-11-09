@@ -13,7 +13,7 @@ import Foundation
         #expect(value.accounts[0].observedAt == nil)
         #expect(value.updatedAt != nil)
     }
-    @Test func reopensAndManualClicksReuseTenMinuteCache() async throws {
+    @Test func reopeningUsesCacheButManualRefreshCanFetchEarlier() async throws {
         var clock: TimeInterval = 0; var calls = 0
         let value = try sample()
         let store = CreatorMetricsStore(uptime: { clock }, loader: { _ in calls += 1; return value })
@@ -21,11 +21,23 @@ import Foundation
         let first = store.refresh(); let duplicate = store.refresh()
         await first?.value; await duplicate?.value
         #expect(calls == 1)
-        store.stop(); clock = 599
+        let checkedAt = store.lastCheckedAt
+        #expect(checkedAt != nil)
+        store.stop(); clock = 59
+        #expect(store.refresh(manual: true) == nil)
+        clock = 60
+        await store.observeRefreshDeadline()
+        #expect(store.refreshDeadline == nil)
+        #expect(store.canRefresh)
         #expect(store.refresh() == nil)
-        clock = 600
-        await store.refresh()?.value
+        await store.refresh(manual: true)?.value
         #expect(calls == 2)
+        clock = 659
+        #expect(store.refresh() == nil)
+        clock = 660
+        await store.refresh()?.value
+        #expect(calls == 3)
+        #expect(store.snapshot?.updatedAt == value.updatedAt)
     }
     @Test func noContextOrDemoMakesNoRequests() async throws {
         var calls = 0; let value = try sample()
@@ -41,11 +53,31 @@ import Foundation
         store.setContext(workspace: "a", demo: false)
         await store.refresh()?.value
         store.stop(); clock = 119
-        #expect(store.refresh() == nil)
+        #expect(store.refresh(manual: true) == nil)
         clock = 120
-        await store.refresh()?.value
+        await store.refresh(manual: true)?.value
         #expect(calls == 2)
         #expect(store.errorMessage != nil)
+    }
+    @Test func failedRefreshKeepsLastSuccessfulDataAndCheckTime() async throws {
+        let value = try sample()
+        var clock: TimeInterval = 0; var calls = 0
+        let store = CreatorMetricsStore(uptime: { clock }, loader: { _ in
+            calls += 1
+            if calls > 1 { throw CreatorMetricsHTTPError(status: 503, retryAfter: 60) }
+            return value
+        })
+        store.setContext(workspace: "a", demo: false)
+        await store.refresh()?.value
+        let checkedAt = store.lastCheckedAt
+        clock = 600
+        await store.refresh()?.value
+        #expect(store.snapshot == value)
+        #expect(store.lastCheckedAt == checkedAt)
+        #expect(store.errorMessage != nil)
+        clock = 660
+        #expect(store.refresh() == nil)
+        #expect(store.canRefresh)
     }
     @Test func contextChangeClearsCacheAndDropsLateResponses() async throws {
         let value = try sample()
@@ -60,6 +92,19 @@ import Foundation
         #expect(store.snapshot == nil)
         #expect(!store.isRefreshing)
         #expect(store.canRefresh)
+    }
+    @Test func closingStopsVisibleRefreshAndDiscardsInFlightResponse() async throws {
+        let value = try sample()
+        var continuation: CheckedContinuation<CreatorMetrics, Never>?
+        let store = CreatorMetricsStore(loader: { _ in await withCheckedContinuation { continuation = $0 } })
+        store.setContext(workspace: "a", demo: false)
+        let visible = Task { await store.refreshWhileVisible() }
+        while continuation == nil { await Task.yield() }
+        store.stop()
+        continuation?.resume(returning: value)
+        await visible.value
+        #expect(store.snapshot == nil)
+        #expect(!store.isRefreshing)
     }
     @Test func hidingCancelsAndLateResponseCannotUpdateCache() async throws {
         let value = try sample()
