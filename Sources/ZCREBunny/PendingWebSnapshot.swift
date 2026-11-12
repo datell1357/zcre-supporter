@@ -11,13 +11,13 @@ final class PendingWebSnapshot {
     private var deadline: Task<Void, Never>?
 
     /// 웹 응답을 비동기로 기다리되 응답이 사라져도 제한 시간 후 대기를 해제한다.
-    func value(timeout: Duration = .seconds(25), start: () -> Void) async throws -> String {
+    func value(timeout: Duration = .seconds(25), timeoutError: Error = SnapshotError.network, start: () -> Void) async throws -> String {
         try await withCheckedThrowingContinuation { continuation in
             if let outcome { continuation.resume(with: outcome); return }
             self.continuation = continuation
             deadline = Task { [weak self] in
                 do { try await Task.sleep(for: timeout) } catch { return }
-                self?.finish(.failure(SnapshotError.network))
+                self?.finish(.failure(timeoutError))
             }
             start()
         }

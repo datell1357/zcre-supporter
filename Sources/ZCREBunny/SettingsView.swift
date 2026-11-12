@@ -19,6 +19,8 @@ struct SettingsView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 5) {
                         Text("지크 설정").font(.system(size: 24, weight: .bold, design: .rounded))
+                        Text("현재 버전 \(AppInfo.version) · 빌드 \(AppInfo.build) · 베타")
+                            .font(.system(size: 11, weight: .medium)).foregroundStyle(BunnyTheme.muted).monospacedDigit()
                         Text("편안한 작업 리듬에 맞춰 주세요.").font(.system(size: 12)).foregroundStyle(BunnyTheme.muted)
                     }
                     Spacer()
@@ -125,7 +127,7 @@ struct SettingsView: View {
                         Toggle("새 버전 자동 확인", isOn: Binding(get: { store.updates.automatic }, set: { store.updates.automatic = $0 }))
                         Text(store.updates.message).font(.system(size: 11)).foregroundStyle(BunnyTheme.muted)
                         HStack {
-                            Button(store.updates.isChecking ? "확인 중…" : "업데이트 확인") { Task { await store.updates.check() } }
+                            Button(store.updates.isChecking ? "확인 중…" : "업데이트 확인") { Task { await store.updates.check(manual: true) } }
                                 .buttonStyle(ZCREButtonStyle()).disabled(store.updates.isChecking || store.isOffline)
                             Button("업데이트 설치 및 재시작") { store.updates.installUpdate() }
                                 .buttonStyle(ZCREButtonStyle(prominent: true)).disabled(store.isOffline)
@@ -144,7 +146,7 @@ struct SettingsView: View {
                     Divider()
                     Button("진단 정보 내보내기…") { DiagnosticsExporter.export(store: store, loginItem: loginItem) }
                         .buttonStyle(.plain).foregroundStyle(BunnyTheme.accent)
-                    Text("앱·macOS 버전과 연결 상태를 저장해요. 계정, 잔액과 작업 내용은 포함하지 않아요.")
+                    Text("앱·macOS 버전, 연결 상태와 기능별 횟수·처리 시간을 저장해요. 계정, 잔액, 작업 내용과 URL은 포함하지 않아요.")
                         .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted)
                 }
                 section("디버그 모드") {
@@ -172,7 +174,6 @@ struct SettingsView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.build)) · 베타").font(.system(size: 11, weight: .medium))
                     Text("작업은 5초, 크레딧은 60초마다 확인해요.\n작업 상태가 바뀌면 크레딧도 바로 확인해요.\nMac이 잠자거나 앱이 종료되면 알림도 쉬어요.")
                         .font(.system(size: 10)).foregroundStyle(BunnyTheme.muted).lineSpacing(4)
                     Button("앱 종료") { NSApp.terminate(nil) }.buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(BunnyTheme.muted).padding(.top, 6)

@@ -10,6 +10,7 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     var outputCache: [String: (until: Date, outputs: [JobOutput])] = [:]
     var outputsRetryAt = Date.distantPast
     var outputGeneration = 0
+    var pendingOutputs: PendingWebSnapshot?
     private var window: NSWindow?
     private var closeAfterConnection = false
     private var popups: [NSWindow] = []
@@ -77,6 +78,18 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     // MARK: - 인증된 데이터 읽기
     /// 웹 내부에서 조회한 최소 메타데이터를 검증해 네이티브 모델로 변환한다. 토큰은 네이티브로 전달하지 않는다.
     func snapshot(activeIDs: [String], previous: WorkspaceSnapshot?, forceBalance: Bool = false) async throws -> WorkspaceSnapshot {
+        let started = ProcessInfo.processInfo.systemUptime
+        do {
+            let value = try await readSnapshot(activeIDs: activeIDs, previous: previous, forceBalance: forceBalance)
+            DiagnosticMetrics.shared.record(.accountSnapshot, started: started, outcome: .success)
+            return value
+        } catch {
+            DiagnosticMetrics.shared.record(.accountSnapshot, started: started, outcome: DiagnosticOutcome.failure(error), status: DiagnosticOutcome.httpStatus(error))
+            throw error
+        }
+    }
+
+    private func readSnapshot(activeIDs: [String], previous: WorkspaceSnapshot?, forceBalance: Bool) async throws -> WorkspaceSnapshot {
         start()
         // 페이지 새로고침을 로그아웃으로 취급하지 않고 계정 확인까지 추적 작업을 유지한다.
         guard isLoaded else { throw SnapshotError.network }
@@ -210,12 +223,14 @@ final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate, NSWindowDe
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         guard webView === self.webView else { return }
         isLoaded = false
+        cancelOutputs()
         pendingSnapshot?.finish(.failure(CancellationError()))
     }
     /// WebKit 프로세스 종료 시 대기 요청을 해제하고 페이지를 복구한다.
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
         guard webView === self.webView else { return }
         isLoaded = false
+        cancelOutputs()
         pendingSnapshot?.finish(.failure(CancellationError()))
         webView.reload()
     }

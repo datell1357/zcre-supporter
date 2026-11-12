@@ -78,11 +78,16 @@ final class AppUpdateStore {
     #if canImport(Sparkle)
     @ObservationIgnored private var updaterController: SPUStandardUpdaterController?
     #endif
-    @ObservationIgnored private var nextCheck = Date.distantPast
+    @ObservationIgnored private var nextAutomatic: TimeInterval = 0
+    @ObservationIgnored private var nextRequest: TimeInterval = 0
+    @ObservationIgnored private let uptime: () -> TimeInterval
+    @ObservationIgnored private let session: URLSession
+    private(set) var retryAt: Date?
     @ObservationIgnored var networkAvailable: () -> Bool = { true }
     @ObservationIgnored var didFindUpdate: (() -> Void)?
 
-    init(defaults: UserDefaults = .standard, isAppStore: Bool? = nil, currentVersion: String = AppInfo.version) {
+    init(defaults: UserDefaults = .standard, isAppStore: Bool? = nil, currentVersion: String = AppInfo.version, session: URLSession = .shared, uptime: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }) {
+        self.session = session; self.uptime = uptime
         self.defaults = defaults
         self.currentVersion = currentVersion
         self.isAppStore = isAppStore ?? (Bundle.main.object(forInfoDictionaryKey: "ZCREDistribution") as? String == "app-store" || Bundle.main.appStoreReceiptURL.map { FileManager.default.fileExists(atPath: $0.path) } == true)
@@ -108,33 +113,55 @@ final class AppUpdateStore {
     }
     func stop() { loop?.cancel(); loop = nil }
 
-    func check() async {
-        guard !isAppStore, !isChecking, networkAvailable(), Date.now >= nextCheck else { return }
-        isChecking = true; nextCheck = .now.addingTimeInterval(60)
+    func check(manual: Bool = false) async {
+        guard !isAppStore, !isChecking, networkAvailable() else { return }
+        let now = uptime()
+        let allowed = manual ? nextRequest : max(nextRequest, nextAutomatic)
+        guard now >= allowed else {
+            if manual {
+                retryAt = .now.addingTimeInterval(allowed - now)
+                message = "다음 업데이트 확인 · \(retryAt!.formatted(date: .omitted, time: .standard)) 이후"
+            }
+            return
+        }
+        isChecking = true; nextRequest = now + 60; retryAt = nil
+        let started = ProcessInfo.processInfo.systemUptime
+        var outcome = DiagnosticOutcome.networkError
+        var status: Int?
+        defer { DiagnosticMetrics.shared.record(.updateCheck, started: started, outcome: outcome, status: status) }
         defer { isChecking = false }
         do {
             var request = URLRequest(url: URL(string: "https://api.github.com/repos/datell1357/zcre-supporter/releases/latest")!)
             request.timeoutInterval = 20
             request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             try Task.checkCancellation()
             guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+            status = http.statusCode
             if http.statusCode == 403 || http.statusCode == 429 {
                 let retry = HTTPRetryAfter.seconds(http.value(forHTTPHeaderField: "Retry-After"), relativeTo: .now)
-                nextCheck = .now.addingTimeInterval(max(3600, min(86400, retry)))
+                nextRequest = uptime() + max(3600, min(86400, retry))
+                retryAt = .now.addingTimeInterval(max(3600, min(86400, retry)))
+                outcome = .httpError
                 throw URLError(.resourceUnavailable)
             }
-            guard http.statusCode == 200, data.count <= 1_048_576 else { throw URLError(.badServerResponse) }
+            guard http.statusCode == 200 else { outcome = .httpError; throw URLError(.badServerResponse) }
+            guard data.count <= 1_048_576 else { throw URLError(.badServerResponse) }
             let value = try JSONDecoder().decode(AppRelease.self, from: data)
-            nextCheck = .now.addingTimeInterval(43_200)
+            nextAutomatic = uptime() + 43_200
+            outcome = .success
             if value.isNewer(than: currentVersion) {
                 let changed = release?.tagName != value.tagName
                 release = value
                 message = "\(value.tagName) 업데이트가 있어요"
                 if changed { didFindUpdate?() }
             } else { release = nil; message = "최신 버전을 사용 중이에요 · \(currentVersion)" }
-        } catch is CancellationError { }
-        catch { message = "업데이트를 확인하지 못했어요 · 잠시 후 다시 시도해 주세요" }
+        } catch is CancellationError { outcome = .cancelled }
+        catch {
+            if outcome != .httpError { outcome = DiagnosticOutcome.failure(error) }
+            message = retryAt.map { "업데이트 확인 제한 · \($0.formatted(date: .omitted, time: .standard)) 이후 다시 시도해 주세요" }
+                ?? "업데이트를 확인하지 못했어요 · 잠시 후 다시 시도해 주세요"
+        }
     }
     /// 설치는 Sparkle이 서명 검증·앱 교체·재실행까지 수행한다. 사용자가 누르기 전에는 실행하지 않는다.
     func installUpdate() {

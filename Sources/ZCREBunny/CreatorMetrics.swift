@@ -150,6 +150,20 @@ extension WebSession {
 
     /// 인증은 기존 WebKit 안에 유지하고 최소 JSON만 네이티브로 반환한다.
     func creatorMetrics(workspace: String) async throws -> CreatorMetrics {
+        let started = ProcessInfo.processInfo.systemUptime
+        do {
+            let value = try await readCreatorMetrics(workspace: workspace)
+            DiagnosticMetrics.shared.record(.creatorMetrics, started: started, outcome: .success, status: 200)
+            return value
+        } catch {
+            let status = (error as? CreatorMetricsHTTPError)?.status
+            DiagnosticMetrics.shared.record(.creatorMetrics, started: started,
+                outcome: status == nil ? DiagnosticOutcome.failure(error) : .httpError, status: status)
+            throw error
+        }
+    }
+
+    private func readCreatorMetrics(workspace: String) async throws -> CreatorMetrics {
         guard isLoaded, let url = Bundle.module.url(forResource: "ReadCreatorMetrics", withExtension: "js") else { throw SnapshotError.network }
         let script = try String(contentsOf: url, encoding: .utf8)
         // WebKit이 응답하지 않아도 새로고침 버튼이 계속 잠기지 않도록 네이티브에서도 제한한다.

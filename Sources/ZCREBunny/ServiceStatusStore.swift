@@ -89,6 +89,10 @@ final class ServiceStatusStore {
                 }
             }
             var retryAfter: TimeInterval = 0
+            let started = ProcessInfo.processInfo.systemUptime
+            var outcome = DiagnosticOutcome.networkError
+            var status: Int?
+            defer { DiagnosticMetrics.shared.record(.serviceStatus, started: started, outcome: outcome, status: status) }
             do {
                 var request = URLRequest(url: Self.endpoint)
                 request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -102,6 +106,7 @@ final class ServiceStatusStore {
                 guard let http = response as? HTTPURLResponse,
                       http.url?.scheme == "https", http.url?.host == "www.zcre.co.kr",
                       http.url?.path == Self.endpoint.path else { throw SnapshotError.invalidResponse }
+                status = http.statusCode
                 let serverNow = Self.serverDate(from: http)
                 retryAfter = HTTPRetryAfter.seconds(http.value(forHTTPHeaderField: "Retry-After"), relativeTo: serverNow)
                 if http.statusCode == 304 {
@@ -118,7 +123,10 @@ final class ServiceStatusStore {
                 self.receivedUptime = self.uptime()
                 self.schedule.succeeded(at: self.uptime())
                 self.hasError = false
+                outcome = .success
             } catch {
+                outcome = status.map { (200...299).contains($0) || $0 == 304 ? DiagnosticOutcome.failure(error) : .httpError }
+                    ?? DiagnosticOutcome.failure(error)
                 guard !Task.isCancelled, self.generation == current else { return }
                 self.schedule.failed(at: self.uptime(), retryAfter: retryAfter, jitter: self.jitter())
                 self.hasError = true

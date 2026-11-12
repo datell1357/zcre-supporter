@@ -28,6 +28,14 @@ struct ZCREBunnyApp {
             app.run()
             return
         }
+        // 명시적 점검 실행에서는 메뉴·펫·알림·로그인 창을 만들지 않는다.
+        if let index = CommandLine.arguments.firstIndex(of: "--verify-live-account"), CommandLine.arguments.count > index + 1 {
+            let report = URL(fileURLWithPath: CommandLine.arguments[index + 1])
+            app.setActivationPolicy(.prohibited)
+            Task { await LiveAccountVerification.run(reportURL: report); app.terminate(nil) }
+            app.run()
+            return
+        }
         let delegate = AppDelegate()
         app.delegate = delegate
         app.setActivationPolicy(CommandLine.arguments.contains("--inspect-ui") ? .regular : .accessory)

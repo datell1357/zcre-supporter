@@ -60,20 +60,57 @@ enum JobResultLink {
 
 extension WebSession {
     /// 결과창을 열 때 한 번만 GET한다. 계정별 30초 메모리 캐시로 반복 열기 요청을 줄인다.
-    func outputs(for requestID: String, workspace: String) async throws -> [JobOutput] {
+    func outputs(for requestID: String, workspace: String, forceRefresh: Bool = false) async throws -> [JobOutput] {
         let key = workspace + ":" + requestID
-        if let hit = outputCache[key], hit.until > .now { return hit.outputs }
-        guard Date.now >= outputsRetryAt, isLoaded,
+        if !forceRefresh, let hit = outputCache[key], hit.until > .now { return hit.outputs }
+        if Date.now < outputsRetryAt {
+            let wait = outputsRetryAt.timeIntervalSinceNow
+            guard forceRefresh, wait <= 5 else { throw SnapshotError.network }
+            try await Task.sleep(for: .seconds(wait))
+        }
+        try Task.checkCancellation()
+        guard isLoaded,
               let sourceURL = Bundle.module.url(forResource: "ReadOutputs", withExtension: "js") else { throw SnapshotError.network }
         outputsRetryAt = .now.addingTimeInterval(5)
         let generation = outputGeneration
         let script = try String(contentsOf: sourceURL, encoding: .utf8)
-        let value = try await webView.callAsyncJavaScript(script, arguments: ["requestID": requestID, "workspaceKey": workspace], in: nil, contentWorld: .page)
+        let started = ProcessInfo.processInfo.systemUptime
+        var outcome = DiagnosticOutcome.invalidResponse
+        var status: Int?
+        defer { DiagnosticMetrics.shared.record(.resultLookup, started: started, outcome: outcome, status: status) }
+        let pending = PendingWebSnapshot()
+        pendingOutputs?.finish(.failure(CancellationError()))
+        pendingOutputs = pending
+        defer { if pendingOutputs === pending { pendingOutputs = nil } }
+        let json: String
+        do {
+            json = try await withTaskCancellationHandler {
+                try Task.checkCancellation()
+                return try await pending.value(timeoutError: URLError(.timedOut)) {
+                    webView.callAsyncJavaScript(script, arguments: ["requestID": requestID, "workspaceKey": workspace], in: nil, in: .page) { result in
+                        pending.finish(result.flatMap { value in
+                            guard let json = value as? String else { return .failure(SnapshotError.invalidResponse) }
+                            return .success(json)
+                        })
+                    }
+                }
+            } onCancel: {
+                Task { @MainActor in
+                    if self.pendingOutputs === pending { self.cancelOutputs() }
+                    else { pending.finish(.failure(CancellationError())) }
+                }
+            }
+        } catch {
+            outcome = DiagnosticOutcome.failure(error)
+            if pendingOutputs === pending { cancelOutputs() }
+            throw error
+        }
         try Task.checkCancellation()
         guard outputGeneration == generation else { throw SnapshotError.accountChanged }
-        guard let json = value as? String, let data = json.data(using: .utf8) else { throw SnapshotError.invalidResponse }
+        guard let data = json.data(using: .utf8), data.count <= 262_144 else { throw SnapshotError.invalidResponse }
         let payload = try JSONDecoder().decode(JobOutputsPayload.self, from: data)
         if let code = payload.error {
+            status = code; outcome = .httpError
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
@@ -87,14 +124,21 @@ extension WebSession {
         if outputCache.count >= 20 { outputCache.removeAll() }
         let ttl = min(30, outputs.map { max(0, ($0.expires ?? 30) - 5) }.min() ?? 0)
         outputCache[key] = (.now.addingTimeInterval(ttl), outputs)
+        outcome = .success; status = 200
         return outputs
+    }
+
+    /// 결과 조회만 취소한다. 다른 기능의 WebKit 요청은 유지한다.
+    func cancelOutputs() {
+        pendingOutputs?.finish(.failure(CancellationError()))
+        webView.evaluateJavaScript("window.__zcreSupporterOutputAbort?.abort()", completionHandler: nil)
     }
 
     /// 로그아웃·계정 전환 시 결과 캐시와 진행 중 조회를 폐기한다.
     func clearOutputs() {
-        ResultImageCache.cache.removeAllObjects()
+        ResultImageCache.clear()
         outputGeneration += 1
         outputCache.removeAll(); outputsRetryAt = .distantPast
-        webView.evaluateJavaScript("window.__zcreSupporterOutputAbort?.abort()", completionHandler: nil)
+        cancelOutputs()
     }
 }
