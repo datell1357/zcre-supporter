@@ -12,7 +12,7 @@ let package = Package(
     dependencies: storeBuild ? [] : [.package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.10.1")],
     targets: [
         .target(name: "ZCRECore"),
-        .executableTarget(name: "ZCREBunny", dependencies: [.target(name: "ZCRECore")] + (storeBuild ? [] : [.product(name: "Sparkle", package: "Sparkle")]), resources: [.copy("Resources/ReadSnapshot.js"), .copy("Resources/ReadOutputs.js"), .copy("Resources/ReadCreatorMetrics.js"), .copy("Resources/ObserveSession.js"), .copy("Resources/Zic"), .copy("Resources/Sounds"), .copy("Resources/ReviewDemo")], linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]),
+        .executableTarget(name: "ZCREBunny", dependencies: [.target(name: "ZCRECore")] + (storeBuild ? [] : [.product(name: "Sparkle", package: "Sparkle")]), resources: [.copy("Resources/ReadSnapshot.js"), .copy("Resources/ReadOutputs.js"), .copy("Resources/ReadCreatorMetrics.js"), .copy("Resources/ObserveSession.js"), .copy("Resources/ZCUTExportBridge.js"), .copy("Resources/Zic"), .copy("Resources/Sounds"), .copy("Resources/ReviewDemo")], linkerSettings: [.unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])]),
         .testTarget(name: "ZCRECoreTests", dependencies: ["ZCRECore"]),
         .testTarget(name: "ZCREBunnyTests", dependencies: ["ZCREBunny"])
     ]

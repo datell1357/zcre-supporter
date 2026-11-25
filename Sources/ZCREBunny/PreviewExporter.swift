@@ -80,8 +80,8 @@ enum PreviewExporter {
                 try? png.write(to: directory.appendingPathComponent(name + ".png"))
             }
         }
-        for (name, category) in [("home", PetQuickMenu.Category.home), ("image", .image), ("video", .video)] {
-            save(PetQuickMenu(store: store, close: {}, openTool: { _ in }, category: category), "menu-" + name, size: CGSize(width: PetQuickMenu.size, height: PetQuickMenu.size))
+        for (name, category) in [("home", PetQuickMenu.Category.home), ("image", .image), ("video", .video), ("tools", .tools)] {
+            save(PetQuickMenu(store: store, close: {}, openTool: { _ in }, category: category), "menu-" + name, size: PetQuickMenu.previewSize)
         }
         save(PetStatusView(store: store, showSettings: {}), "compact", size: PetStatusView.preferredSize)
         let status = ServiceStatusStore()

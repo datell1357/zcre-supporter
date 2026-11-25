@@ -6,11 +6,11 @@ import ZCRECore
 /// 정해진 공식 경로만 사용한다. 메뉴 열기·분류 선택에는 네트워크 요청이나 파일 업로드가 없다.
 enum ZCREQuickTool: String, CaseIterable, Identifiable {
     case image, characterSheet, partialEdit, backgroundRemoval, imageUpscale, resize
-    case video, videoUpscale, frameInterpolation, videoTranslate
-    case jiujitsu, audio, canvas
+    case video, videoUpscale, frameInterpolation, videoTranslate, videoReframe, depth
+    case jiujitsu, audio, canvas, zcut
     var id: String { rawValue }
     var isImage: Bool { [.image, .characterSheet, .partialEdit, .backgroundRemoval, .imageUpscale, .resize].contains(self) }
-    var isVideo: Bool { [.video, .videoUpscale, .frameInterpolation, .videoTranslate].contains(self) }
+    var isVideo: Bool { [.video, .videoUpscale, .frameInterpolation, .videoTranslate, .videoReframe].contains(self) }
     var title: String {
         switch self {
         case .image: "이미지 생성"
@@ -18,13 +18,16 @@ enum ZCREQuickTool: String, CaseIterable, Identifiable {
         case .partialEdit: "부분 수정"
         case .backgroundRemoval: "배경 제거"
         case .imageUpscale, .videoUpscale: "고화질 변환"
-        case .resize: "크기 변환"
+        case .resize: "사이즈 변환"
         case .video: "영상 생성"
         case .frameInterpolation: "프레임 보간"
         case .videoTranslate: "영상 번역"
+        case .videoReframe: "세로 영상 변환"
+        case .depth: "뎁스 맵"
         case .jiujitsu: "주짓수"
         case .audio: "오디오"
         case .canvas: "캔버스"
+        case .zcut: "ZCUT"
         }
     }
     var symbol: String {
@@ -38,69 +41,99 @@ enum ZCREQuickTool: String, CaseIterable, Identifiable {
         case .video: "video.badge.plus"
         case .frameInterpolation: "film.stack"
         case .videoTranslate: "captions.bubble"
+        case .videoReframe: "rectangle.portrait"
+        case .depth: "cube"
         case .jiujitsu: "figure.martial.arts"
         case .audio: "waveform"
         case .canvas: "square.stack.3d.up"
+        case .zcut: "scissors"
         }
     }
     var url: URL {
-        let path: String = switch self {
-        case .image: "/studio/image"
-        case .characterSheet: "/studio/character-sheet"
-        case .partialEdit: "/studio/partial-edit"
-        case .backgroundRemoval: "/studio/image?tool=background-removal"
-        case .imageUpscale: "/studio/image?tool=upscale"
-        case .resize: "/studio/image?tool=resize"
-        case .video: "/studio/video"
-        case .videoUpscale: "/studio/image?tool=upscale&media=video"
-        case .frameInterpolation: "/studio/frame-interpolation"
-        case .videoTranslate: "/studio/video-translate"
-        case .jiujitsu: "/studio/jiujitsu"
-        case .audio: "/studio/audio"
-        case .canvas: "/studio/canvas"
+        let address: String = switch self {
+        case .image: "https://www.zcre.co.kr/studio/image"
+        case .characterSheet: "https://www.zcre.co.kr/studio/character-sheet"
+        case .partialEdit: "https://www.zcre.co.kr/studio/partial-edit"
+        case .backgroundRemoval: "https://www.zcre.co.kr/studio/image?tool=background-removal"
+        case .imageUpscale: "https://www.zcre.co.kr/studio/image?tool=upscale"
+        case .resize: "https://www.zcre.co.kr/studio/image?tool=resize"
+        case .video: "https://www.zcre.co.kr/studio/video"
+        case .videoUpscale: "https://www.zcre.co.kr/studio/image?tool=upscale&media=video"
+        case .frameInterpolation: "https://www.zcre.co.kr/studio/frame-interpolation"
+        case .videoTranslate: "https://www.zcre.co.kr/studio/video-translate"
+        case .videoReframe: "https://www.zcre.co.kr/studio/video-reframe"
+        case .depth: "https://www.zcre.co.kr/studio/video-depth"
+        case .jiujitsu: "https://www.zcre.co.kr/studio/jiujitsu"
+        case .audio: "https://www.zcre.co.kr/studio/audio"
+        case .canvas: "https://www.zcre.co.kr/studio/canvas"
+        case .zcut: "https://zcut.ai/projects"
         }
-        return URL(string: "https://www.zcre.co.kr" + path)!
+        return URL(string: address)!
+    }
+
+    /// 작업 창 도구 메뉴의 분류. 지크 원형 메뉴의 이미지·영상·오디오·도구와 같다.
+    static let groups: [(title: String, tools: [ZCREQuickTool])] = [
+        ("이미지", allCases.filter(\.isImage)),
+        ("영상", allCases.filter(\.isVideo)),
+        ("오디오", [.audio]),
+        ("도구", [.jiujitsu, .zcut, .canvas, .depth])
+    ]
+
+    /// 웹 안에서 이동한 주소가 어떤 도구 화면인지 찾는다. 경로와 쿼리가 모두 같은 도구를 우선한다.
+    static func matching(_ url: URL) -> ZCREQuickTool? {
+        guard let parts = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
+        let host = (parts.host ?? "").replacingOccurrences(of: "www.", with: "")
+        let query = Set(parts.queryItems?.filter { ["tool", "media"].contains($0.name) }.map { "\($0.name)=\($0.value ?? "")" } ?? [])
+        return allCases.first { tool in
+            guard let target = URLComponents(url: tool.url, resolvingAgainstBaseURL: false) else { return false }
+            let targetQuery = Set(target.queryItems?.map { "\($0.name)=\($0.value ?? "")" } ?? [])
+            let targetHost = (target.host ?? "").replacingOccurrences(of: "www.", with: "")
+            let samePath = tool == .zcut
+                ? (parts.path.hasPrefix("/projects") || parts.path.hasPrefix("/editor/"))
+                : target.path == parts.path
+            return targetHost == host && samePath && targetQuery == query
+        }
     }
 }
 
 struct PetQuickMenu: View {
-    enum Category { case home, image, video }
+    enum Category { case home, image, video, tools }
     var store: CompanionStore
     var close: () -> Void
     var openTool: (ZCREQuickTool) -> Void
     @State var category: Category = .home
-    static let size: CGFloat = 560
+    static let previewSize = CGSize(width: 980, height: 560)
 
     /// 미리보기에서도 운영 메뉴와 같은 배치를 사용한다. 중앙에는 배경과 버튼을 그리지 않는다.
     var body: some View {
         let items = QuickMenuItem.items(category)
-        let layout = PetQuickMenuLayout(anchor: CGRect(x: 235, y: 225, width: 90, height: 110),
-                                        screen: CGRect(x: 0, y: 0, width: Self.size, height: Self.size), count: items.count, home: category == .home)
+        let screen = CGRect(origin: .zero, size: Self.previewSize)
+        let anchor = CGRect(x: (screen.width - 90) / 2, y: (screen.height - 110) / 2, width: 90, height: 110)
+        let layout = PetQuickMenuLayout(anchor: anchor, screen: screen, count: items.count, home: category == .home)
         ZStack(alignment: .topLeading) {
-            MenuArc().stroke(BunnyTheme.border, lineWidth: 1)
+            Circle().stroke(BunnyTheme.border, lineWidth: 1)
                 .frame(width: layout.radius * 2, height: layout.radius * 2)
-                .position(x: 280, y: 280)
+                .position(x: anchor.midX, y: Self.previewSize.height - anchor.midY)
             PetStatusView(store: store, showSettings: {}, showsSettings: false)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(BunnyTheme.border))
-                .position(x: layout.summary.midX, y: Self.size - layout.summary.midY)
+                .position(x: layout.summary.midX, y: Self.previewSize.height - layout.summary.midY)
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 if layout.buttons.indices.contains(index) {
                     QuickMenuButton(item: item, size: layout.buttons[index].width) {
                         switch item.action {
                         case .category(let next): category = next
-                        case .close: close()
                         case .tool(let tool): openTool(tool)
                         }
-                    }.position(x: layout.buttons[index].midX, y: Self.size - layout.buttons[index].midY)
+                    }.position(x: layout.buttons[index].midX, y: Self.previewSize.height - layout.buttons[index].midY)
                 }
             }
-        }.frame(width: Self.size, height: Self.size).preferredColorScheme(.dark)
+        }.frame(width: Self.previewSize.width, height: Self.previewSize.height).preferredColorScheme(.dark)
     }
 }
 
 private struct QuickMenuItem: Identifiable {
-    enum Action { case category(PetQuickMenu.Category), tool(ZCREQuickTool), close }
+    enum Action { case category(PetQuickMenu.Category), tool(ZCREQuickTool) }
     let id: String
     let title: String
     let symbol: String
@@ -109,24 +142,17 @@ private struct QuickMenuItem: Identifiable {
         if category == .home {
             return [.init(id: "image", title: "이미지", symbol: "photo", action: .category(.image)),
                     .init(id: "video", title: "영상", symbol: "video", action: .category(.video)),
-                    .init(id: "jiujitsu", title: "주짓수", symbol: ZCREQuickTool.jiujitsu.symbol, action: .tool(.jiujitsu)),
                     .init(id: "audio", title: "오디오", symbol: ZCREQuickTool.audio.symbol, action: .tool(.audio)),
-                    .init(id: "close", title: "닫기", symbol: "xmark", action: .close),
-                    .init(id: "canvas", title: "캔버스", symbol: ZCREQuickTool.canvas.symbol, action: .tool(.canvas))]
+                    .init(id: "tools", title: "도구", symbol: "wrench.and.screwdriver", action: .category(.tools))]
+        }
+        if category == .tools {
+            return [.jiujitsu, .zcut, .canvas, .depth, .resize]
+                .map { .init(id: $0.id, title: $0.title, symbol: $0.symbol, action: .tool($0)) }
+                + [.init(id: "back", title: "뒤로", symbol: "arrow.left", action: .category(.home))]
         }
         return ZCREQuickTool.allCases.filter { category == .video ? $0.isVideo : $0.isImage }
             .map { .init(id: $0.id, title: $0.title, symbol: $0.symbol, action: .tool($0)) }
-            + [.init(id: "back", title: "뒤로", symbol: "arrow.left", action: .category(.home)),
-               .init(id: "close", title: "닫기", symbol: "xmark", action: .close)]
-    }
-}
-
-private struct MenuArc: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.addArc(center: CGPoint(x: rect.midX, y: rect.midY), radius: rect.width / 2,
-                    startAngle: .degrees(-45), endAngle: .degrees(225), clockwise: false)
-        return path
+            + [.init(id: "back", title: "뒤로", symbol: "arrow.left", action: .category(.home))]
     }
 }
 
@@ -136,16 +162,19 @@ private struct QuickMenuButton: View {
     let action: () -> Void
     @State private var hovered = false
     var body: some View {
+        let compact = size < 52
+        let tiny = size < 46
         Button(action: action) {
-            VStack(spacing: 2) {
-                Image(systemName: item.symbol).font(.system(size: 16, weight: .medium))
-                    .frame(height: 16)
-                // 긴 도구명은 단어 경계에서 두 줄로 나눠 원 안의 안전한 폭에 넣는다.
+            VStack(spacing: tiny ? 1 : compact ? 2 : 3) {
+                Image(systemName: item.symbol).font(.system(size: tiny ? 12 : compact ? 14 : 16, weight: .medium))
+                    .frame(height: tiny ? 12 : compact ? 14 : 16)
                 Text(item.title.replacingOccurrences(of: " ", with: "\n"))
-                    .font(.system(size: 10.5, weight: .semibold))
-                    .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.9)
-                    .frame(width: 40, height: 26)
-            }.frame(width: size, height: size)
+                    .font(.system(size: tiny ? 9 : compact ? 9.5 : 10, weight: .semibold))
+                    .multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.85)
+                    .lineSpacing(-1)
+                    .frame(width: tiny ? 35 : compact ? 39 : 44)
+            }.padding(.vertical, tiny ? 3 : compact ? 5 : 6)
+                .frame(width: size, height: size)
                 .foregroundStyle(BunnyTheme.foreground)
                 .background(hovered ? BunnyTheme.elevated : BunnyTheme.surface, in: Circle())
                 .overlay(Circle().strokeBorder(hovered ? BunnyTheme.accent : BunnyTheme.border))
@@ -206,9 +235,11 @@ private struct QuickMenuButton: View {
         panels.removeAll(); decoration?.orderOut(nil); decoration = nil
         let items = QuickMenuItem.items(category)
         let layout = PetQuickMenuLayout(anchor: anchor, screen: screen, count: items.count, home: category == .home, labelWidth: labelWidth)
-        let radius = layout.radius
-        decoration = makePanel(MenuArc().stroke(BunnyTheme.border.opacity(0.8), lineWidth: 1),
-                               frame: CGRect(x: anchor.midX - radius, y: anchor.midY - radius, width: radius * 2, height: radius * 2), decorative: true)
+        decoration = makePanel(
+            Circle().stroke(BunnyTheme.border.opacity(0.8), lineWidth: 1),
+            frame: CGRect(x: anchor.midX - layout.radius, y: anchor.midY - layout.radius, width: layout.radius * 2, height: layout.radius * 2),
+            decorative: true
+        )
         let summary = PetStatusView(store: store, showSettings: {}, showsSettings: false)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(BunnyTheme.border))
@@ -217,7 +248,6 @@ private struct QuickMenuButton: View {
             panels.append(makePanel(QuickMenuButton(item: item, size: layout.buttons[index].width) { [weak self] in
                 guard let self else { return }
                 switch item.action {
-                case .close: self.close()
                 case .category(let next): self.category = next; self.rebuild()
                 case .tool(let tool): let open = self.openTool; self.close(); open?(tool)
                 }

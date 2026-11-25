@@ -3,24 +3,33 @@ import XCTest
 
 final class PetQuickMenuTests: XCTestCase {
     func testAllToolsStayOnOfficialHTTPSOrigin() {
-        XCTAssertEqual(ZCREQuickTool.allCases.count, 13)
+        XCTAssertEqual(ZCREQuickTool.allCases.count, 16)
         for tool in ZCREQuickTool.allCases {
             XCTAssertEqual(tool.url.scheme, "https")
-            XCTAssertEqual(tool.url.host, "www.zcre.co.kr")
-            XCTAssertTrue(tool.url.path.hasPrefix("/studio/"))
+            if tool == .zcut {
+                XCTAssertEqual(tool.url.host, "zcut.ai")
+                XCTAssertEqual(tool.url.path, "/projects")
+            } else {
+                XCTAssertEqual(tool.url.host, "www.zcre.co.kr")
+                XCTAssertTrue(tool.url.path.hasPrefix("/studio/"))
+            }
         }
     }
     func testImageAndVideoToolsAreSeparated() {
         XCTAssertEqual(ZCREQuickTool.allCases.filter { $0.isImage }.count, 6)
-        XCTAssertEqual(ZCREQuickTool.allCases.filter(\.isVideo).count, 4)
+        XCTAssertEqual(ZCREQuickTool.allCases.filter(\.isVideo).count, 5)
         XCTAssertTrue(ZCREQuickTool.videoUpscale.isVideo)
+        XCTAssertTrue(ZCREQuickTool.videoReframe.isVideo)
         XCTAssertFalse(ZCREQuickTool.imageUpscale.isVideo)
     }
     func testDirectToolsUseOfficialPagesWithoutEnteringImageMenus() {
         XCTAssertEqual(ZCREQuickTool.jiujitsu.url.path, "/studio/jiujitsu")
         XCTAssertEqual(ZCREQuickTool.audio.url.path, "/studio/audio")
         XCTAssertEqual(ZCREQuickTool.canvas.url.path, "/studio/canvas")
-        for tool in [ZCREQuickTool.jiujitsu, .audio, .canvas] {
+        XCTAssertEqual(ZCREQuickTool.depth.url.path, "/studio/video-depth")
+        XCTAssertEqual(ZCREQuickTool.videoReframe.url.path, "/studio/video-reframe")
+        XCTAssertEqual(ZCREQuickTool.resize.url.path, "/studio/image")
+        for tool in [ZCREQuickTool.jiujitsu, .audio, .depth, .canvas] {
             XCTAssertFalse(tool.isImage)
             XCTAssertFalse(tool.isVideo)
         }

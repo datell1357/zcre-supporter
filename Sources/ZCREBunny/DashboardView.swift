@@ -184,7 +184,7 @@ struct DashboardView: View {
             Button { store.refreshSoon(forceBalance: true) } label: {
                 Image(systemName: "arrow.clockwise").opacity(store.isRefreshing ? 0.4 : 1)
             }.buttonStyle(.plain).disabled(store.isRefreshing || store.isDemo).accessibilityLabel("현황 새로고침")
-            Button("ZCRE 열기 ↗") { CompanionStore.openWebsite() }.buttonStyle(.plain).padding(.leading, 8)
+            Button("ZCRE 열기") { CompanionStore.openWebsite() }.buttonStyle(.plain).padding(.leading, 8)
         }.font(.system(size: 9)).foregroundStyle(BunnyTheme.muted).padding(.horizontal, 22).padding(.vertical, 14)
             .background(BunnyTheme.background)
             .overlay(alignment: .top) { Rectangle().fill(BunnyTheme.border).frame(height: 1) }

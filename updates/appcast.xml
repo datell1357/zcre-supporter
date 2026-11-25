@@ -3,12 +3,12 @@
   <channel>
     <title>ZCRE 서포터 업데이트</title>
     <item>
-      <title>ZCRE 서포터 0.4.4</title>
-      <sparkle:version>31</sparkle:version>
-      <sparkle:shortVersionString>0.4.4</sparkle:shortVersionString>
+      <title>ZCRE 서포터 0.5.0</title>
+      <sparkle:version>32</sparkle:version>
+      <sparkle:shortVersionString>0.5.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <description>결과 다운로드 진행률·취소·안전한 저장, 만료 주소 재시도, 수동 업데이트 확인과 진단 개선</description>
-      <enclosure url="https://github.com/datell1357/zcre-supporter/releases/download/v0.4.4/ZCRE-Supporter-0.4.4-macOS-universal-notarized.dmg" length="59598671" type="application/octet-stream" sparkle:edSignature="L0F3J5+Ci6/aDv5F8eFXKYnxZlhsfOhsNTC8p/EbwNaBBQmrSUArSk8JH+GWaF2WiuZZljn5YJDmpb++G9AfBw==" />
+      <description>ZCRE 도구를 앱 안의 한 창에서 전환하고 ZCUT 프로젝트를 편집·내보낼 수 있습니다.</description>
+      <enclosure url="https://github.com/datell1357/zcre-supporter/releases/download/v0.5.0/ZCRE-Supporter-0.5.0-macOS-universal-notarized.dmg" length="59625868" type="application/octet-stream" sparkle:edSignature="nfr3dN8CjxItlZX2UFfFW/+8bRDk4DoKYcbM7AhY55kN1sR2ctJaV+5RNPjsaC1ZTqIwia9CuCvrPGgjliuPBw==" />
     </item>
   </channel>
 </rss>

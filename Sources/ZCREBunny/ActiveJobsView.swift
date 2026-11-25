@@ -21,7 +21,7 @@ struct ActiveJobsView: View {
                             .font(.system(size: 12)).foregroundStyle(BunnyTheme.muted).padding(.vertical, 20)
                     }
                     ForEach(store.activeJobs) { job in
-                        Button { NSWorkspace.shared.open(JobResultLink.url(for: job)) } label: {
+                        Button { ZCREWorkspaceController.shared.show(url: JobResultLink.url(for: job), title: job.workName) } label: {
                             VStack(alignment: .leading, spacing: 10) {
                                 Label(job.workName, systemImage: job.symbol)
                                     .font(.system(size: 13, weight: .semibold)).lineLimit(2)

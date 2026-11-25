@@ -14,6 +14,7 @@ final class PetMotion {
     var direction: WalkDirection = .east
     var testMotion: ZicMotion?
     var testLabel: String?
+    var menuPresented = false
 }
 
 private final class PetPanel: NSPanel {
@@ -411,7 +412,8 @@ struct PetView: View {
                 .overlay(PetInteractionSurface(click: click, beginDrag: beginDrag, drag: drag, endDrag: endDrag, settings: settings, showTests: showTests, debugModeEnabled: store.debugModeEnabled, roaming: store.preferences.roaming, toggleRoaming: { store.preferences.roaming.toggle() }, hide: { store.preferences.petVisible = false }))
             Color.clear.frame(height: 6)
             Group {
-                if let label = motion.testLabel ?? (store.activeJobs.isEmpty ? nil : "\(store.activeJobs.count)개의 작업 중") {
+                if !motion.menuPresented,
+                   let label = motion.testLabel ?? (store.activeJobs.isEmpty ? nil : "\(store.activeJobs.count)개의 작업 중") {
                     Text(label).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
                         .padding(.horizontal, 8).padding(.vertical, 3).background(BunnyTheme.ink.opacity(0.85), in: Capsule())
                 } else { Color.clear }

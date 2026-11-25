@@ -98,7 +98,7 @@ struct MenuBarView: View {
             HStack {
                 Button("상세 현황", action: showDashboard)
                 Spacer()
-                Button("ZCRE 열기 ↗") { CompanionStore.openWebsite() }
+                Button("ZCRE 열기") { CompanionStore.openWebsite() }
             }.buttonStyle(.plain).font(.system(size: 11)).padding(16)
                 .overlay(alignment: .top) { Rectangle().fill(BunnyTheme.border).frame(height: 1) }
         }

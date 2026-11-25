@@ -54,7 +54,7 @@ struct JobResultView: View {
                 if let message { Text(message).font(.caption).foregroundStyle(BunnyTheme.muted) }
                 if let savedFile { Button("저장 폴더 열기") { NSWorkspace.shared.activateFileViewerSelecting([savedFile]) }.buttonStyle(.plain).foregroundStyle(BunnyTheme.accent) }
                 HStack {
-                    Button("결과 열기 ↗") { NSWorkspace.shared.open(JobResultLink.url(for: job)) }
+                    Button("결과 열기") { ZCREWorkspaceController.shared.show(url: JobResultLink.url(for: job), title: job.workName) }
                     Button("다시 확인") { reload += 1 }.disabled(downloading)
                     Spacer()
                     Button(downloading ? "다운로드 중…" : "다운로드") { download() }

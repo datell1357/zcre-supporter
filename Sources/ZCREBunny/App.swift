@@ -56,6 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     private let menuPopover = NSPopover()
     private let petPopover = NSPopover()
     private let quickMenu = PetQuickMenuController()
+    private let workspace = ZCREWorkspaceController.shared
     private var settingsWindow: NSWindow?
     private var dashboardWindow: NSWindow?
     private var resultWindow: NSWindow?
@@ -80,6 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         pet.onBeginDrag = { [weak self] in self?.quickMenu.close() }
         quickMenu.onClose = { [weak self] in
             guard let self else { return }
+            self.pet.motion.menuPresented = false
             self.pet.paused = self.menuPopover.isShown || self.petPopover.isShown
         }
         pet.showSettings = { [weak self] in self?.showSettings() }
@@ -113,7 +115,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
                 NSApp.terminate(nil)
             }
         } else {
-            let explicitWindow = ["--show-dashboard", "--show-menu", "--connect", "--inspect-ui", "--demo"].contains(where: CommandLine.arguments.contains)
+            let explicitWindow = ["--show-dashboard", "--show-menu", "--connect", "--inspect-ui", "--demo", "--show-zcut"].contains(where: CommandLine.arguments.contains)
             let firstLaunch = !UserDefaults.standard.bool(forKey: "hasCompletedFirstLaunch")
             UserDefaults.standard.set(true, forKey: "hasCompletedFirstLaunch")
             // 첫 실행 이후에는 로그인 자동 실행을 포함해 메뉴 막대에서 조용히 감시한다.
@@ -140,6 +142,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
             showDashboard()
         } else if CommandLine.arguments.contains("--connect") {
             store.connect()
+        } else if CommandLine.arguments.contains("--show-zcut") {
+            showZCUT()
         } else {
             showDashboard()
         }
@@ -273,6 +277,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         settings.target = self
         let dashboard = menu.addItem(withTitle: "상세 현황", action: #selector(showDashboard), keyEquivalent: "")
         dashboard.target = self
+        let workspaceItem = menu.addItem(withTitle: "ZCRE 작업 창…", action: #selector(showWorkspace), keyEquivalent: "")
+        workspaceItem.target = self
+        let zcut = menu.addItem(withTitle: "ZCUT 편집기…", action: #selector(showZCUT), keyEquivalent: "")
+        zcut.target = self
+        let updateAvailable = !store.updates.isAppStore && store.updates.release?.isNewer(than: AppInfo.version) == true
+        let updateEnabled = store.updates.isAppStore || updateAvailable
+        let updateTitle = store.updates.isAppStore ? "App Store에서 업데이트" :
+            (updateAvailable ? "\(store.updates.release?.tagName ?? "새 버전") 업데이트 설치…" : "최신 버전 (v\(AppInfo.version))")
+        let update = menu.addItem(
+            withTitle: updateTitle,
+            action: updateEnabled ? #selector(performUpdateFromMenu) : nil,
+            keyEquivalent: ""
+        )
+        update.target = updateEnabled ? self : nil
+        update.isEnabled = updateEnabled
+        update.toolTip = store.updates.message
         if store.debugModeEnabled {
             let tests = menu.addItem(withTitle: "지크 모션 테스트…", action: #selector(showMotionTests), keyEquivalent: "")
             tests.target = self
@@ -281,6 +301,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         menu.addItem(withTitle: "\(AppInfo.name) 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.maxY), in: button)
     }
+
+    /// 상단 바 메뉴에서 해당 배포 채널의 업데이트 화면을 연다.
+    @objc private func performUpdateFromMenu() {
+        if store.updates.isAppStore { store.updates.openDistribution() }
+        else if store.updates.release?.isNewer(than: AppInfo.version) == true { store.updates.installUpdate() }
+    }
     // MARK: - 지크 현황 배치
     /// 지크 주변의 가용 공간을 계산해 간단 현황을 열고 다른 현황 창과 중복 표시되지 않게 한다.
     private func toggleFromPet() {
@@ -288,9 +314,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         dismissMenuAlert(); closeStatusPopovers()
         dashboardWindow?.orderOut(nil)
         quickMenu.show(store: store, anchor: pet.rabbitScreenFrame, screen: pet.visibleScreenFrame, petWindow: pet.panel, labelWidth: pet.quickMenuLabelWidth,
-                       openTool: { tool in NSWorkspace.shared.open(tool.url) })
+                       openTool: { [weak self] tool in
+                           // 모든 도구를 앱 안 작업 창 하나에서 열고, 이미 열려 있으면 화면만 전환한다.
+                           self?.showTool(tool)
+                       })
+        pet.motion.menuPresented = true
         pet.paused = true
         store.refreshForPresentation()
+    }
+
+    private func showTool(_ tool: ZCREQuickTool) {
+        dismissMenuAlert()
+        closeStatusPopovers()
+        workspace.show(tool: tool)
+    }
+
+    /// 지크 메뉴와 상단 바에서 같은 작업 창을 재사용해 ZCUT으로 전환한다.
+    @objc private func showZCUT() {
+        showTool(.zcut)
+    }
+
+    /// 상단 바에서 작업 창을 연다. 이미 열려 있으면 현재 화면을 그대로 앞으로 가져온다.
+    @objc private func showWorkspace() {
+        dismissMenuAlert()
+        closeStatusPopovers()
+        if workspace.isShown, let tool = workspace.currentTool { workspace.show(tool: tool) }
+        else { workspace.show(url: ZCREWorkspaceController.home, title: "ZCRE") }
     }
 
     /// 원형 메뉴의 현황 항목에서 기존 간단 현황을 연다.

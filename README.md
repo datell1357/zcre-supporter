@@ -7,12 +7,12 @@
 
   ZCRE의 크레딧과 작업 현황을 바탕화면에서 확인하는 macOS 동반자
 
-  [![Release](https://img.shields.io/badge/release-v0.4.4-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.4)
+  [![Release](https://img.shields.io/badge/release-v0.5.0-91EDB5?style=flat-square)](https://github.com/datell1357/zcre-supporter/releases/tag/v0.5.0)
   ![macOS](https://img.shields.io/badge/macOS-14%2B-26292f?style=flat-square&logo=apple)
   ![Architecture](https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-26292f?style=flat-square)
   ![Swift](https://img.shields.io/badge/Swift-6-26292f?style=flat-square&logo=swift)
 
-  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.4.4)** · [튜토리얼](#튜토리얼) · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
+  **[다운로드](https://github.com/datell1357/zcre-supporter/releases/tag/v0.5.0)** · [튜토리얼](#튜토리얼) · [시작하기](#시작하기) · [주요 기능](#주요-기능) · [개인정보와 연결](#개인정보와-연결) · [개발](#개발)
 </div>
 
 <br>
@@ -29,7 +29,7 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
 
 | | |
 | --- | --- |
-| **지크를 클릭** | 크레딧·동시 생성 현황과 원형 메뉴를 엽니다. |
+| **지크를 클릭** | 크레딧·동시 생성 현황과 원형 도구 메뉴를 엽니다. |
 | **메뉴 막대를 클릭** | 진행 중 작업, 최근 알림, 서비스 상태를 확인합니다. |
 | **작업이 진행 중일 때** | 지크가 노트북 앞에서 일하고, 메뉴 막대에서는 달리는 모습으로 알려줍니다. |
 | **작업이 끝났을 때** | 완료·실패 알림과 지크의 반응을 볼 수 있습니다. |
@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
 <table>
   <tr>
     <td width="50%"><strong>✦ 크레딧과 작업 현황</strong><br><br>사용 가능한 크레딧과 진행 중인 작업을 한눈에 확인합니다. 작업별로 완료 결과를 열고 저장할 수 있습니다.</td>
-    <td width="50%"><strong>◉ 지크 원형 메뉴</strong><br><br>이미지·영상 도구와 주짓수·오디오·캔버스로 빠르게 이동합니다.</td>
+    <td width="50%"><strong>◉ 지크 원형 메뉴</strong><br><br>이미지·영상·오디오를 바로 열고, 도구에서 주짓수·ZCUT·캔버스·뎁스 맵·사이즈 변환을 고릅니다. 모든 도구는 브라우저 대신 앱 안의 ZCRE 작업 창에서 열립니다.</td>
   </tr>
   <tr>
     <td><strong>↗ 작업 알림</strong><br><br>작업 완료와 실패를 알려줍니다. 작업 종류별 알림과 집중 모드를 설정할 수 있습니다.</td>
@@ -49,11 +49,15 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
     <td><strong>▥ 크리에이터 그래프</strong><br><br>연결한 SNS의 팔로워·구독자 수와 최근 30일 수집 추이를 2×2 그래프로 확인합니다. 탭을 보는 동안 10분마다 조회하고, 새 응답이 오기 전까지 마지막 확인값을 유지합니다.</td>
     <td><strong>↻ 업데이트와 서비스 상태</strong><br><br>서비스 상태는 스크롤 없는 2열로 표시합니다. 설정에서 새 버전 자동 확인과 검증된 설치 파일 다운로드를 사용할 수 있습니다.</td>
   </tr>
+  <tr>
+    <td><strong>▣ ZCRE 작업 창</strong><br><br>ZCUT을 포함한 모든 도구를 창 하나에서 씁니다. 작업 창이 열린 상태에서 지크로 다른 도구를 고르면 같은 창의 화면이 바뀌고, 창 위 도구 메뉴로도 바로 전환합니다. 계정 연결 세션을 함께 써서 다시 로그인할 필요가 없습니다.</td>
+    <td><strong>⇩ 웹 파일 가져오기·내려받기</strong><br><br>ZCUT의 파일 선택, 로그인 팝업, 자바스크립트 확인 창을 macOS 창으로 처리합니다. ZCRE 생성 기록의 클라우드 결과는 저장 위치를 고른 뒤 MP4로 내려받습니다. ZCUT 영상도 앱 안에서 MP4로 내보낼 수 있습니다.</td>
+  </tr>
 </table>
 
 ## 시작하기
 
-1. [v0.4.4 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.4.4/ZCRE-Supporter-0.4.4-macOS-universal-notarized.dmg)을 다운로드합니다.
+1. [v0.5.0 설치 파일](https://github.com/datell1357/zcre-supporter/releases/download/v0.5.0/ZCRE-Supporter-0.5.0-macOS-universal-notarized.dmg)을 다운로드합니다.
 2. DMG를 열고 **ZCRE 서포터.app**을 **Applications** 폴더로 옮긴 뒤, Applications에서 앱을 실행합니다.
 3. 메뉴 막대의 지크를 눌러 **ZCRE 계정 연결**을 선택하고 로그인합니다.
 4. 알림 권한을 허용하면 macOS 시스템 알림도 받을 수 있습니다.
@@ -61,7 +65,7 @@ https://github.com/user-attachments/assets/3a0002f4-ed93-4a57-baee-64e0c139679a
 설정 상단에서 현재 버전과 빌드 번호를 확인할 수 있습니다. 설정의 **업데이트 설치 및 재시작**을 누르면 서명을 확인한 뒤 앱이 교체되고 재시작됩니다. v0.4.1 이하 버전에서 v0.4.2로 올리는 최초 한 번은 DMG로 설치해 주세요. App Store 설치본은 App Store에서 업데이트합니다.
 
 > [!NOTE]
-> macOS v0.4.4는 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
+> macOS v0.5.0은 **Apple Developer ID 서명과 Apple 공증**을 완료한 Universal 앱입니다. 첫 실행 시 macOS의 일반적인 다운로드 앱 확인이 표시될 수 있습니다.
 
 
 로그인 전에는 앱의 **연결 전에 미리 둘러보기**로 가상 작업과 지크를 체험할 수 있습니다. 가상 데이터는 실제 크레딧을 사용하지 않습니다.

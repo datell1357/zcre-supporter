@@ -1,6 +1,6 @@
 # macOS 배포 안내
 
-최신 변경과 검증 범위: [v0.4.1 릴리즈 기록](RELEASE-0.4.1.md). v0.4.1은 Developer ID 서명·공증한 직접 배포본이다. 아래 초기 준비 기록은 과거 이력이다.
+현재 직접 배포 버전은 v0.5.0 (32)이다. GitHub에는 Developer ID 서명·공증된 Universal DMG만 게시한다. 업데이트 피드는 `updates/appcast.xml`이며, 새 릴리스의 DMG 서명과 버전·빌드 번호를 대조한다. 아래 `초기 0.2.20 출시 준비` 절부터는 과거 이력이다. App Store 재제출 계획은 [심사 대응](APP-STORE-RESUBMISSION.md)에 따로 기록한다.
 
 ## 초기 0.2.20 출시 준비
 

@@ -473,9 +473,10 @@ final class CompanionStore {
         alertHistorySaveFailed = !archive.save()
         if !alertHistorySaveFailed { savedAlertHistory = archive }
     }
-    /// 허용된 ZCRE 경로만 기본 브라우저로 연다.
-    static func openWebsite(path: String = "/") {
+    /// 허용된 ZCRE 경로만 앱 안 작업 창에서 연다. 이미 열린 창이 있으면 화면만 전환한다.
+    @MainActor static func openWebsite(path: String = "/") {
         guard ["/", "/history", "/credits", "/mcp", "/status"].contains(path), let url = URL(string: "https://www.zcre.co.kr\(path)") else { return }
-        NSWorkspace.shared.open(url)
+        let titles = ["/": "ZCRE", "/history": "작업 기록", "/credits": "크레딧", "/mcp": "계정 연결", "/status": "서비스 상태"]
+        ZCREWorkspaceController.shared.show(url: url, title: titles[path] ?? "ZCRE")
     }
 }
